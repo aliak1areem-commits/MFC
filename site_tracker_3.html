@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MFC Company | RAN Site Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --navy-950:#050d1a;
+    --navy-900:#0a1a30;
+    --navy-800:#102544;
+    --navy-700:#173563;
+    --blue:#2f6fed;
+    --blue-dim:#2559c2;
+    --teal:#12b8a6;
+    --amber:#dd9a2b;
+    --red:#e0555a;
+    --paper:#eef1f6;
+    --paper-card:#ffffff;
+    --line:#dfe4ec;
+    --ink:#101828;
+    --ink-dim:#5b6779;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 4px 14px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- Header / Brand ---------- */
+  header.top{
+    background:radial-gradient(1200px 400px at 15% -20%, #14315c 0%, transparent 60%), linear-gradient(135deg,var(--navy-950),var(--navy-900) 65%);
+    color:#fff;
+    padding:0;
+    position:relative;
+    overflow:hidden;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .top-inner{
+    display:flex;align-items:center;gap:16px;
+    padding:20px 32px;max-width:1600px;margin:0 auto;position:relative;z-index:2;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .logo-mark{
+    width:46px;height:46px;border-radius:11px;flex:none;
+    background:linear-gradient(145deg,var(--blue),var(--teal));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;letter-spacing:.5px;
+    color:#fff;box-shadow:0 6px 16px rgba(47,111,237,.35);
+  }
+  .brand-text .company{font-size:11.5px;letter-spacing:2.2px;color:#8fa3c2;font-weight:700;text-transform:uppercase;}
+  .brand-text h1{margin:2px 0 0;font-size:19px;font-weight:800;letter-spacing:.1px;color:#fff;}
+  .signal-wrap{display:flex;align-items:flex-end;gap:3px;height:24px;margin-inline-start:6px;opacity:.85;}
+  .signal-wrap span{display:block;width:4px;background:var(--teal);border-radius:2px;animation:pulse 1.8s ease-in-out infinite;}
+  .signal-wrap span:nth-child(1){height:8px;animation-delay:0s;}
+  .signal-wrap span:nth-child(2){height:14px;animation-delay:.15s;}
+  .signal-wrap span:nth-child(3){height:20px;animation-delay:.3s;}
+  .signal-wrap span:nth-child(4){height:24px;animation-delay:.45s;}
+  @keyframes pulse{0%,100%{opacity:.3;transform:scaleY(.65);}50%{opacity:1;transform:scaleY(1);}}
+  .top-meta{margin-inline-start:auto;text-align:right;color:#a9bdd4;font-size:12.5px;line-height:1.5;}
+  .top-meta strong{color:#e7edf6;}
+
+  /* ---------- Stat cards ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;padding:20px 32px 6px;max-width:1600px;margin:0 auto;
+  }
+  .stat{
+    background:var(--paper-card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow);
+  }
+  .stat::before{content:"";position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--blue);}
+  .stat.warn::before{background:var(--amber);}
+  .stat.bad::before{background:var(--red);}
+  .stat .label{font-size:11.5px;color:var(--ink-dim);margin-bottom:7px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
+  .stat .value{font-size:25px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--navy-900);}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    padding:16px 32px;position:sticky;top:0;background:var(--paper);z-index:20;
+    border-bottom:1px solid var(--line);max-width:1600px;margin:0 auto;
+  }
+  .search-box{position:relative;flex:1 1 260px;max-width:360px;}
+  .search-box input{
+    width:100%;padding:10px 14px 10px 38px;border-radius:9px;border:1.5px solid var(--line);
+    font-family:'Inter';font-size:14px;background:#fff;
+  }
+  .search-box input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,111,237,.12);}
+  .search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.5;}
+  select.filter{
+    padding:9px 12px;border-radius:9px;border:1.5px solid var(--line);background:#fff;
+    font-family:'Inter';font-size:13.5px;color:var(--ink);min-width:130px;
+  }
+  select.filter:focus{outline:none;border-color:var(--blue);}
+  .spacer{flex:1;}
+  .btn{
+    padding:9px 16px;border-radius:9px;border:none;font-family:'Inter';font-weight:600;
+    font-size:13.5px;cursor:pointer;transition:.15s transform,.15s box-shadow,.15s background,.15s border-color,.15s color;
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  }
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(47,111,237,.3);}
+  .btn-primary:hover{background:var(--blue-dim);}
+  .btn-teal{background:var(--teal);color:#fff;}
+  .btn-teal:hover{background:#0e9e8f;}
+  .btn-outline{background:#fff;color:var(--navy-900);border:1.5px solid var(--line);}
+  .btn-outline:hover{border-color:var(--blue);color:var(--blue);}
+  .btn-ghost-red{background:#fff;color:var(--red);border:1.5px solid #f3d2d2;}
+  .btn-ghost-red:hover{background:#fef4f4;}
+
+  /* ---------- Table ---------- */
+  .table-wrap{margin:0 32px 40px;background:var(--paper-card);border:1px solid var(--line);border-radius:var(--radius);overflow:auto;max-height:68vh;max-width:1536px;margin-inline:auto;box-shadow:var(--shadow);}
+  table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap;}
+  thead th{
+    position:sticky;top:0;background:var(--navy-900);color:#dfe9f3;
+    padding:11px 12px;text-align:left;font-weight:600;font-size:12px;letter-spacing:.3px;
+    cursor:pointer;user-select:none;border-right:1px solid rgba(255,255,255,.07);z-index:5;
+  }
+  thead th:hover{background:var(--navy-800);}
+  thead th .arrow{font-size:10px;opacity:.7;margin-left:5px;color:var(--teal);}
+  tbody td{padding:9px 12px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top;max-width:260px;}
+  tbody tr:hover{background:#f6f9fd;}
+  tbody tr.new-row{animation:highlight 2s ease;}
+  @keyframes highlight{0%{background:#e7f2ff;}100%{background:transparent;}}
+  tbody td[contenteditable="true"]:focus{outline:2px solid var(--blue);outline-offset:-2px;background:#f0f6ff;}
+  td.num,th.num{font-family:'JetBrains Mono',monospace;text-align:center;}
+  td.center{text-align:center;}
+  .site-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy-900);}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+  .b-green{background:#d9f4ec;color:#0b7a5f;}
+  .b-red{background:#fce3e3;color:#b23636;}
+  .b-amber{background:#fbf0d8;color:#93650a;}
+  .b-gray{background:#eaeef3;color:#5b6b7c;}
+  td.delete-cell{text-align:center;}
+  .del-btn{background:none;border:none;cursor:pointer;color:#c7cfd8;font-size:15px;padding:2px 6px;border-radius:6px;}
+  .del-btn:hover{color:var(--red);background:#fef0f0;}
+
+  footer{padding:18px 32px 44px;color:var(--ink-dim);font-size:12px;text-align:center;max-width:1600px;margin:0 auto;}
+  .empty-state{padding:60px 20px;text-align:center;color:var(--ink-dim);}
+
+  /* ---------- Sync status ---------- */
+  .sync-badge{
+    display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:9px;
+    font-size:12.5px;font-weight:600;border:1.5px solid var(--line);background:#fff;color:var(--ink-dim);white-space:nowrap;
+  }
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:#c7cfd8;flex:none;}
+  .sync-badge.connected{border-color:#bfe9de;background:#f1fbf8;color:#0b7a5f;}
+  .sync-badge.connected .sync-dot{background:var(--teal);box-shadow:0 0 0 3px rgba(18,184,166,.18);}
+  .sync-badge.syncing .sync-dot{animation:pulse 1s ease-in-out infinite;}
+
+  /* ---------- Import modal ---------- */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(5,13,26,.55);display:none;align-items:center;justify-content:center;z-index:100;}
+  .modal-backdrop.show{display:flex;}
+  .modal{background:#fff;border-radius:14px;padding:26px 28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .modal h3{margin:0 0 8px;font-size:17px;color:var(--navy-900);}
+  .modal p{margin:0 0 18px;font-size:13.5px;color:var(--ink-dim);line-height:1.5;}
+  .modal .modal-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+
+  @media (max-width:720px){
+    .top-meta{display:none;}
+    .toolbar{position:static;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <div class="logo-mark">MFC</div>
+      <div class="brand-text">
+        <div class="company">MFC Company</div>
+        <h1>RAN Site Tracker</h1>
+      </div>
+      <div class="signal-wrap"><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="top-meta" id="topMeta">Loading...</div>
+  </div>
+</header>
+
+<div class="stats" id="statsRow"></div>
+
+<div class="toolbar">
+  <div class="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5b6779" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#5b6779" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="searchInput" type="text" placeholder="Search Site ID, governorate, team, notes...">
+  </div>
+  <select class="filter" id="filterGov"><option value="">All Governorates</option></select>
+  <select class="filter" id="filterStates"><option value="">All States</option></select>
+  <select class="filter" id="filterFLM"><option value="">FLM Feedback</option></select>
+  <select class="filter" id="filterTeam"><option value="">Team</option></select>
+  <select class="filter" id="filterScope"><option value="">Main Scope</option></select>
+  <div class="spacer"></div>
+  <div class="sync-badge" id="syncBadge"><span class="sync-dot"></span><span id="syncBadgeText">Local only</span></div>
+  <button class="btn btn-outline" id="connectSheetBtn">Connect Google Sheet</button>
+  <button class="btn btn-outline" id="syncNowBtn" style="display:none;">Sync Now</button>
+  <button class="btn btn-primary" id="addRowBtn">+ Add Site</button>
+  <button class="btn btn-outline" id="importBtn">Import Excel</button>
+  <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;">
+  <button class="btn btn-outline" id="exportCsvBtn">Export CSV</button>
+  <button class="btn btn-teal" id="exportXlsxBtn">Export Excel</button>
+  <button class="btn btn-ghost-red" id="resetBtn">Reset Data</button>
+</div>
+
+<div class="table-wrap">
+  <table id="dataTable">
+    <thead><tr id="headRow"></tr></thead>
+    <tbody id="bodyRows"></tbody>
+  </table>
+  <div class="empty-state" id="emptyState" style="display:none;">No sites match the current search / filters.</div>
+</div>
+
+<footer>Edits are saved automatically in this browser's local storage on this device, and also to your connected Google Sheet if one is set up (see "Connect Google Sheet" above). Use "Export Excel" regularly to keep an external backup. — Internal RF / RAN engineering tracker, MFC Company.</footer>
+
+<div class="modal-backdrop" id="sheetModal">
+  <div class="modal">
+    <h3>Connect a Google Sheet</h3>
+    <p>Paste the Apps Script Web App URL for your Google Sheet below. Once connected, every edit here is pushed to that Sheet, and your team will see the same data. See the setup guide provided alongside this file for how to get this URL.</p>
+    <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+      style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);font-family:'JetBrains Mono';font-size:12.5px;margin-bottom:6px;">
+    <p style="margin-top:0;font-size:12px;">Leave empty and click "Disconnect" to go back to local-only mode.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="sheetCancel">Cancel</button>
+      <button class="btn btn-ghost-red" id="sheetDisconnect">Disconnect</button>
+      <button class="btn btn-primary" id="sheetConnect">Connect &amp; Pull Data</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="importModal">
+  <div class="modal">
+    <h3 id="importTitle">Import spreadsheet</h3>
+    <p id="importSummary">Preview will appear here.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="importCancel">Cancel</button>
+      <button class="btn btn-outline" id="importAppend">Append rows</button>
+      <button class="btn btn-primary" id="importReplace">Replace all data</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ORIGINAL_DATA = [{"SiteID": "6248", "Gov": "Muthanna", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Amir", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "4 Sectors", "Date": "11-Oct-25", "States": "Done", "Payment to subcon": "25-Nov-25", "Amount to subcon": "1500000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "31.19733", "Long": "45.53186", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "262", "Gov": "Muthanna", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Amir", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "MM", "Antenna Action": "", "Date": "4-Nov-25", "States": "Done", "Payment to subcon": "25-Nov-25", "Amount to subcon": "925000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "31.29798056", "Long": "45.26566944", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "5290", "Gov": "Muthanna", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Amir", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "MM", "Antenna Action": "", "Date": "20-Oct-25", "States": "Done", "Payment to subcon": "25-Nov-25", "Amount to subcon": "925000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "31.3096", "Long": "45.287", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "892", "Gov": "Muthanna", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Amir", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "31-Aug-25", "States": "Done", "Payment to subcon": "25-Nov-25", "Amount to subcon": "700000", "PO": "50836360", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "31.20583", "Long": "45.55044", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7098", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "21-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.532805", "Long": "44.335879", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7033", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "21-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.542974", "Long": "44.305098", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "8098", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "22-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.4347", "Long": "44.324", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "2900", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "22-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.183878", "Long": "44.363863", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7101", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "Accepted Wcl", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "25-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811265", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "32.224177", "Long": "44.351341", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7283", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "Accepted Wcl", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "24-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811294", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "31.9568", "Long": "44.5925", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7290", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50783416", "PO2": "50783554", "Pending Payment": "PAC/30", "Nokia Amount": "1617000", "LAT": "31.93154", "Long": "44.53679", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7295", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "Accepted Wcl/Need CL", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "24-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50783329", "PO2": "50783546", "Pending Payment": "PAC/30", "Nokia Amount": "1617000", "LAT": "31.97656", "Long": "44.60161", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4679", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "26-Jun-25", "States": "Done", "Payment to subcon": "", "Amount to subcon": "", "PO": "50811340", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "31.959124", "Long": "44.878394", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4923", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "25-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811232", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "31.865231", "Long": "44.629362", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6182", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted Wcl/Need CL", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "4 Sectors", "Date": "5-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1150000", "PO": "50780916", "PO2": "50791375", "Pending Payment": "PAC/30", "Nokia Amount": "2133800", "LAT": "32.45796", "Long": "44.36552", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "5457", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "3 Sectors", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1000000", "PO": "50780986", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "31.84056", "Long": "44.83047", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "5573", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "3 Sectors", "Date": "2-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1000000", "PO": "50780984", "PO2": "50791502", "Pending Payment": "PAC/30", "Nokia Amount": "2262000", "LAT": "31.81118", "Long": "44.73116", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7280", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "Accepted Wcl/Need CL", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "4-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50783420", "PO2": "50783552", "Pending Payment": "PAC/30", "Nokia Amount": "1617000", "LAT": "31.74904", "Long": "44.61501", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "360", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "3 Sectors", "Date": "13-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1000000", "PO": "50780951", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.50945", "Long": "44.39113", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "5414", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "4 Sectors", "Date": "12-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1150000", "PO": "50780914", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.5171", "Long": "44.3794", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6281", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "4 Sectors", "Date": "23-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1150000", "PO": "50780946", "PO2": "50791363", "Pending Payment": "PAC/30", "Nokia Amount": "2133800", "LAT": "32.27987", "Long": "44.32623", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6990", "Gov": "Basra", "Photo Report": "owner issue (multible times)", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "19-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811303", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.57461", "Long": "47.84698", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4461", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "19-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811342", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.513758", "Long": "47.859414", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4668", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "19-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811281", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.476828", "Long": "47.83788", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4460", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Rejected", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "19-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811237", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.482581", "Long": "47.865882", "Dismantle": "", "Snags 1": "One of PDU 5 output Source Must be 2 PDU and MAX Each PDU 4 output source", "Snags 2": "Lable of PDU Missing", "Snags 3": ""}, {"SiteID": "7161", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (not correct)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811252", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.46653", "Long": "47.91537", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7168", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (not correct)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811285", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.4597", "Long": "47.8866", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7195", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (old)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.45", "Long": "47.8747", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7167", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (not correct)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811313", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.4458", "Long": "47.8879", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6580", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Haider", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "23-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.40097", "Long": "47.674617", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7165", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Haider", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811305", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.359985", "Long": "47.712394", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6567", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Haider", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811334", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.43372147", "Long": "47.95967661", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7156", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Haider", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811291", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.3972", "Long": "47.71277", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6508", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Ali Emad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "10-Jul-25", "States": "Done", "Payment to subcon": "", "Amount to subcon": "", "PO": "50811223", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.485519", "Long": "47.84813", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7008", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.48866", "Long": "47.84987", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6995", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "24-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.3877", "Long": "47.7321", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7180", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "31-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.3782", "Long": "47.7247", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6526", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (not correct)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.574399", "Long": "47.813726", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7153", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (old)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.561696", "Long": "47.711108", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6133", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Adnan", "Nokia Comments": "Not Partial TDD", "Extra Scope": "2nd AKHD added by insource team", "Main Scope": "TDD", "Antenna Action": "", "Date": "27-Sep-25", "States": "Done", "Payment to subcon": "", "Amount to subcon": "", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.5543", "Long": "47.7499", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}];
+
+const COLUMNS = Object.keys(ORIGINAL_DATA[0]);
+const NUM_COLS = ["Amount to subcon","Nokia Amount","LAT","Long"];
+const WIDE_COLS = ["Team","Nokia Comments","Extra Scope","Snags 1","Snags 2"];
+const STORAGE_KEY = "mfc_site_tracker_data_v1";
+
+let data = [];
+let sortState = {col:null, dir:1};
+let pendingImportRows = null;
+let newRowKey = null;
+
+// ---------- Google Sheet sync ----------
+const SHEET_URL_KEY = "mfc_sheet_api_url";
+let pushTimer = null;
+let pollTimer = null;
+let isPushing = false;
+
+function getSheetUrl(){ return (localStorage.getItem(SHEET_URL_KEY) || "").trim(); }
+
+function setSyncBadge(state, text){
+  const badge = document.getElementById("syncBadge");
+  badge.className = "sync-badge" + (state==="connected" ? " connected" : "") + (state==="syncing" ? " connected syncing" : "");
+  document.getElementById("syncBadgeText").textContent = text;
+  document.getElementById("syncNowBtn").style.display = getSheetUrl() ? "inline-flex" : "none";
+  document.getElementById("connectSheetBtn").textContent = getSheetUrl() ? "Sheet Settings" : "Connect Google Sheet";
+}
+
+function rowsToSheetPayload(){
+  return { headers: COLUMNS, rows: data.map(r=>{
+    const out = {};
+    COLUMNS.forEach(c=> out[c] = r[c] || "");
+    return out;
+  })};
+}
+
+function mapImportedRows(raw){
+  const normalize = s => s.toString().trim().toLowerCase().replace(/\s+/g," ");
+  const colLookup = {};
+  COLUMNS.forEach(c => colLookup[normalize(c)] = c);
+  return raw.map(row=>{
+    const out = {};
+    COLUMNS.forEach(c=> out[c] = "");
+    Object.entries(row).forEach(([k,v])=>{
+      const target = colLookup[normalize(k)];
+      if(target) out[target] = (v===null||v===undefined) ? "" : v.toString().trim();
+    });
+    return out;
+  });
+}
+
+async function pullFromSheet(silent){
+  const url = getSheetUrl();
+  if(!url) return;
+  if(!silent) setSyncBadge("syncing", "Pulling from Google Sheet...");
+  try{
+    const res = await fetch(url + (url.includes("?") ? "&" : "?") + "action=read&t=" + Date.now());
+    const json = await res.json();
+    if(!json.rows) throw new Error("Unexpected response from Apps Script.");
+    data = mapImportedRows(json.rows);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    renderAll();
+    setSyncBadge("connected", "Synced just now");
+  }catch(err){
+    setSyncBadge("connected", "Connected — pull failed, will retry");
+    console.error("Sheet pull failed:", err);
+  }
+}
+
+function pushToSheet(){
+  const url = getSheetUrl();
+  if(!url) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(async ()=>{
+    if(isPushing) return;
+    isPushing = true;
+    setSyncBadge("syncing", "Saving to Google Sheet...");
+    try{
+      // Sent without a JSON content-type header on purpose: this keeps the request
+      // a "simple" CORS request so Apps Script web apps accept it without a
+      // preflight OPTIONS call (which Apps Script does not handle).
+      await fetch(url, { method:"POST", body: JSON.stringify(rowsToSheetPayload()) });
+      setSyncBadge("connected", "Synced just now");
+    }catch(err){
+      setSyncBadge("connected", "Connected — save failed, will retry");
+      console.error("Sheet push failed:", err);
+    }finally{
+      isPushing = false;
+    }
+  }, 900);
+}
+
+function startPolling(){
+  clearInterval(pollTimer);
+  pollTimer = setInterval(()=>{
+    const active = document.activeElement;
+    const isEditing = active && active.matches && active.matches('td[contenteditable="true"]');
+    if(!isEditing && !isPushing) pullFromSheet(true);
+  }, 25000);
+}
+
+document.getElementById("connectSheetBtn").onclick = ()=>{
+  document.getElementById("sheetUrlInput").value = getSheetUrl();
+  document.getElementById("sheetModal").classList.add("show");
+};
+document.getElementById("sheetCancel").onclick = ()=> document.getElementById("sheetModal").classList.remove("show");
+document.getElementById("sheetDisconnect").onclick = ()=>{
+  localStorage.removeItem(SHEET_URL_KEY);
+  clearInterval(pollTimer);
+  setSyncBadge("local", "Local only");
+  document.getElementById("sheetModal").classList.remove("show");
+};
+document.getElementById("sheetConnect").onclick = async ()=>{
+  const val = document.getElementById("sheetUrlInput").value.trim();
+  if(!val){ alert("Please paste your Apps Script Web App URL, or click Disconnect."); return; }
+  localStorage.setItem(SHEET_URL_KEY, val);
+  document.getElementById("sheetModal").classList.remove("show");
+  await pullFromSheet(false);
+  startPolling();
+};
+document.getElementById("syncNowBtn").onclick = ()=> pullFromSheet(false);
+
+function loadData(){
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    try{ data = JSON.parse(saved); return; }catch(e){}
+  }
+  data = JSON.parse(JSON.stringify(ORIGINAL_DATA));
+}
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  pushToSheet();
+}
+
+function badgeClass(col, val){
+  const v = (val||"").toString().trim().toLowerCase();
+  if(!v) return "b-gray";
+  if(v.includes("reject")) return "b-red";
+  if(v==="0") return "b-amber";
+  if(v.includes("accept") || v==="done") return "b-green";
+  if(v.includes("wcl") || v.includes("need")) return "b-amber";
+  return "b-gray";
+}
+
+function uniqueVals(col){
+  const s = new Set();
+  data.forEach(r=>{ if(r[col]) s.add(r[col]); });
+  return Array.from(s).sort();
+}
+
+function populateFilters(){
+  const map = {filterGov:"Gov", filterStates:"States", filterFLM:"FLM Feedback", filterTeam:"Team", filterScope:"Main Scope"};
+  Object.entries(map).forEach(([id,col])=>{
+    const sel = document.getElementById(id);
+    const current = sel.value;
+    sel.innerHTML = sel.options[0].outerHTML;
+    uniqueVals(col).forEach(v=>{
+      const opt = document.createElement("option");
+      opt.value = v; opt.textContent = v;
+      sel.appendChild(opt);
+    });
+    if(Array.from(sel.options).some(o=>o.value===current)) sel.value = current;
+  });
+}
+
+function renderHead(){
+  const headRow = document.getElementById("headRow");
+  headRow.innerHTML = "";
+  COLUMNS.forEach(col=>{
+    const th = document.createElement("th");
+    th.className = NUM_COLS.includes(col) ? "num" : "";
+    th.innerHTML = col + (sortState.col===col ? `<span class="arrow">${sortState.dir===1?'&#9650;':'&#9660;'}</span>` : "");
+    th.onclick = ()=>{
+      if(sortState.col===col) sortState.dir *= -1; else {sortState.col=col; sortState.dir=1;}
+      renderHead(); renderBody();
+    };
+    headRow.appendChild(th);
+  });
+  const thDel = document.createElement("th");
+  thDel.textContent = "";
+  headRow.appendChild(thDel);
+}
+
+function matchesFilters(row){
+  const search = document.getElementById("searchInput").value.trim().toLowerCase();
+  if(search){
+    const hay = COLUMNS.map(c=>(row[c]||"").toString().toLowerCase()).join(" | ");
+    if(!hay.includes(search)) return false;
+  }
+  const checks = [["filterGov","Gov"],["filterStates","States"],["filterFLM","FLM Feedback"],["filterTeam","Team"],["filterScope","Main Scope"]];
+  for(const [id,col] of checks){
+    const v = document.getElementById(id).value;
+    if(v && row[col] !== v) return false;
+  }
+  return true;
+}
+
+function getFilteredSorted(){
+  let rows = data.map((r,i)=>({r,i})).filter(x=>matchesFilters(x.r));
+  if(sortState.col){
+    rows.sort((a,b)=>{
+      let va = a.r[sortState.col]||"", vb = b.r[sortState.col]||"";
+      const na = parseFloat(va), nb = parseFloat(vb);
+      if(!isNaN(na) && !isNaN(nb) && va!=="" && vb!==""){
+        return (na-nb)*sortState.dir;
+      }
+      return va.toString().localeCompare(vb.toString()) * sortState.dir;
+    });
+  }
+  return rows;
+}
+
+function renderBody(){
+  const body = document.getElementById("bodyRows");
+  body.innerHTML = "";
+  const rows = getFilteredSorted();
+  document.getElementById("emptyState").style.display = rows.length ? "none" : "block";
+  let firstNewCell = null;
+  rows.forEach(({r,i})=>{
+    const tr = document.createElement("tr");
+    if(r.__key && r.__key === newRowKey) tr.classList.add("new-row");
+    COLUMNS.forEach(col=>{
+      const td = document.createElement("td");
+      const val = r[col] || "";
+      if(["FLM Feedback","Saif Tool","States"].includes(col)){
+        td.className = "center";
+        td.innerHTML = val ? `<span class="badge ${badgeClass(col,val)}">${escapeHtml(val)}</span>` : "";
+        td.contentEditable = true;
+      } else if(col === "SiteID"){
+        td.className = "site-id";
+        td.textContent = val;
+        td.contentEditable = true;
+      } else if(NUM_COLS.includes(col)){
+        td.className = "num";
+        td.textContent = val;
+        td.contentEditable = true;
+      } else {
+        td.textContent = val;
+        td.contentEditable = true;
+        if(WIDE_COLS.includes(col)) td.style.minWidth = "160px";
+      }
+      if(r.__key && r.__key === newRowKey && col === "SiteID" && !firstNewCell) firstNewCell = td;
+      td.addEventListener("blur", ()=>{
+        let newVal = td.textContent.trim();
+        data[i][col] = newVal;
+        saveData();
+        if(["FLM Feedback","Saif Tool","States"].includes(col)) { renderBody(); renderStats(); populateFilters(); }
+        else { renderStats(); }
+      });
+      tr.appendChild(td);
+    });
+    const tdDel = document.createElement("td");
+    tdDel.className = "delete-cell";
+    tdDel.innerHTML = `<button class="del-btn" title="Delete site">&#10005;</button>`;
+    tdDel.querySelector("button").onclick = ()=>{
+      if(confirm(`Delete site ${r.SiteID}?`)){
+        data.splice(i,1);
+        saveData(); renderAll();
+      }
+    };
+    tr.appendChild(tdDel);
+    body.appendChild(tr);
+  });
+  if(firstNewCell){
+    firstNewCell.scrollIntoView({block:"center"});
+    firstNewCell.focus();
+    const range = document.createRange();
+    range.selectNodeContents(firstNewCell);
+    const sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+    newRowKey = null;
+  }
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function renderStats(){
+  const total = data.length;
+  const done = data.filter(r=>(r.States||"").toLowerCase()==="done").length;
+  const accepted = data.filter(r=>(r["FLM Feedback"]||"").toLowerCase().includes("accept")).length;
+  const rejected = data.filter(r=>(r["FLM Feedback"]||"").toLowerCase().includes("reject")).length;
+  const govCount = new Set(data.map(r=>r.Gov).filter(Boolean)).size;
+  const totalNokia = data.reduce((s,r)=> s + (parseFloat(r["Nokia Amount"])||0), 0);
+  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r["Amount to subcon"])||0), 0);
+
+  const stats = [
+    {label:"Total Sites", value: total, cls:""},
+    {label:"Done", value: done, cls:""},
+    {label:"FLM Accepted", value: accepted, cls:""},
+    {label:"FLM Rejected", value: rejected, cls: rejected>0 ? "bad":""},
+    {label:"Governorates", value: govCount, cls:""},
+    {label:"Total Nokia Amount", value: totalNokia.toLocaleString(), cls:"warn"},
+    {label:"Total Subcon Amount", value: totalSubcon.toLocaleString(), cls:"warn"},
+  ];
+  document.getElementById("statsRow").innerHTML = stats.map(s=>`
+    <div class="stat ${s.cls}">
+      <div class="label">${s.label}</div>
+      <div class="value">${s.value}</div>
+    </div>`).join("");
+  document.getElementById("topMeta").innerHTML = `<strong>${total}</strong> sites tracked &nbsp;&middot;&nbsp; auto-saved locally`;
+}
+
+function renderAll(){
+  populateFilters();
+  renderHead();
+  renderBody();
+  renderStats();
+}
+
+// ---------- Toolbar events ----------
+document.getElementById("searchInput").addEventListener("input", renderBody);
+["filterGov","filterStates","filterFLM","filterTeam","filterScope"].forEach(id=>{
+  document.getElementById(id).addEventListener("change", renderBody);
+});
+
+document.getElementById("addRowBtn").onclick = ()=>{
+  // Clear search & filters so the new row is guaranteed to be visible
+  document.getElementById("searchInput").value = "";
+  ["filterGov","filterStates","filterFLM","filterTeam","filterScope"].forEach(id=>{
+    document.getElementById(id).value = "";
+  });
+  const blank = {};
+  COLUMNS.forEach(c=> blank[c] = "");
+  const key = "new-" + Date.now();
+  blank.__key = key;
+  blank.SiteID = "";
+  newRowKey = key;
+  data.unshift(blank);
+  saveData();
+  renderAll();
+};
+
+document.getElementById("resetBtn").onclick = ()=>{
+  if(confirm("This will restore the original data and discard all locally saved edits. Continue?")){
+    localStorage.removeItem(STORAGE_KEY);
+    loadData();
+    renderAll();
+  }
+};
+
+document.getElementById("exportCsvBtn").onclick = ()=>{
+  const rows = getFilteredSorted().map(x=>x.r);
+  const csvRows = [COLUMNS.join(",")];
+  rows.forEach(r=>{
+    csvRows.push(COLUMNS.map(c=>{
+      let v = (r[c]||"").toString().replace(/"/g,'""');
+      if(v.includes(",")||v.includes('"')||v.includes("\n")) v = `"${v}"`;
+      return v;
+    }).join(","));
+  });
+  downloadFile("mfc_site_tracker.csv", "text/csv;charset=utf-8;", "\uFEFF"+csvRows.join("\n"));
+};
+
+document.getElementById("exportXlsxBtn").onclick = ()=>{
+  const rows = getFilteredSorted().map(x=>{
+    const clean = {};
+    COLUMNS.forEach(c=> clean[c] = x.r[c] || "");
+    return clean;
+  });
+  const ws = XLSX.utils.json_to_sheet(rows, {header: COLUMNS});
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Site Tracker");
+  XLSX.writeFile(wb, "mfc_site_tracker.xlsx");
+};
+
+function downloadFile(filename, mime, content){
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ---------- Import Excel ----------
+document.getElementById("importBtn").onclick = ()=> document.getElementById("importFile").click();
+
+document.getElementById("importFile").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    try{
+      const wb = XLSX.read(evt.target.result, {type:"array", codepage:65001});
+      const sheetName = wb.SheetNames[0];
+      const sheet = wb.Sheets[sheetName];
+      const raw = XLSX.utils.sheet_to_json(sheet, {defval:"", raw:false});
+      if(!raw.length){
+        alert("The selected file has no readable rows.");
+        return;
+      }
+      // Normalize headers: map imported keys to known COLUMNS by case-insensitive / trimmed match
+      const normalize = s => s.toString().trim().toLowerCase().replace(/\s+/g," ");
+      const colLookup = {};
+      COLUMNS.forEach(c => colLookup[normalize(c)] = c);
+
+      const mapped = raw.map(row=>{
+        const out = {};
+        COLUMNS.forEach(c=> out[c] = "");
+        Object.entries(row).forEach(([k,v])=>{
+          const target = colLookup[normalize(k)];
+          if(target) out[target] = (v===null||v===undefined) ? "" : v.toString().trim();
+        });
+        return out;
+      });
+
+      pendingImportRows = mapped;
+      document.getElementById("importTitle").textContent = `Import "${file.name}"`;
+      document.getElementById("importSummary").textContent =
+        `Found ${mapped.length} row(s) in sheet "${sheetName}". Choose whether to append these to the current ${data.length} site(s), or replace all existing data with the imported rows.`;
+      document.getElementById("importModal").classList.add("show");
+    }catch(err){
+      alert("Could not read this file. Please make sure it is a valid Excel or CSV file.\n\n" + err.message);
+    }finally{
+      e.target.value = "";
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+document.getElementById("importCancel").onclick = ()=>{
+  pendingImportRows = null;
+  document.getElementById("importModal").classList.remove("show");
+};
+document.getElementById("importAppend").onclick = ()=>{
+  if(pendingImportRows){
+    data = data.concat(pendingImportRows);
+    saveData(); renderAll();
+  }
+  pendingImportRows = null;
+  document.getElementById("importModal").classList.remove("show");
+};
+document.getElementById("importReplace").onclick = ()=>{
+  if(pendingImportRows){
+    data = pendingImportRows;
+    saveData(); renderAll();
+  }
+  pendingImportRows = null;
+  document.getElementById("importModal").classList.remove("show");
+};
+
+loadData();
+renderAll();
+if(getSheetUrl()){
+  setSyncBadge("connected", "Connected");
+  pullFromSheet(false);
+  startPolling();
+} else {
+  setSyncBadge("local", "Local only");
+}
+</script>
+</body>
+</html>
