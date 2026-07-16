@@ -152,6 +152,40 @@
   .sync-badge.connected .sync-dot{background:var(--teal);box-shadow:0 0 0 3px rgba(18,184,166,.18);}
   .sync-badge.syncing .sync-dot{animation:pulse 1s ease-in-out infinite;}
 
+  /* ---------- Login screen ---------- */
+  .login-overlay{
+    position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(1200px 500px at 20% -10%, #14315c 0%, transparent 60%), linear-gradient(135deg,var(--navy-950),var(--navy-900) 70%);
+  }
+  .login-card{
+    background:#fff;border-radius:16px;padding:34px 36px 30px;width:340px;max-width:90vw;
+    box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center;
+  }
+  .login-logo{margin:0 auto 14px;width:52px;height:52px;font-size:15px;border-radius:13px;}
+  .login-company{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-dim);font-weight:700;}
+  .login-card h2{margin:4px 0 6px;font-size:19px;color:var(--navy-900);}
+  .login-card p{margin:0 0 20px;font-size:13px;color:var(--ink-dim);}
+  .login-card form{text-align:left;}
+  .login-card label{display:block;font-size:12px;font-weight:600;color:var(--ink-dim);margin:12px 0 5px;}
+  .login-card input{
+    width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--line);font-family:'Inter';font-size:14px;
+  }
+  .login-card input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,111,237,.12);}
+  .login-error{display:none;color:var(--red);font-size:12.5px;margin-top:10px;font-weight:600;}
+  .login-error.show{display:block;}
+  .login-card .btn{width:100%;justify-content:center;margin-top:18px;padding:11px;font-size:14px;}
+
+  /* ---------- Settings panel ---------- */
+  .settings-section{margin-bottom:20px;}
+  .settings-section:last-child{margin-bottom:0;}
+  .settings-section h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-dim);font-weight:700;}
+  .settings-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .settings-row:last-child{border-bottom:none;}
+  .settings-row .info{flex:1;min-width:160px;}
+  .settings-row .info .t{font-size:13.5px;font-weight:600;color:var(--ink);}
+  .settings-row .info .d{font-size:12px;color:var(--ink-dim);margin-top:2px;}
+  #settingsModal .modal{max-width:480px;text-align:left;}
+
   /* ---------- Import modal ---------- */
   .modal-backdrop{position:fixed;inset:0;background:rgba(5,13,26,.55);display:none;align-items:center;justify-content:center;z-index:100;}
   .modal-backdrop.show{display:flex;}
@@ -168,6 +202,24 @@
 </head>
 <body>
 
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="logo-mark login-logo">MFC</div>
+    <div class="login-company">MFC Company</div>
+    <h2>RAN Site Tracker</h2>
+    <p>Please sign in to continue.</p>
+    <form id="loginForm" autocomplete="on">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <div class="login-error" id="loginError">Incorrect username or password.</div>
+      <button type="submit" class="btn btn-primary" id="loginSubmit">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
 <header class="top">
   <div class="top-inner">
     <div class="brand">
@@ -196,14 +248,9 @@
   <select class="filter" id="filterScope"><option value="">Main Scope</option></select>
   <div class="spacer"></div>
   <div class="sync-badge" id="syncBadge"><span class="sync-dot"></span><span id="syncBadgeText">Local only</span></div>
-  <button class="btn btn-outline" id="connectSheetBtn">Connect Google Sheet</button>
-  <button class="btn btn-outline" id="syncNowBtn" style="display:none;">Sync Now</button>
   <button class="btn btn-primary" id="addRowBtn">+ Add Site</button>
-  <button class="btn btn-outline" id="importBtn">Import Excel</button>
   <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;">
-  <button class="btn btn-outline" id="exportCsvBtn">Export CSV</button>
-  <button class="btn btn-teal" id="exportXlsxBtn">Export Excel</button>
-  <button class="btn btn-ghost-red" id="resetBtn">Reset Data</button>
+  <button class="btn btn-outline" id="settingsBtn">&#9881;&#65039; Settings</button>
 </div>
 
 <div class="table-wrap">
@@ -216,17 +263,60 @@
 
 <footer>Edits are saved automatically in this browser's local storage on this device, and also to your connected Google Sheet if one is set up (see "Connect Google Sheet" above). Use "Export Excel" regularly to keep an external backup. — Internal RF / RAN engineering tracker, MFC Company.</footer>
 
-<div class="modal-backdrop" id="sheetModal">
+<div class="modal-backdrop" id="settingsModal">
   <div class="modal">
-    <h3>Connect a Google Sheet</h3>
-    <p>Paste the Apps Script Web App URL for your Google Sheet below. Once connected, every edit here is pushed to that Sheet, and your team will see the same data. See the setup guide provided alongside this file for how to get this URL.</p>
-    <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
-      style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);font-family:'JetBrains Mono';font-size:12.5px;margin-bottom:6px;">
-    <p style="margin-top:0;font-size:12px;">Leave empty and click "Disconnect" to go back to local-only mode.</p>
-    <div class="modal-actions">
-      <button class="btn btn-outline" id="sheetCancel">Cancel</button>
-      <button class="btn btn-ghost-red" id="sheetDisconnect">Disconnect</button>
-      <button class="btn btn-primary" id="sheetConnect">Connect &amp; Pull Data</button>
+    <h3>Settings</h3>
+
+    <div class="settings-section">
+      <h4>Google Sheet Sync</h4>
+      <div class="settings-row">
+        <div class="info">
+          <div class="t" id="settingsSyncStatus">Connected</div>
+          <div class="d">Data is shared with your team via a linked Google Sheet.</div>
+        </div>
+        <button class="btn btn-outline" id="syncNowBtn">Sync Now</button>
+      </div>
+      <div class="settings-row">
+        <div class="info">
+          <div class="t">Advanced: override Sheet URL</div>
+          <div class="d">Only change this if your team uses a different Google Sheet.</div>
+        </div>
+      </div>
+      <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+        style="width:100%;padding:9px 11px;border-radius:8px;border:1.5px solid var(--line);font-family:'JetBrains Mono';font-size:12px;margin-top:2px;">
+      <div class="modal-actions" style="margin-top:10px;">
+        <button class="btn btn-outline" id="sheetResetDefault">Use Default Sheet</button>
+        <button class="btn btn-primary" id="sheetConnect">Save &amp; Reconnect</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h4>Data Tools</h4>
+      <div class="settings-row">
+        <div class="info"><div class="t">Import spreadsheet</div><div class="d">Load an Excel or CSV file into the tracker.</div></div>
+        <button class="btn btn-outline" id="importBtn">Import Excel</button>
+      </div>
+      <div class="settings-row">
+        <div class="info"><div class="t">Export current view</div><div class="d">Download what's currently filtered/sorted on screen.</div></div>
+        <button class="btn btn-outline" id="exportCsvBtn">CSV</button>
+        <button class="btn btn-teal" id="exportXlsxBtn">Excel</button>
+      </div>
+      <div class="settings-row">
+        <div class="info"><div class="t">Reset local data</div><div class="d">Discards local edits and re-pulls from the Sheet.</div></div>
+        <button class="btn btn-ghost-red" id="resetBtn">Reset</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h4>Account</h4>
+      <div class="settings-row">
+        <div class="info"><div class="t">Signed in as MFC</div><div class="d">This device stays signed in until you log out.</div></div>
+        <button class="btn btn-ghost-red" id="logoutBtn">Log Out</button>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:6px;">
+      <button class="btn btn-outline" id="settingsClose">Close</button>
     </div>
   </div>
 </div>
@@ -243,6 +333,8 @@
   </div>
 </div>
 
+</div><!-- /appRoot -->
+
 <script>
 const ORIGINAL_DATA = [{"SiteID": "6248", "Gov": "Muthanna", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Amir", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "4 Sectors", "Date": "11-Oct-25", "States": "Done", "Payment to subcon": "25-Nov-25", "Amount to subcon": "1500000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "31.19733", "Long": "45.53186", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "262", "Gov": "Muthanna", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Amir", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "MM", "Antenna Action": "", "Date": "4-Nov-25", "States": "Done", "Payment to subcon": "25-Nov-25", "Amount to subcon": "925000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "31.29798056", "Long": "45.26566944", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "5290", "Gov": "Muthanna", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Amir", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "MM", "Antenna Action": "", "Date": "20-Oct-25", "States": "Done", "Payment to subcon": "25-Nov-25", "Amount to subcon": "925000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "31.3096", "Long": "45.287", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "892", "Gov": "Muthanna", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Amir", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "31-Aug-25", "States": "Done", "Payment to subcon": "25-Nov-25", "Amount to subcon": "700000", "PO": "50836360", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "31.20583", "Long": "45.55044", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7098", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "21-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.532805", "Long": "44.335879", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7033", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "21-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.542974", "Long": "44.305098", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "8098", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "22-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.4347", "Long": "44.324", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "2900", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "22-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.183878", "Long": "44.363863", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7101", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "Accepted Wcl", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "25-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811265", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "32.224177", "Long": "44.351341", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7283", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "Accepted Wcl", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "24-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811294", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "31.9568", "Long": "44.5925", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7290", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50783416", "PO2": "50783554", "Pending Payment": "PAC/30", "Nokia Amount": "1617000", "LAT": "31.93154", "Long": "44.53679", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7295", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "Accepted Wcl/Need CL", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "24-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50783329", "PO2": "50783546", "Pending Payment": "PAC/30", "Nokia Amount": "1617000", "LAT": "31.97656", "Long": "44.60161", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4679", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "26-Jun-25", "States": "Done", "Payment to subcon": "", "Amount to subcon": "", "PO": "50811340", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "31.959124", "Long": "44.878394", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4923", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "25-Jun-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811232", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "31.865231", "Long": "44.629362", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6182", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted Wcl/Need CL", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "4 Sectors", "Date": "5-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1150000", "PO": "50780916", "PO2": "50791375", "Pending Payment": "PAC/30", "Nokia Amount": "2133800", "LAT": "32.45796", "Long": "44.36552", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "5457", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "3 Sectors", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1000000", "PO": "50780986", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "31.84056", "Long": "44.83047", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "5573", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "3 Sectors", "Date": "2-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1000000", "PO": "50780984", "PO2": "50791502", "Pending Payment": "PAC/30", "Nokia Amount": "2262000", "LAT": "31.81118", "Long": "44.73116", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7280", "Gov": "Qaddissiya", "Photo Report": "Shared", "FLM Feedback": "Accepted Wcl/Need CL", "Saif Tool": "Accepted", "Team": "Audited Zaid/Aqeel", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD (Add for Ziyara)", "Antenna Action": "", "Date": "4-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50783420", "PO2": "50783552", "Pending Payment": "PAC/30", "Nokia Amount": "1617000", "LAT": "31.74904", "Long": "44.61501", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "360", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "3 Sectors", "Date": "13-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1000000", "PO": "50780951", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.50945", "Long": "44.39113", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "5414", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "4 Sectors", "Date": "12-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1150000", "PO": "50780914", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "32.5171", "Long": "44.3794", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6281", "Gov": "Babil", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Audited Raad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "4 Sectors", "Date": "23-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "1150000", "PO": "50780946", "PO2": "50791363", "Pending Payment": "PAC/30", "Nokia Amount": "2133800", "LAT": "32.27987", "Long": "44.32623", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6990", "Gov": "Basra", "Photo Report": "owner issue (multible times)", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "19-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811303", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.57461", "Long": "47.84698", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4461", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "19-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811342", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.513758", "Long": "47.859414", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4668", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "19-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811281", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.476828", "Long": "47.83788", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "4460", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Rejected", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "19-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811237", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.482581", "Long": "47.865882", "Dismantle": "", "Snags 1": "One of PDU 5 output Source Must be 2 PDU and MAX Each PDU 4 output source", "Snags 2": "Lable of PDU Missing", "Snags 3": ""}, {"SiteID": "7161", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (not correct)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811252", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.46653", "Long": "47.91537", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7168", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (not correct)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811285", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.4597", "Long": "47.8866", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7195", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (old)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.45", "Long": "47.8747", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7167", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (not correct)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811313", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.4458", "Long": "47.8879", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6580", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Haider", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "23-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.40097", "Long": "47.674617", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7165", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Haider", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811305", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.359985", "Long": "47.712394", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6567", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Haider", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811334", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.43372147", "Long": "47.95967661", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7156", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Haider", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "50811291", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.3972", "Long": "47.71277", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6508", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Ali Emad", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "10-Jul-25", "States": "Done", "Payment to subcon": "", "Amount to subcon": "", "PO": "50811223", "PO2": "", "Pending Payment": "PAC/30", "Nokia Amount": "1198800", "LAT": "30.485519", "Long": "47.84813", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7008", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.48866", "Long": "47.84987", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6995", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "24-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.3877", "Long": "47.7321", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7180", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "", "Saif Tool": "0", "Team": "Adnan", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "31-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.3782", "Long": "47.7247", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6526", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (not correct)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.574399", "Long": "47.813726", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "7153", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "accepted", "Saif Tool": "Accepted", "Team": "reported as Ali Emad (old)", "Nokia Comments": "", "Extra Scope": "", "Main Scope": "TDD", "Antenna Action": "", "Date": "17-Jul-25", "States": "Done", "Payment to subcon": "June July Payment", "Amount to subcon": "750000", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.561696", "Long": "47.711108", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}, {"SiteID": "6133", "Gov": "Basra", "Photo Report": "Shared", "FLM Feedback": "Accepted", "Saif Tool": "Accepted", "Team": "Audited Adnan", "Nokia Comments": "Not Partial TDD", "Extra Scope": "2nd AKHD added by insource team", "Main Scope": "TDD", "Antenna Action": "", "Date": "27-Sep-25", "States": "Done", "Payment to subcon": "", "Amount to subcon": "", "PO": "", "PO2": "", "Pending Payment": "", "Nokia Amount": "", "LAT": "30.5543", "Long": "47.7499", "Dismantle": "", "Snags 1": "", "Snags 2": "", "Snags 3": ""}];
 
@@ -257,19 +349,25 @@ let pendingImportRows = null;
 let newRowKey = null;
 
 // ---------- Google Sheet sync ----------
+// Hardcoded so the team doesn't need to paste anything in themselves.
+// Can still be overridden per-browser from Settings if a different sheet is ever needed.
+const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycby3H1bfxExl-7AyU7q9VJiNZWsesmaMvnrW591kkNuHgBv3nNK1JHGvAqDnPKI0Kkig/exec";
 const SHEET_URL_KEY = "mfc_sheet_api_url";
 let pushTimer = null;
 let pollTimer = null;
 let isPushing = false;
 
-function getSheetUrl(){ return (localStorage.getItem(SHEET_URL_KEY) || "").trim(); }
+function getSheetUrl(){
+  const override = (localStorage.getItem(SHEET_URL_KEY) || "").trim();
+  return override || DEFAULT_SHEET_URL;
+}
 
 function setSyncBadge(state, text){
   const badge = document.getElementById("syncBadge");
   badge.className = "sync-badge" + (state==="connected" ? " connected" : "") + (state==="syncing" ? " connected syncing" : "");
   document.getElementById("syncBadgeText").textContent = text;
-  document.getElementById("syncNowBtn").style.display = getSheetUrl() ? "inline-flex" : "none";
-  document.getElementById("connectSheetBtn").textContent = getSheetUrl() ? "Sheet Settings" : "Connect Google Sheet";
+  const statusEl = document.getElementById("settingsSyncStatus");
+  if(statusEl) statusEl.textContent = text;
 }
 
 function rowsToSheetPayload(){
@@ -345,26 +443,31 @@ function startPolling(){
   }, 25000);
 }
 
-document.getElementById("connectSheetBtn").onclick = ()=>{
-  document.getElementById("sheetUrlInput").value = getSheetUrl();
-  document.getElementById("sheetModal").classList.add("show");
+// ---------- Settings modal ----------
+document.getElementById("settingsBtn").onclick = ()=>{
+  document.getElementById("sheetUrlInput").value = localStorage.getItem(SHEET_URL_KEY) || "";
+  document.getElementById("settingsModal").classList.add("show");
 };
-document.getElementById("sheetCancel").onclick = ()=> document.getElementById("sheetModal").classList.remove("show");
-document.getElementById("sheetDisconnect").onclick = ()=>{
+document.getElementById("settingsClose").onclick = ()=> document.getElementById("settingsModal").classList.remove("show");
+document.getElementById("sheetResetDefault").onclick = ()=>{
   localStorage.removeItem(SHEET_URL_KEY);
-  clearInterval(pollTimer);
-  setSyncBadge("local", "Local only");
-  document.getElementById("sheetModal").classList.remove("show");
+  document.getElementById("sheetUrlInput").value = "";
+  pullFromSheet(false);
+  startPolling();
 };
 document.getElementById("sheetConnect").onclick = async ()=>{
   const val = document.getElementById("sheetUrlInput").value.trim();
-  if(!val){ alert("Please paste your Apps Script Web App URL, or click Disconnect."); return; }
-  localStorage.setItem(SHEET_URL_KEY, val);
-  document.getElementById("sheetModal").classList.remove("show");
+  if(val) localStorage.setItem(SHEET_URL_KEY, val); else localStorage.removeItem(SHEET_URL_KEY);
   await pullFromSheet(false);
   startPolling();
 };
 document.getElementById("syncNowBtn").onclick = ()=> pullFromSheet(false);
+document.getElementById("logoutBtn").onclick = ()=>{
+  if(confirm("Log out of MFC Site Tracker on this device?")){
+    localStorage.removeItem(LOGIN_KEY);
+    location.reload();
+  }
+};
 
 function loadData(){
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -490,8 +593,9 @@ function renderBody(){
         let newVal = td.textContent.trim();
         data[i][col] = newVal;
         saveData();
-        if(["FLM Feedback","Saif Tool","States"].includes(col)) { renderBody(); renderStats(); populateFilters(); }
-        else { renderStats(); }
+        if(["FLM Feedback","Saif Tool","States"].includes(col)) { renderBody(); }
+        renderStats();
+        populateFilters();
       });
       tr.appendChild(td);
     });
@@ -687,14 +791,36 @@ document.getElementById("importReplace").onclick = ()=>{
   document.getElementById("importModal").classList.remove("show");
 };
 
-loadData();
-renderAll();
-if(getSheetUrl()){
+// ---------- Login gate ----------
+const LOGIN_KEY = "mfc_logged_in";
+const VALID_USER = "MFC";
+const VALID_PASS = "MFC@1234";
+
+function initApp(){
+  document.getElementById("loginOverlay").style.display = "none";
+  document.getElementById("appRoot").style.display = "block";
+  loadData();
+  renderAll();
   setSyncBadge("connected", "Connected");
   pullFromSheet(false);
   startPolling();
-} else {
-  setSyncBadge("local", "Local only");
+}
+
+document.getElementById("loginForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value;
+  if(u === VALID_USER && p === VALID_PASS){
+    localStorage.setItem(LOGIN_KEY, "1");
+    document.getElementById("loginError").classList.remove("show");
+    initApp();
+  } else {
+    document.getElementById("loginError").classList.add("show");
+  }
+});
+
+if(localStorage.getItem(LOGIN_KEY) === "1"){
+  initApp();
 }
 </script>
 </body>
