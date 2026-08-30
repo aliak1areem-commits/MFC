@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MFC Invoice System — AP eConnect Multi-Upload Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<style>
+/* ============ Design tokens ============ */
+:root{
+  --navy:#0C1B3D;
+  --navy-2:#142A5C;
+  --blue:#124191;
+  --cyan:#00A1E0;
+  --ice:#EAF2FB;
+  --ice-2:#DCEBFB;
+  --slate:#5A6B87;
+  --slate-light:#AEB9D4;
+  --gold:#F2A900;
+  --gold-bg:#FDF1DC;
+  --gold-text:#8A5A00;
+  --good:#1F9D55;
+  --good-bg:#E7F7EE;
+  --bad:#D64545;
+  --bad-bg:#FCEAEA;
+  --white:#FFFFFF;
+  --ink:#1B1F2A;
+  --font-head:'Cambria','Amiri',serif;
+  --font-body:'Segoe UI','Tahoma',system-ui,sans-serif;
+  --font-mono:'Consolas','SF Mono','Cairo',monospace;
+  --radius:10px;
+  --shadow:0 4px 18px rgba(12,27,61,0.08);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-body);
+  background:#F4F7FB;
+  color:var(--ink);
+  min-height:100vh;
+}
+::selection{background:var(--cyan);color:white;}
+
+/* ============ Layout shell ============ */
+.app{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  min-height:100vh;
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{position:sticky; top:0; z-index:50;}
+}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%);
+  color:white;
+  padding:26px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.brand-mark{
+  width:42px;height:42px;border-radius:10px;
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-weight:700;color:white;font-size:18px;
+  flex-shrink:0;
+}
+.brand-text h1{
+  font-family:var(--font-head);
+  font-size:17px;
+  margin:0;
+  line-height:1.25;
+}
+.brand-text span{
+  font-size:11px;
+  color:var(--slate-light);
+  letter-spacing:.5px;
+}
+.steps{display:flex;flex-direction:column;gap:4px;}
+.step{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 12px;border-radius:8px;
+  cursor:pointer;
+  color:var(--slate-light);
+  font-size:13.5px;
+  transition:background .15s ease, color .15s ease;
+  user-select:none;
+}
+.step:hover{background:rgba(255,255,255,0.06);}
+.step.active{background:rgba(0,161,224,0.16);color:white;}
+.step .num{
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11.5px;font-weight:700;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,0.18);
+}
+.step.done .num{background:var(--good);border-color:var(--good);color:white;}
+.step.active .num{background:var(--cyan);border-color:var(--cyan);color:var(--navy);}
+
+.sidebar-footer{
+  margin-top:auto;
+  font-size:11px;
+  color:var(--slate-light);
+  line-height:1.7;
+  border-top:1px solid rgba(255,255,255,0.1);
+  padding-top:14px;
+}
+
+/* ---- Main ---- */
+.main{padding:28px 34px 60px;max-width:1180px;}
+.topbar{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:22px;flex-wrap:wrap;gap:14px;
+}
+.topbar h2{
+  font-family:var(--font-head);
+  font-size:24px;margin:0 0 4px;
+  color:var(--navy);
+}
+.topbar p{margin:0;color:var(--slate);font-size:13.5px;}
+
+.session-controls{display:flex;gap:8px;flex-wrap:wrap;}
+button{
+  font-family:var(--font-body);
+  cursor:pointer;border:none;border-radius:8px;
+  font-size:13px;padding:9px 16px;
+  transition:transform .08s ease, box-shadow .15s ease, background .15s ease;
+}
+button:active{transform:scale(0.97);}
+.btn-primary{background:var(--blue);color:white;font-weight:600;}
+.btn-primary:hover{background:#0e336f;}
+.btn-secondary{background:var(--ice);color:var(--blue);font-weight:600;}
+.btn-secondary:hover{background:var(--ice-2);}
+.btn-ghost{background:transparent;color:var(--slate);border:1px solid #D7DEEA;}
+.btn-ghost:hover{background:#EEF2F8;}
+.btn-danger{background:var(--bad-bg);color:var(--bad);font-weight:600;}
+.btn-danger:hover{background:#f8d6d6;}
+.btn-gold{background:var(--gold);color:var(--navy);font-weight:700;}
+.btn-gold:hover{background:#d99500;}
+button:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ---- Card ---- */
+.card{
+  background:white;border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:22px 24px;margin-bottom:20px;
+  border:1px solid #E9EEF6;
+}
+.card h3{
+  font-family:var(--font-head);
+  font-size:17px;margin:0 0 4px;color:var(--navy);
+  display:flex;align-items:center;gap:8px;
+}
+.card .hint{color:var(--slate);font-size:12.5px;margin:0 0 16px;}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
+}
+.badge.good{background:var(--good-bg);color:var(--good);}
+.badge.bad{background:var(--bad-bg);color:var(--bad);}
+.badge.gold{background:var(--gold-bg);color:var(--gold-text);}
+.badge.neutral{background:var(--ice);color:var(--blue);}
+
+textarea{
+  width:100%;min-height:130px;
+  border:1.5px dashed #C9D4E4;border-radius:8px;
+  padding:12px;font-family:var(--font-mono);font-size:12px;
+  resize:vertical;background:#FBFCFE;color:var(--ink);
+  direction:ltr;text-align:left;
+}
+textarea:focus{outline:none;border-color:var(--cyan);background:white;}
+
+.dropzone-row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap;}
+input[type=file]{
+  font-size:12.5px;
+  padding:8px;border:1px solid #D7DEEA;border-radius:8px;background:#FBFCFE;
+  max-width:280px;
+}
+.field-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;}
+.field{display:flex;flex-direction:column;gap:6px;min-width:190px;}
+.field label{font-size:12.5px;color:var(--slate);font-weight:600;}
+.field input[type=text],.field input[type=number]{
+  border:1.5px solid #D7DEEA;border-radius:8px;padding:9px 11px;
+  font-family:var(--font-mono);font-size:13.5px;
+}
+.field input:focus{outline:none;border-color:var(--cyan);}
+.vat-field input{width:110px;font-size:18px;font-weight:700;color:var(--blue);}
+.vat-field .suffix{position:relative;}
+.vat-field .suffix::after{
+  content:'%';position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  color:var(--slate);font-weight:600;
+}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:4px;}
+.stat{
+  background:var(--ice);border-radius:8px;padding:14px 16px;
+}
+.stat .n{
+  font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--navy);
+  transition:opacity .2s ease;
+}
+.stat .l{font-size:11.5px;color:var(--slate);margin-top:2px;}
+
+/* ---- Invoice accordion ---- */
+.invoice{
+  border:1px solid #E4EAF3;border-radius:10px;margin-bottom:10px;overflow:hidden;
+}
+.invoice-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:13px 16px;cursor:pointer;background:#FBFCFE;
+  gap:10px;flex-wrap:wrap;
+}
+.invoice-head:hover{background:var(--ice);}
+.invoice-head .left{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.invoice-head .po{font-family:var(--font-mono);font-weight:700;color:var(--navy);font-size:14px;}
+.invoice-head .ref{font-family:var(--font-mono);font-size:12.5px;color:var(--blue);}
+.invoice-head .amt{font-family:var(--font-mono);font-weight:700;color:var(--navy);font-size:13.5px;}
+.chev{transition:transform .2s ease;color:var(--slate);}
+.invoice.open .chev{transform:rotate(180deg);}
+.invoice-body{display:none;padding:0 16px 16px;}
+.invoice.open .invoice-body{display:block;}
+
+table.mini{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+table.mini th{
+  background:var(--ice-2);color:var(--blue);font-weight:700;
+  text-align:right;padding:7px 9px;font-size:11px;white-space:nowrap;
+}
+table.mini td{
+  padding:7px 9px;border-bottom:1px solid #F0F3F9;
+  font-family:var(--font-mono);white-space:nowrap;
+}
+table.mini tr:last-child td{border-bottom:none;}
+.hdr-fact{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:12px;color:var(--slate);margin-top:10px;}
+.hdr-fact b{color:var(--ink);font-family:var(--font-mono);}
+
+.empty-state{
+  text-align:center;padding:50px 20px;color:var(--slate);
+}
+.empty-state .icon{font-size:34px;margin-bottom:10px;}
+
+/* ---- Sessions list ---- */
+.session-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 12px;border:1px solid #E9EEF6;border-radius:8px;margin-bottom:8px;
+  font-size:13px;
+}
+.session-item .meta{color:var(--slate);font-size:11.5px;}
+.session-item .actions{display:flex;gap:6px;}
+
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:white;padding:11px 20px;border-radius:30px;
+  font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);
+  opacity:0;transition:all .25s ease;pointer-events:none;z-index:999;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.section{display:none;}
+.section.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.warn-list{font-size:12.5px;color:var(--gold-text);background:var(--gold-bg);border-radius:8px;padding:10px 14px;margin-top:10px;}
+.warn-list b{display:block;margin-bottom:4px;}
+
+code.inline{background:var(--ice);padding:1px 6px;border-radius:5px;font-family:var(--font-mono);font-size:12px;color:var(--blue);}
+
+.foot-note{font-size:11.5px;color:var(--slate-light);}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">MFC</div>
+      <div class="brand-text">
+        <h1>MFC Invoice System</h1>
+        <span>AP ECONNECT MULTI-UPLOAD</span>
+      </div>
+    </div>
+
+    <div class="steps" id="stepsNav">
+      <div class="step active" data-step="1"><span class="num">1</span> استيراد بيانات الـPO</div>
+      <div class="step" data-step="2"><span class="num">2</span> استيراد أرقام الفواتير</div>
+      <div class="step" data-step="3"><span class="num">3</span> الإعدادات والضريبة</div>
+      <div class="step" data-step="4"><span class="num">4</span> المعاينة والفواتير</div>
+      <div class="step" data-step="5"><span class="num">5</span> تصدير الإكسل</div>
+      <div class="step" data-step="6"><span class="num">6</span> الجلسات المحفوظة</div>
+    </div>
+
+    <div class="sidebar-footer">
+      كل البيانات تُحفظ محلياً داخل متصفحك فقط (localStorage) — لا يوجد سيرفر خارجي.
+      <br><br>
+      MFC © <span id="yearNow"></span>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2 id="pageTitle">استيراد بيانات أوامر الشراء (PO Dump)</h2>
+        <p id="pageSub">الصق أو ارفع ملف تصدير الـ PO الخام من AP eConnect (All Items export)</p>
+      </div>
+      <div class="session-controls">
+        <button class="btn-secondary" id="btnAutoRestoreInfo" title="آخر جلسة عمل">↺ استرجاع آخر جلسة</button>
+        <button class="btn-primary" id="btnSaveSessionTop">💾 حفظ الجلسة</button>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <section class="section active" id="sec1">
+      <div class="card">
+        <h3>📥 استيراد بيانات الـPO <span class="badge neutral" id="dumpBadge">لم يتم الاستيراد بعد</span></h3>
+        <p class="hint">الصق البيانات (نسخ من إكسل مباشرة بصيغة Tab-separated) أو ارفع ملف Excel/CSV يحتوي على أعمدة: PO Number, Item No, Quantity Open, Net Unit Price, Is Self Billing, Deleted/Blocked... إلخ.</p>
+        <textarea id="dumpText" placeholder="الصق هنا بيانات الـ PO (Tab-separated)، أول صف يجب أن يكون أسماء الأعمدة..."></textarea>
+        <div class="dropzone-row">
+          <input type="file" id="dumpFile" accept=".xlsx,.xls,.csv,.tsv,.txt">
+          <button class="btn-primary" id="btnParseDump">تحليل البيانات ⟶</button>
+          <button class="btn-ghost" id="btnClearDump">مسح</button>
+        </div>
+        <div id="dumpStats" class="stat-grid" style="display:none;margin-top:16px;">
+          <div class="stat"><div class="n" id="stRows">0</div><div class="l">إجمالي الأسطر المستوردة</div></div>
+          <div class="stat"><div class="n" id="stAvail">0</div><div class="l">بنود متاحة للفوترة</div></div>
+          <div class="stat"><div class="n" id="stExcluded">0</div><div class="l">بنود مستبعدة (مفوترة/محظورة)</div></div>
+          <div class="stat"><div class="n" id="stPOs">0</div><div class="l">عدد أوامر الشراء (فواتير)</div></div>
+        </div>
+        <div id="dumpWarnings"></div>
+      </div>
+      <div style="text-align:left;">
+        <button class="btn-primary" onclick="goStep(2)">التالي: استيراد أرقام الفواتير ⟵</button>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="section" id="sec2">
+      <div class="card">
+        <h3>🔗 استيراد جدول ربط رقم الفاتورة (Invoice Reference) <span class="badge neutral" id="mapBadge">لم يتم الاستيراد بعد</span></h3>
+        <p class="hint">الصق أو ارفع الجدول الذي يحتوي على الأعمدة: <code class="inline">Site</code> · <code class="inline">PO#</code> · <code class="inline">Invoice Number</code>. سيتم مطابقة كل PO تلقائياً مع رقم فاتورته.</p>
+        <textarea id="mapText" placeholder="Site&#9;PO#&#9;Invoice Number&#10;448&#9;51337869&#9;INV2026-0269 ..."></textarea>
+        <div class="dropzone-row">
+          <input type="file" id="mapFile" accept=".xlsx,.xls,.csv,.tsv,.txt">
+          <button class="btn-primary" id="btnParseMap">تحليل الجدول ⟶</button>
+          <button class="btn-ghost" id="btnClearMap">مسح</button>
+        </div>
+        <div id="mapStats" class="stat-grid" style="display:none;margin-top:16px;">
+          <div class="stat"><div class="n" id="stMapRows">0</div><div class="l">عدد أرقام الفواتير المستوردة</div></div>
+          <div class="stat"><div class="n" id="stMapMatched">0</div><div class="l">مطابقة مع الـ PO المستوردة</div></div>
+          <div class="stat"><div class="n" id="stMapUnmatched">0</div><div class="l">أرقام PO غير موجودة بالخطوة 1</div></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <button class="btn-ghost" onclick="goStep(1)">⟶ رجوع</button>
+        <button class="btn-primary" onclick="goStep(3)">التالي: الإعدادات ⟵</button>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="section" id="sec3">
+      <div class="card">
+        <h3>⚙️ الإعدادات العامة</h3>
+        <p class="hint">هذه القيم تُطبّق تلقائياً على كل الفواتير المُولّدة.</p>
+        <div class="field-row">
+          <div class="field vat-field">
+            <label>نسبة الضريبة VAT % (تُطبّق على الكل مباشرة)</label>
+            <div class="suffix"><input type="number" id="vatPercent" value="0" min="0" max="100" step="0.01"></div>
+          </div>
+          <div class="field">
+            <label>Bank Account (ثابت)</label>
+            <input type="text" id="bankAccount" value="005673917711">
+          </div>
+          <div class="field">
+            <label>Company Code</label>
+            <input type="text" id="companyCode" value="FIIX">
+          </div>
+          <div class="field">
+            <label>Invoice Date (تلقائي = تاريخ اليوم)</label>
+            <input type="text" id="invoiceDateDisplay" value="" disabled style="background:#F0F3F9;color:var(--slate);">
+          </div>
+        </div>
+        <div class="warn-list">
+          <b>ملاحظة:</b>
+          VAT Amount يبقى دائماً صفر (يُملأ فقط عبر النسبة %). عند تغيير نسبة VAT%، يتم تحديث Calculated VAT Amount و Gross Amount لكل البنود مباشرة في المعاينة.
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <button class="btn-ghost" onclick="goStep(2)">⟶ رجوع</button>
+        <button class="btn-primary" onclick="buildInvoices(); goStep(4);">بناء الفواتير ومعاينتها ⟵</button>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="section" id="sec4">
+      <div class="card">
+        <h3>🧾 معاينة الفواتير <span class="badge neutral" id="invBadge">0 فاتورة</span></h3>
+        <div class="stat-grid">
+          <div class="stat"><div class="n" id="sumInvoices">0</div><div class="l">عدد الفواتير</div></div>
+          <div class="stat"><div class="n" id="sumLines">0</div><div class="l">إجمالي البنود</div></div>
+          <div class="stat"><div class="n" id="sumNet">0</div><div class="l">إجمالي Net Amount</div></div>
+          <div class="stat"><div class="n" id="sumVat">0</div><div class="l">إجمالي VAT</div></div>
+          <div class="stat"><div class="n" id="sumGross">0</div><div class="l">إجمالي Gross Amount</div></div>
+        </div>
+        <div id="unmatchedWarning"></div>
+        <div id="invoiceList" style="margin-top:18px;"></div>
+        <div class="empty-state" id="emptyInvoices" style="display:none;">
+          <div class="icon">📄</div>
+          لا توجد فواتير بعد — أكمل الخطوة 1 و2 ثم اضغط "بناء الفواتير".
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <button class="btn-ghost" onclick="goStep(3)">⟶ رجوع</button>
+        <button class="btn-primary" onclick="goStep(5)">التالي: تصدير الإكسل ⟵</button>
+      </div>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="section" id="sec5">
+      <div class="card">
+        <h3>📤 تصدير ملف الإكسل (Multi-Upload Format)</h3>
+        <p class="hint">سيتم توليد ملف <code class="inline">.xlsx</code> بنفس تنسيق قالب AP eConnect (شيت Submit)، بكتلة منفصلة لكل فاتورة وصف فارغ بينها، جاهز للرفع مباشرة إلى <code class="inline">Import PO Multi Upload Excel</code>.</p>
+        <div class="field-row">
+          <div class="field" style="min-width:260px;">
+            <label>اسم الملف</label>
+            <input type="text" id="exportFileName" value="Multi-upload_PO_Invoices">
+          </div>
+        </div>
+        <div class="dropzone-row">
+          <button class="btn-gold" id="btnExportExcel">⬇ تنزيل ملف الإكسل</button>
+        </div>
+        <div id="exportMsg" style="margin-top:12px;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <button class="btn-ghost" onclick="goStep(4)">⟶ رجوع</button>
+        <button class="btn-primary" onclick="goStep(6)">إدارة الجلسات ⟵</button>
+      </div>
+    </section>
+
+    <!-- STEP 6 -->
+    <section class="section" id="sec6">
+      <div class="card">
+        <h3>💾 الجلسات المحفوظة</h3>
+        <p class="hint">احفظ عملية الاستيراد الحالية (بيانات الـPO + جدول الفواتير + الإعدادات) لتقدر تفتحها لاحقاً بدون إعادة اللصق.</p>
+        <div class="field-row">
+          <div class="field" style="flex:1;min-width:240px;">
+            <label>اسم الجلسة</label>
+            <input type="text" id="sessionName" placeholder="مثال: دفعة فواتير أغسطس 2026">
+          </div>
+        </div>
+        <div class="dropzone-row">
+          <button class="btn-primary" id="btnSaveSession">💾 حفظ الجلسة الحالية</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📂 الجلسات المخزنة على هذا الجهاز</h3>
+        <div id="sessionsList"></div>
+        <div class="empty-state" id="emptySessions" style="display:none;">
+          <div class="icon">🗂️</div>
+          لا توجد جلسات محفوظة بعد.
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
