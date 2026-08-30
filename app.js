@@ -308,7 +308,7 @@ function buildInvoices(){
     groups[r.poNorm].push(r);
   });
 
-  const invoices = Object.keys(groups).map(poNorm=>{
+  const invoices = Object.keys(groups)   .filter(poNorm => {       const mapEntry = state.invoiceMap[poNorm];       return mapEntry && mapEntry.invoiceNumber;   })   .map(poNorm => {
     const items = groups[poNorm];
     const first = items[0];
     const mapEntry = state.invoiceMap[poNorm];
@@ -350,7 +350,7 @@ function recalcVatOnly(){
   // live recompute without full rebuild, using current vatPercent input
   if(!state.invoices.length) return;
   const vatPercent = parseNum(document.getElementById('vatPercent').value);
-  state.invoices.forEach(inv=>{
+  const exportInvoices = state.invoices.filter(     inv => inv.matched && inv.invoiceReference );  exportInvoices.forEach(inv=>{
     let totalNet=0, totalVat=0, totalGross=0;
     inv.lineItems.forEach(li=>{
       li.vatPercent = vatPercent;
