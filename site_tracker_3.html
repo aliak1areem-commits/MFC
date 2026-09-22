@@ -1562,54 +1562,188 @@ function normalizeDate(str){
   return isNaN(d) ? '' : d.toISOString().slice(0,10);
 }
 function parseSMRFromStructure(pages){
-  const result = { number:null, date:"", project:null, budget:null, siteId:null, items:[], warning:"", structure: pages };
+  const result = {
+    number:null, date:"", project:null, budget:null,
+    siteId:null, items:[], warning:"", structure: pages,
+    debugLog: []
+  };
   const allText = pagesToText(pages);
+
+  // ---- Metadata ----
   result.number = (allText.match(/\b(BN\d{3,6})\b/i) || [])[1] || null;
-  const siteM = allText.match(/\bSite\s*[#:]*\s*(\d{3,6})\b/i) || allText.match(/\bSite[-\s]?ID[:\s]*(\d{3,6})\b/i);
+  const siteM = allText.match(/\bSite\s*[#:]*\s*(\d{3,6})\b/i)
+             || allText.match(/\bSite[-\s]?ID[:\s]*(\d{3,6})\b/i);
   result.siteId = siteM ? siteM[1] : null;
   const projM = allText.match(/\b(FTK|Ziyara|MFC|FTTX|RF)\b/i);
   result.project = projM ? projM[1].toUpperCase() : null;
   const budgetM = allText.match(/(RF\s*CAPEX\s*\d+|CAPEX\s*\d+|OPEX\s*\d+)/i);
   result.budget = budgetM ? budgetM[1].replace(/\s+/g," ").toUpperCase() : null;
-  const dateM = allText.match(/\b(\d{1,2}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{2,4})\b/i) ||
-                allText.match(/\b(\d{4}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{1,2})\b/i);
+  const dateM = allText.match(/\b(\d{1,2}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{2,4})\b/i)
+             || allText.match(/\b(\d{4}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{1,2})\b/i);
   result.date = normalizeDate(dateM ? dateM[1] : "");
 
-  const units = /^(pcs?|pc|pieces?|sets?|set|mtrs?|meters?|mtr|m|rolls?|roll|boxes?|box|units?|unit|kits?|kit|lot|no)$/i;
+  // ---- Units ----
+  const units = /^(pcs?|pc|pieces?|sets?|set|mtrs?|meters?|mtr|m|rolls?|roll|boxes?|box|units?|unit|kits?|kit|lot|no|nos?)$/i;
 
-  pages.forEach(p => {
-    p.rows.forEach(row => {
+  // ---- Find the header row (has CODE + QTY + UNIT) ----
+  // Then extract everything below it
+
+  let headerRow = null;
+  let headerPage = null;
+  let colMap = {};  // { codeIdx, descIdx, qtyIdx, unitIdx, priceIdx, totalIdx }
+
+  // Scan all pages for header row
+  for(const p of pages){
+    for(let ri = 0; ri < p.rows.length; ri++){
+      const row = p.rows[ri];
       const cells = row.cells;
-      if(cells.length < 3) return;
-      const lineText = cells.map(c => c.str).join(" ").toLowerCase();
-      if(/^\s*(code|description|qty|unit|price|total|item|no)\b/i.test(lineText)) return;
-      if(/total/i.test(lineText) && cells.length < 4) return;
+      const texts = cells.map(c => c.str.toLowerCase().trim());
 
-      let qtyIdx = -1, qty = 0;
-      for(let i=1; i<cells.length; i++){
-        const s = cells[i].str.replace(/,/g,'');
-        if(/^\d{1,6}$/.test(s)){
-          const n = parseInt(s, 10);
-          if(n > 0 && n < 100000){
-            if(i+1 < cells.length && units.test(cells[i+1].str)){
-              qtyIdx = i; qty = n; break;
+      const hasCode  = texts.some(t => /^code$/i.test(t));
+      const hasQty   = texts.some(t => /^(qty|quantity)$/i.test(t));
+      const hasUnit  = texts.some(t => /^(unit|uom|units?)$/i.test(t));
+      const hasDesc  = texts.some(t => /^(desc|description)$/i.test(t));
+
+      if((hasCode || hasDesc) && hasQty && hasUnit){
+        headerRow = row;
+        headerPage = p;
+        // Map columns
+        texts.forEach((t, i)=>{
+          if(/^code$/i.test(t)) colMap.codeIdx = i;
+          else if(/^(desc|description)$/i.test(t)) colMap.descIdx = i;
+          else if(/^(qty|quantity)$/i.test(t)) colMap.qtyIdx = i;
+          else if(/^(unit|uom|units?)$/i.test(t)) colMap.unitIdx = i;
+          else if(/^(price|unit\s*price)$/i.test(t)) colMap.priceIdx = i;
+          else if(/^(total|amount)$/i.test(t)) colMap.totalIdx = i;
+        });
+        break;
+      }
+    }
+    if(headerRow) break;
+  }
+
+  result.debugLog.push('Header row found: ' + (headerRow ? JSON.stringify(colMap) : 'NO'));
+
+  // ---- Method 1: Use header-based extraction ----
+  if(headerRow && colMap.qtyIdx !== undefined && colMap.unitIdx !== undefined){
+    for(const p of pages){
+      for(const row of p.rows){
+        // Skip header row itself
+        if(row === headerRow) continue;
+
+        const cells = row.cells;
+        // Get cell at index — but PDF cells may not align exactly with header
+        // So try: take qtyIdx-th cell as qty, unitIdx-th cell as unit
+
+        const qtyCell = cells[colMap.qtyIdx];
+        const unitCell = cells[colMap.unitIdx];
+        if(!qtyCell || !unitCell) continue;
+
+        // qty must be a number
+        const qtyStr = qtyCell.str.replace(/,/g,'').trim();
+        if(!/^\d{1,6}$/.test(qtyStr)) continue;
+        const qty = parseInt(qtyStr, 10);
+        if(qty <= 0 || qty > 100000) continue;
+
+        // unit must match unit list
+        if(!units.test(unitCell.str.trim())) continue;
+
+        // Code: prefer codeIdx, else take cells before qty
+        let code = '';
+        if(colMap.codeIdx !== undefined && cells[colMap.codeIdx]){
+          code = cells[colMap.codeIdx].str.trim();
+        }
+        if(!code){
+          // Join all cells before qtyIdx
+          const codeParts = cells.slice(0, colMap.qtyIdx).map(c => c.str).filter(Boolean);
+          code = codeParts.join(' ').trim();
+        }
+        // Clean
+        code = code.replace(/[\-\:\.\,]+\s*$/g, '').trim();
+        if(code.length < 2 || code.length > 200) continue;
+        if(/^\d+$/.test(code)) continue;
+        if(/^(total|code|description|qty|unit|price|item|no|grand total|sub\s*total)$/i.test(code)) continue;
+
+        // Deduplicate
+        const key = code.toLowerCase().replace(/\s+/g,' ').trim();
+        if(result.items.some(it => it.code.toLowerCase().replace(/\s+/g,' ').trim() === key)) continue;
+
+        result.items.push({
+          code: code,
+          desc: colMap.descIdx !== undefined && cells[colMap.descIdx] ? cells[colMap.descIdx].str : '',
+          qty: qty,
+          unit: unitCell.str.toLowerCase().trim(),
+          price: 0
+        });
+      }
+    }
+    result.debugLog.push('Header-based extraction: ' + result.items.length + ' items');
+  }
+
+  // ---- Method 2 (fallback): number-then-unit pattern ----
+  if(result.items.length === 0){
+    result.debugLog.push('Using fallback pattern matching...');
+    pages.forEach(p => {
+      p.rows.forEach(row => {
+        const cells = row.cells;
+        if(cells.length < 3) return;
+        const lineText = cells.map(c => c.str).join(' ').toLowerCase();
+        if(/^\s*(code|description|qty|unit|price|total|item|no)\b/i.test(lineText)) return;
+
+        // Find a cell that is a number, then check next cell for unit
+        for(let i = 1; i < cells.length; i++){
+          const s = cells[i].str.replace(/,/g,'').trim();
+          if(/^\d{1,6}$/.test(s)){
+            const n = parseInt(s, 10);
+            if(n > 0 && n < 100000){
+              // Look at next cell
+              if(i+1 < cells.length && units.test(cells[i+1].str.trim())){
+                const codeParts = cells.slice(0, i).map(c => c.str).filter(Boolean);
+                let code = codeParts.join(' ').trim();
+                code = code.replace(/[\-\:\.\,]+\s*$/g, '').trim();
+                if(code.length < 2 || code.length > 200) continue;
+                if(/^\d+$/.test(code)) continue;
+                if(/^(total|code|description|qty|unit|price|item|no)$/i.test(code)) continue;
+                const key = code.toLowerCase().replace(/\s+/g,' ').trim();
+                if(result.items.some(it => it.code.toLowerCase().replace(/\s+/g,' ').trim() === key)) continue;
+                result.items.push({
+                  code: code, desc: '',
+                  qty: n, unit: cells[i+1].str.toLowerCase().trim(), price: 0
+                });
+                break;
+              }
             }
           }
         }
-      }
-      if(qtyIdx < 1) return;
-      const unit = cells[qtyIdx+1].str.toLowerCase();
-      const codeParts = cells.slice(0, qtyIdx).map(c => c.str).filter(Boolean);
-      let code = codeParts.join(" ").trim();
-      code = code.replace(/[\-\:\.\,]+\s*$/g, "").trim();
-      if(code.length < 3 || code.length > 200) return;
-      if(/^\d+$/.test(code)) return;
-      if(/^(total|code|description|qty|unit|price|item|no)$/i.test(code)) return;
-      const key = code.toLowerCase().replace(/\s+/g,' ').trim();
-      if(result.items.some(it => it.code.toLowerCase().replace(/\s+/g,' ').trim() === key)) return;
-      result.items.push({ code, desc: "", qty, unit, price: 0 });
+      });
     });
-  });
+    result.debugLog.push('Fallback extraction: ' + result.items.length + ' items');
+  }
+
+  // ---- Method 3 (last resort): any row with >=2 cells that has a number ----
+  if(result.items.length === 0){
+    result.debugLog.push('Last resort: extracting any line with a number...');
+    pages.forEach(p => {
+      p.rows.forEach(row => {
+        const cells = row.cells;
+        if(cells.length < 2) return;
+        // Find any number
+        const numCell = cells.find(c => /^\d{1,6}$/.test(c.str.replace(/,/g,'').trim()));
+        if(!numCell) return;
+        const qty = parseInt(numCell.str.replace(/,/g,''), 10);
+        if(qty <= 0 || qty > 100000) return;
+        // Code = first cell with text
+        const firstText = cells.find(c => c.str.trim().length > 2 && !/^\d+$/.test(c.str.trim()));
+        if(!firstText) return;
+        const code = firstText.str.trim();
+        if(/^(total|code|description|qty|unit|price|item|no)$/i.test(code)) return;
+        const key = code.toLowerCase();
+        if(result.items.some(it => it.code.toLowerCase() === key)) return;
+        result.items.push({ code, desc: '', qty, unit: 'pcs', price: 0 });
+      });
+    });
+    result.debugLog.push('Last resort: ' + result.items.length + ' items');
+  }
 
   if(!result.items.length){
     result.warning = "No items auto-detected. Use 'Debug Structure' to inspect.";
@@ -2440,31 +2574,68 @@ document.getElementById('ex_debugBtn').onclick = ()=>{
 };
 document.getElementById('ex_structBtn').onclick = ()=>{
   if(!pendingPDF || !pendingPDF.pages){ toast({type:'warning', title:'No PDF'}); return; }
-  const win = window.open('', '_blank', 'width=1200,height=800');
+  const win = window.open('', '_blank', 'width=1400,height=900');
   if(!win){ toast({type:'error', title:'Popup blocked'}); return; }
+
+  const units = /^(pcs?|pc|pieces?|sets?|set|mtrs?|meters?|mtr|m|rolls?|roll|boxes?|box|units?|unit|kits?|kit|lot|no|nos?)$/i;
+
   let html = `<html><head><title>PDF Structure Debug</title>
   <style>
     body{font-family:monospace;font-size:12px;padding:20px;background:#0f172a;color:#e2e8f0;}
     h2{color:#60a5fa;font-family:Inter,sans-serif;}
+    h3{color:#fbbf24;font-family:Inter,sans-serif;margin-top:20px;}
+    .info{background:#1e3a8a;padding:10px;border-radius:6px;margin-bottom:14px;font-family:Inter,sans-serif;color:#dbeafe;}
     .page{margin:16px 0;padding:12px;background:#1e293b;border-radius:8px;}
     .page-title{color:#fbbf24;font-weight:700;margin-bottom:10px;font-family:Inter,sans-serif;}
-    .row{padding:6px 0;border-bottom:1px solid #334155;display:flex;gap:20px;flex-wrap:wrap;}
+    .row{padding:4px 0;border-bottom:1px solid #334155;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .row-num{color:#64748b;font-size:10px;min-width:30px;}
     .cell{padding:3px 8px;background:#334155;border-radius:4px;color:#e2e8f0;}
-    .cell-num{background:#059669;}
+    .cell-num{background:#059669;font-weight:700;}
     .cell-unit{background:#d97706;}
+    .cell-header{background:#7c3aed;font-weight:700;text-transform:uppercase;}
+    .parsed{background:#065f46;padding:10px;border-radius:6px;margin:14px 0;font-family:Inter,sans-serif;}
+    .parsed-item{color:#d1fae5;padding:3px 0;}
+    .parsed-empty{color:#fecaca;}
+    .legend{margin-bottom:14px;font-family:Inter,sans-serif;color:#94a3b8;}
+    .legend span{display:inline-block;padding:3px 8px;border-radius:4px;margin-right:8px;}
   </style></head><body>
-  <h2>PDF Structure Debug</h2>
-  <p>Each row shows cells with X coordinate. Green=number, Orange=unit.</p>`;
-  const units = /^(pcs?|pc|pieces?|sets?|set|mtrs?|meters?|mtr|m|rolls?|roll|boxes?|box|units?|unit|kits?|kit|lot|no)$/i;
+  <h2>PDF Structure Debug — Detailed View</h2>
+  <div class="legend">
+    <span style="background:#7c3aed;color:#fff;">HEADER</span>
+    <span style="background:#059669;color:#fff;">NUMBER</span>
+    <span style="background:#d97706;color:#fff;">UNIT</span>
+    <span style="background:#334155;color:#fff;">OTHER</span>
+  </div>`;
+
+  // ---- Show parsed results ----
+  const parsed = pendingPDF.parsed || {};
+  html += `<div class="parsed">
+    <h3 style="color:#d1fae5;margin-top:0;">✅ Parsed Items (${parsed.items?.length || 0})</h3>`;
+  if(parsed.debugLog){
+    html += `<div style="color:#fbbf24;font-size:11px;margin-bottom:8px;">${parsed.debugLog.join('<br>')}</div>`;
+  }
+  if(!parsed.items?.length){
+    html += `<div class="parsed-empty">⚠ No items parsed — see raw data below to understand why</div>`;
+  } else {
+    parsed.items.forEach(it => {
+      html += `<div class="parsed-item">• <b>${escapeHtml(it.code)}</b> — ${it.qty} ${escapeHtml(it.unit)}</div>`;
+    });
+  }
+  html += `</div>`;
+
+  // ---- Show all rows ----
   pendingPDF.pages.forEach(p => {
     html += `<div class="page"><div class="page-title">Page ${p.pageNum} — ${p.rows.length} rows</div>`;
-    p.rows.forEach(row => {
-      html += `<div class="row">`;
+    p.rows.forEach((row, ri) => {
+      html += `<div class="row"><span class="row-num">#${ri}</span>`;
+      const texts = row.cells.map(c => c.str.toLowerCase().trim());
+      const isHeader = texts.some(t => /^(code|description|qty|unit|price|total)$/i.test(t));
       row.cells.forEach(c => {
         let cls = 'cell';
-        if(/^\d{1,6}$/.test(c.str)) cls += ' cell-num';
+        if(isHeader) cls += ' cell-header';
+        else if(/^\d{1,6}$/.test(c.str)) cls += ' cell-num';
         else if(units.test(c.str)) cls += ' cell-unit';
-        html += `<span class="${cls}" title="x=${Math.round(c.x)}">${escapeHtml(c.str)}</span>`;
+        html += `<span class="${cls}" title="x=${Math.round(c.x)} y=${Math.round(row.y)}">${escapeHtml(c.str)}</span>`;
       });
       html += `</div>`;
     });
