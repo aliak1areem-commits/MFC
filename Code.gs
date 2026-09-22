@@ -1,61 +1,83 @@
-function analyzeConsumption(smrItems, consumption){
-  const map = new Map();
+/************************************************************
+ *  MFC RAN Site Tracker — Backend (Sheets + Drive)
+ ************************************************************/
+const DRIVE_FOLDER_NAME = "MFC_SMR_Files";
 
-  (smrItems||[]).forEach(it=>{
-    const key = normalizeCode(it.code);
-    if(!key) return;
-    map.set(key, {
-      code: it.code,
-      desc: it.desc || "",
-      unit: it.unit || "-",
-      ordered: it.qty || 0,
-      price: it.price || 0,
-      consumed: 0,
-      note: ""
+function doGet(e){
+  try{
+    const action = (e && e.parameter && e.parameter.action) || "read";
+    if(action === "read") return jsonResponse(readSheet());
+    return jsonResponse({ ok:false, error:"Unknown action" });
+  }catch(err){ return jsonResponse({ ok:false, error: err.toString() }); }
+}
+
+function doPost(e){
+  try{
+    if(!e || !e.postData || !e.postData.contents)
+      return jsonResponse({ ok:false, error:"No payload" });
+    const payload = JSON.parse(e.postData.contents);
+    if(payload.action === "uploadPdf") return jsonResponse(uploadPdfToDrive(payload));
+    if(payload.headers && payload.rows) return jsonResponse(writeSheet(payload));
+    return jsonResponse({ ok:false, error:"Unknown payload" });
+  }catch(err){ return jsonResponse({ ok:false, error: err.toString() }); }
+}
+
+function readSheet(){
+  const sheet  = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  const values = sheet.getDataRange().getValues();
+  if(values.length === 0) return { headers:[], rows:[] };
+  const headers = values[0].map(h => String(h));
+  const rows = values.slice(1).map(r => {
+    const obj = {};
+    headers.forEach((h,i) => {
+      obj[h] = (r[i] !== undefined && r[i] !== null) ? r[i].toString() : "";
     });
+    return obj;
   });
+  return { headers, rows };
+}
 
-  (consumption||[]).forEach(c=>{
-    const key = normalizeCode(c.code);
-    if(!key) return;
-    if(map.has(key)){
-      const item = map.get(key);
-      item.consumed += (parseInt(c.qty,10) || 0);
-      if(c.note) item.note = c.note;
-    } else {
-      map.set(key, {
-        code: c.code,
-        desc: c.desc || "",
-        unit: c.unit || "-",
-        ordered: 0,
-        price: 0,
-        consumed: parseInt(c.qty,10) || 0,
-        note: c.note || ""
-      });
-    }
-  });
+function writeSheet(payload){
+  const sheet   = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  const headers = payload.headers;
+  const rows    = payload.rows || [];
+  sheet.clearContents();
+  sheet.getRange(1,1,1,headers.length).setValues([headers]);
+  if(rows.length){
+    const values = rows.map(r => headers.map(h => {
+      const v = r[h];
+      return (v === undefined || v === null) ? "" : v;
+    }));
+    sheet.getRange(2,1,values.length,headers.length).setValues(values);
+  }
+  sheet.setFrozenRows(1);
+  return { status:"ok", count: rows.length };
+}
 
-  const items = [];
-  map.forEach(v=>{
-    const diff = v.consumed - v.ordered;
-    let status = "pending"; // 🔑 جديد — لم يُستهلك بعد
-
-    if(v.consumed > 0){
-      if(diff < 0)      status = "shortage";
-      else if(diff > 0) status = "excess";
-      else              status = "match";
-    } else if(v.ordered === 0 && v.consumed === 0){
-      status = "empty";
-    }
-
-    items.push({...v, diff, status});
-  });
-
+function uploadPdfToDrive(payload){
+  const { fileName, base64, mimeType, siteId } = payload;
+  if(!base64)   return { ok:false, error:"Missing base64" };
+  if(!fileName) return { ok:false, error:"Missing fileName" };
+  let folder;
+  const folders = DriveApp.getFoldersByName(DRIVE_FOLDER_NAME);
+  folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(DRIVE_FOLDER_NAME);
+  const oldFiles = folder.getFilesByName(fileName);
+  while(oldFiles.hasNext()){ try{ oldFiles.next().setTrashed(true); }catch(e){} }
+  const bytes = Utilities.base64Decode(base64);
+  const blob  = Utilities.newBlob(bytes, mimeType || "application/pdf", fileName);
+  const file  = folder.createFile(blob);
+  try{ file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); }catch(e){}
+  const fileId = file.getId();
+  if(siteId){ try{ file.setDescription("MFC Site: " + siteId); }catch(e){} }
   return {
-    items,
-    shortages: items.filter(i=>i.status === "shortage"),
-    excesses:  items.filter(i=>i.status === "excess"),
-    matches:   items.filter(i=>i.status === "match"),
-    pendings:  items.filter(i=>i.status === "pending")
+    ok: true, fileId: fileId, fileName: fileName,
+    viewUrl:     "https://drive.google.com/file/d/" + fileId + "/view",
+    previewUrl:  "https://drive.google.com/file/d/" + fileId + "/preview",
+    downloadUrl: "https://drive.google.com/uc?export=download&id=" + fileId
   };
+}
+
+function jsonResponse(obj){
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
