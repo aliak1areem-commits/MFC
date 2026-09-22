@@ -1572,7 +1572,8 @@ function parseSMRFromStructure(pages){
   // ---- Metadata ----
   result.number = (allText.match(/\b(BN\d{3,6})\b/i) || [])[1] || null;
   const siteM = allText.match(/\bSite\s*[#:]*\s*(\d{3,6})\b/i)
-             || allText.match(/\bSite[-\s]?ID[:\s]*(\d{3,6})\b/i);
+             || allText.match(/\bSite[-\s]?ID[:\s]*(\d{3,6})\b/i)
+             || allText.match(/\bSite\s*Code[:\s]*(\d{3,6})\b/i);
   result.siteId = siteM ? siteM[1] : null;
   const projM = allText.match(/\b(FTK|Ziyara|MFC|FTTX|RF)\b/i);
   result.project = projM ? projM[1].toUpperCase() : null;
@@ -1582,171 +1583,134 @@ function parseSMRFromStructure(pages){
              || allText.match(/\b(\d{4}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{1,2})\b/i);
   result.date = normalizeDate(dateM ? dateM[1] : "");
 
-  // ---- Units ----
-  const units = /^(pcs?|pc|pieces?|sets?|set|mtrs?|meters?|mtr|m|rolls?|roll|boxes?|box|units?|unit|kits?|kit|lot|no|nos?)$/i;
+  // ---- Detect real table header ----
+  // We look for a row that has Index + product + QTY (case insensitive)
+  let headerInfo = null;
 
-  // ---- Find the header row (has CODE + QTY + UNIT) ----
-  // Then extract everything below it
-
-  let headerRow = null;
-  let headerPage = null;
-  let colMap = {};  // { codeIdx, descIdx, qtyIdx, unitIdx, priceIdx, totalIdx }
-
-  // Scan all pages for header row
   for(const p of pages){
     for(let ri = 0; ri < p.rows.length; ri++){
       const row = p.rows[ri];
       const cells = row.cells;
       const texts = cells.map(c => c.str.toLowerCase().trim());
 
-      const hasCode  = texts.some(t => /^code$/i.test(t));
-      const hasQty   = texts.some(t => /^(qty|quantity)$/i.test(t));
-      const hasUnit  = texts.some(t => /^(unit|uom|units?)$/i.test(t));
-      const hasDesc  = texts.some(t => /^(desc|description)$/i.test(t));
+      // Look for row containing: index + (product|item) + qty
+      const hasIndex   = texts.some(t => /^index$/i.test(t));
+      const hasProduct = texts.some(t => /product|item/i.test(t));
+      const hasQty     = texts.some(t => /^qty$|^quantity$|accepted\s*qty/i.test(t));
+      const hasSerial  = texts.some(t => /serial/i.test(t));
 
-      if((hasCode || hasDesc) && hasQty && hasUnit){
-        headerRow = row;
-        headerPage = p;
-        // Map columns
+      if(hasIndex && hasQty && (hasProduct || hasSerial)){
+        // Found the header! Map columns
+        const map = {};
         texts.forEach((t, i)=>{
-          if(/^code$/i.test(t)) colMap.codeIdx = i;
-          else if(/^(desc|description)$/i.test(t)) colMap.descIdx = i;
-          else if(/^(qty|quantity)$/i.test(t)) colMap.qtyIdx = i;
-          else if(/^(unit|uom|units?)$/i.test(t)) colMap.unitIdx = i;
-          else if(/^(price|unit\s*price)$/i.test(t)) colMap.priceIdx = i;
-          else if(/^(total|amount)$/i.test(t)) colMap.totalIdx = i;
+          if(/^index$/i.test(t)) map.indexIdx = i;
+          else if(/product\s*number|^product$/i.test(t)) map.codeIdx = i;
+          else if(/item\s*description|^description$/i.test(t)) map.descIdx = i;
+          else if(/^qty$|^quantity$/i.test(t)) map.qtyIdx = i;
+          else if(/accepted\s*qty/i.test(t)) map.acceptedIdx = i;
+          else if(/serial/i.test(t)) map.serialIdx = i;
+          else if(/comment/i.test(t)) map.commentsIdx = i;
         });
+
+        headerInfo = {
+          page: p,
+          row: row,
+          rowIndex: ri,
+          map: map,
+          y: row.y
+        };
+        result.debugLog.push('✅ Header found on page ' + p.pageNum + ': ' + JSON.stringify(map));
         break;
       }
     }
-    if(headerRow) break;
+    if(headerInfo) break;
   }
 
-  result.debugLog.push('Header row found: ' + (headerRow ? JSON.stringify(colMap) : 'NO'));
+  if(!headerInfo){
+    result.warning = "Could not find SMR table header (need Index + QTY columns).";
+    return result;
+  }
 
-  // ---- Method 1: Use header-based extraction ----
-  if(headerRow && colMap.qtyIdx !== undefined && colMap.unitIdx !== undefined){
-    for(const p of pages){
-      for(const row of p.rows){
-        // Skip header row itself
-        if(row === headerRow) continue;
+  // ---- Extract rows below the header ----
+  const headerY = headerInfo.y;
+  const map = headerInfo.map;
 
-        const cells = row.cells;
-        // Get cell at index — but PDF cells may not align exactly with header
-        // So try: take qtyIdx-th cell as qty, unitIdx-th cell as unit
+  // Number = a value like "1", "0.5", "100.25"
+  const isNumber = (s) => /^\d{1,6}(\.\d{1,4})?$/.test(s.replace(/,/g,''));
 
-        const qtyCell = cells[colMap.qtyIdx];
-        const unitCell = cells[colMap.unitIdx];
-        if(!qtyCell || !unitCell) continue;
+  pages.forEach(p => {
+    p.rows.forEach(row => {
+      // Skip rows above/at header (header Y is top, but PDF y increases downward in our grouping? 
+      // Actually our groupByY sorts descending, so rows below header have LOWER y values)
+      if(row.y >= headerY) return;
+      if(row === headerInfo.row) return;
 
-        // qty must be a number
-        const qtyStr = qtyCell.str.replace(/,/g,'').trim();
-        if(!/^\d{1,6}$/.test(qtyStr)) continue;
-        const qty = parseInt(qtyStr, 10);
-        if(qty <= 0 || qty > 100000) continue;
+      const cells = row.cells;
+      if(cells.length < 4) return;
 
-        // unit must match unit list
-        if(!units.test(unitCell.str.trim())) continue;
+      // The first cell should be an index (integer)
+      const firstCell = cells[0]?.str.replace(/,/g,'').trim() || '';
+      if(!/^\d{1,4}$/.test(firstCell)) return; // Not a data row
 
-        // Code: prefer codeIdx, else take cells before qty
-        let code = '';
-        if(colMap.codeIdx !== undefined && cells[colMap.codeIdx]){
-          code = cells[colMap.codeIdx].str.trim();
+      // Get code from codeIdx (usually index 1)
+      const codeCell = cells[map.codeIdx ?? 1];
+      if(!codeCell) return;
+      const code = codeCell.str.trim();
+      if(code.length < 2) return;
+      if(/^(index|product|item|total|qty)$/i.test(code)) return;
+
+      // Get QTY from qtyIdx
+      let qty = null;
+      if(map.qtyIdx !== undefined && cells[map.qtyIdx]){
+        const qtyStr = cells[map.qtyIdx].str.replace(/,/g,'').trim();
+        if(isNumber(qtyStr)){
+          qty = parseFloat(qtyStr);
         }
-        if(!code){
-          // Join all cells before qtyIdx
-          const codeParts = cells.slice(0, colMap.qtyIdx).map(c => c.str).filter(Boolean);
-          code = codeParts.join(' ').trim();
-        }
-        // Clean
-        code = code.replace(/[\-\:\.\,]+\s*$/g, '').trim();
-        if(code.length < 2 || code.length > 200) continue;
-        if(/^\d+$/.test(code)) continue;
-        if(/^(total|code|description|qty|unit|price|item|no|grand total|sub\s*total)$/i.test(code)) continue;
-
-        // Deduplicate
-        const key = code.toLowerCase().replace(/\s+/g,' ').trim();
-        if(result.items.some(it => it.code.toLowerCase().replace(/\s+/g,' ').trim() === key)) continue;
-
-        result.items.push({
-          code: code,
-          desc: colMap.descIdx !== undefined && cells[colMap.descIdx] ? cells[colMap.descIdx].str : '',
-          qty: qty,
-          unit: unitCell.str.toLowerCase().trim(),
-          price: 0
-        });
       }
-    }
-    result.debugLog.push('Header-based extraction: ' + result.items.length + ' items');
-  }
-
-  // ---- Method 2 (fallback): number-then-unit pattern ----
-  if(result.items.length === 0){
-    result.debugLog.push('Using fallback pattern matching...');
-    pages.forEach(p => {
-      p.rows.forEach(row => {
-        const cells = row.cells;
-        if(cells.length < 3) return;
-        const lineText = cells.map(c => c.str).join(' ').toLowerCase();
-        if(/^\s*(code|description|qty|unit|price|total|item|no)\b/i.test(lineText)) return;
-
-        // Find a cell that is a number, then check next cell for unit
-        for(let i = 1; i < cells.length; i++){
+      // Fallback: find the first numeric cell after index that is NOT the index itself
+      if(qty === null){
+        for(let i = 2; i < cells.length; i++){
           const s = cells[i].str.replace(/,/g,'').trim();
-          if(/^\d{1,6}$/.test(s)){
-            const n = parseInt(s, 10);
-            if(n > 0 && n < 100000){
-              // Look at next cell
-              if(i+1 < cells.length && units.test(cells[i+1].str.trim())){
-                const codeParts = cells.slice(0, i).map(c => c.str).filter(Boolean);
-                let code = codeParts.join(' ').trim();
-                code = code.replace(/[\-\:\.\,]+\s*$/g, '').trim();
-                if(code.length < 2 || code.length > 200) continue;
-                if(/^\d+$/.test(code)) continue;
-                if(/^(total|code|description|qty|unit|price|item|no)$/i.test(code)) continue;
-                const key = code.toLowerCase().replace(/\s+/g,' ').trim();
-                if(result.items.some(it => it.code.toLowerCase().replace(/\s+/g,' ').trim() === key)) continue;
-                result.items.push({
-                  code: code, desc: '',
-                  qty: n, unit: cells[i+1].str.toLowerCase().trim(), price: 0
-                });
-                break;
-              }
+          if(isNumber(s)){
+            const n = parseFloat(s);
+            if(n >= 0 && n < 100000){
+              qty = n;
+              break;
             }
           }
         }
-      });
-    });
-    result.debugLog.push('Fallback extraction: ' + result.items.length + ' items');
-  }
+      }
+      if(qty === null || qty <= 0) return;
 
-  // ---- Method 3 (last resort): any row with >=2 cells that has a number ----
-  if(result.items.length === 0){
-    result.debugLog.push('Last resort: extracting any line with a number...');
-    pages.forEach(p => {
-      p.rows.forEach(row => {
-        const cells = row.cells;
-        if(cells.length < 2) return;
-        // Find any number
-        const numCell = cells.find(c => /^\d{1,6}$/.test(c.str.replace(/,/g,'').trim()));
-        if(!numCell) return;
-        const qty = parseInt(numCell.str.replace(/,/g,''), 10);
-        if(qty <= 0 || qty > 100000) return;
-        // Code = first cell with text
-        const firstText = cells.find(c => c.str.trim().length > 2 && !/^\d+$/.test(c.str.trim()));
-        if(!firstText) return;
-        const code = firstText.str.trim();
-        if(/^(total|code|description|qty|unit|price|item|no)$/i.test(code)) return;
-        const key = code.toLowerCase();
-        if(result.items.some(it => it.code.toLowerCase() === key)) return;
-        result.items.push({ code, desc: '', qty, unit: 'pcs', price: 0 });
+      // Description from descIdx
+      let desc = '';
+      if(map.descIdx !== undefined && cells[map.descIdx]){
+        desc = cells[map.descIdx].str.trim();
+      }
+
+      // Unit — most SMRs use "pcs". Try to find one, else default
+      let unit = 'pcs';
+      const unitCell = cells.find(c => /^(pcs?|pc|m|mtr|meter|kit|set|roll|box|unit)$/i.test(c.str.trim()));
+      if(unitCell) unit = unitCell.str.toLowerCase();
+
+      // Deduplicate
+      const key = code.toLowerCase().replace(/\s+/g,' ').trim();
+      if(result.items.some(it => it.code.toLowerCase().replace(/\s+/g,' ').trim() === key)) return;
+
+      result.items.push({
+        code: code,
+        desc: desc,
+        qty: qty,
+        unit: unit,
+        price: 0
       });
     });
-    result.debugLog.push('Last resort: ' + result.items.length + ' items');
-  }
+  });
+
+  result.debugLog.push('Extracted ' + result.items.length + ' items');
 
   if(!result.items.length){
-    result.warning = "No items auto-detected. Use 'Debug Structure' to inspect.";
+    result.warning = "Header found but no data rows extracted. Check Debug Structure.";
   }
   return result;
 }
