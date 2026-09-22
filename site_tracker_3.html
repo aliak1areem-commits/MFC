@@ -1537,17 +1537,26 @@ async function extractPdfStructure(file, onProgress){
   return pages;
 }
 function groupByY(items){
-  const rowMap = new Map();
-  items.forEach(item => {
-    if(!item.str) return;
-    const y = Math.round(item.transform[5]);
-    if(!rowMap.has(y)) rowMap.set(y, []);
-    rowMap.get(y).push({ x: item.transform[4], str: item.str.trim(), w: item.width || 0 });
+  const valid = items.filter(it => it.str && it.str.trim());
+  valid.sort((a, b) => b.transform[5] - a.transform[5]);
+  const TOLERANCE = 4;
+  const rows = [];
+  let currentRow = null;
+  valid.forEach(item => {
+    const y = item.transform[5];
+    const x = item.transform[4];
+    const str = item.str.trim();
+    if(!currentRow || Math.abs(currentRow.y - y) > TOLERANCE){
+      currentRow = { y, cells: [{ x, str, w: item.width || 0 }] };
+      rows.push(currentRow);
+    } else {
+      currentRow.cells.push({ x, str, w: item.width || 0 });
+      currentRow.y = (currentRow.y * (currentRow.cells.length - 1) + y) / currentRow.cells.length;
+    }
   });
-  const ys = Array.from(rowMap.keys()).sort((a, b) => b - a);
-  return ys.map(y => {
-    const cells = rowMap.get(y).sort((a,b) => a.x - b.x);
-    return { y, cells };
+  rows.forEach(r => r.cells.sort((a, b) => a.x - b.x));
+  return rows;
+}
   });
 }
 function pagesToText(pages){
@@ -1683,23 +1692,28 @@ function parseSMRFromStructure(pages){
       if(qty === null || qty <= 0) return;
 
             // ===== Description: join all cells between code and qty =====
-      let desc = '';
-      const codeIdx = map.codeIdx ?? 1;
-      const qtyIdx  = map.qtyIdx;
+      // ===== Join ALL cells between code and qty as description =====
+let desc = '';
+const codeIdx = map.codeIdx ?? 1;
+const qtyIdx  = map.qtyIdx ?? cells.length - 3;
 
-      if(qtyIdx !== undefined && qtyIdx > codeIdx + 1){
-        // Join cells between codeIdx+1 and qtyIdx-1
-        const descParts = [];
-        for(let di = codeIdx + 1; di < qtyIdx; di++){
-          if(cells[di] && cells[di].str.trim()){
-            descParts.push(cells[di].str.trim());
-          }
-        }
-        desc = descParts.join(' ').trim();
-      } else if(map.descIdx !== undefined && cells[map.descIdx]){
-        // Fallback: use mapped descIdx
-        desc = cells[map.descIdx].str.trim();
-      }
+if(qtyIdx > codeIdx + 1){
+  const descParts = [];
+  for(let di = codeIdx + 1; di < qtyIdx; di++){
+    if(cells[di] && cells[di].str && cells[di].str.trim()){
+      descParts.push(cells[di].str.trim());
+    }
+  }
+  desc = descParts.join(' ');
+} else if(map.descIdx !== undefined && cells[map.descIdx]){
+  desc = cells[map.descIdx].str.trim();
+}
+
+desc = desc
+  .replace(/\s+/g, ' ')
+  .replace(/^[\s\-\:\.\,]+/, '')
+  .replace(/[\s\-\:\.\,]+$/, '')
+  .trim();
 
       // Clean up description
       desc = desc
