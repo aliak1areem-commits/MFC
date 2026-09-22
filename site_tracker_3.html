@@ -1682,11 +1682,31 @@ function parseSMRFromStructure(pages){
       }
       if(qty === null || qty <= 0) return;
 
-      // Description from descIdx
+            // ===== Description: join all cells between code and qty =====
       let desc = '';
-      if(map.descIdx !== undefined && cells[map.descIdx]){
+      const codeIdx = map.codeIdx ?? 1;
+      const qtyIdx  = map.qtyIdx;
+
+      if(qtyIdx !== undefined && qtyIdx > codeIdx + 1){
+        // Join cells between codeIdx+1 and qtyIdx-1
+        const descParts = [];
+        for(let di = codeIdx + 1; di < qtyIdx; di++){
+          if(cells[di] && cells[di].str.trim()){
+            descParts.push(cells[di].str.trim());
+          }
+        }
+        desc = descParts.join(' ').trim();
+      } else if(map.descIdx !== undefined && cells[map.descIdx]){
+        // Fallback: use mapped descIdx
         desc = cells[map.descIdx].str.trim();
       }
+
+      // Clean up description
+      desc = desc
+        .replace(/\s+/g, ' ')
+        .replace(/^[\s\-\:\.\,]+/, '')
+        .replace(/[\s\-\:\.\,]+$/, '')
+        .trim();
 
       // Unit — most SMRs use "pcs". Try to find one, else default
       let unit = 'pcs';
