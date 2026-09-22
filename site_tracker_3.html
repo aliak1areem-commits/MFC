@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MFC Company | RAN Site Tracker v3</title>
+<title>MFC Company | RAN Site Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -71,7 +71,8 @@
   select.filter:focus{outline:none;border-color:var(--blue);}
   .spacer{flex:1;}
   .btn{padding:9px 15px;border-radius:9px;border:none;font-weight:600;font-size:13px;
-    cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none;}
+    cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;
+    white-space:nowrap;text-decoration:none;}
   .btn:active{transform:scale(.96);}
   .btn-primary{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(47,111,237,.3);}
   .btn-primary:hover{background:var(--blue-dim);}
@@ -151,7 +152,7 @@
 
   .drawer-backdrop{position:fixed;inset:0;background:rgba(5,13,26,.5);display:none;z-index:110;}
   .drawer-backdrop.show{display:block;}
-  .drawer{position:fixed;top:0;right:0;bottom:0;width:640px;max-width:100vw;background:#fff;
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:680px;max-width:100vw;background:#fff;
     z-index:120;box-shadow:-8px 0 40px rgba(0,0,0,.2);transform:translateX(100%);
     transition:transform .28s ease;display:flex;flex-direction:column;}
   .drawer.show{transform:translateX(0);}
@@ -171,14 +172,19 @@
   .kv .v{font-size:13.5px;font-weight:600;color:var(--ink);margin-top:3px;word-break:break-word;}
 
   .items-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px;}
-  .items-table th{background:#f1f4f9;color:var(--ink-dim);padding:7px 9px;text-align:left;
-    font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--line);}
-  .items-table td{padding:7px 9px;border-bottom:1px solid var(--line);}
+  .items-table th{background:#e9eef6;color:#2c3a4b;padding:8px 9px;text-align:left;
+    font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px;
+    border-bottom:2px solid #c8d2e0;border-right:1px solid #d8e0ea;}
+  .items-table th:last-child{border-right:none;}
+  .items-table td{padding:7px 9px;border-bottom:1px solid var(--line);border-right:1px solid #eaeef3;
+    font-size:12.5px;vertical-align:middle;}
+  .items-table td:last-child{border-right:none;}
   .items-table tr:last-child td{border-bottom:none;}
-  .status-pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;}
+  .status-pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;}
   .st-short{background:#fce3e3;color:#b23636;}
   .st-excess{background:#fbf0d8;color:#93650a;}
   .st-match{background:#d9f4ec;color:#0b7a5f;}
+  .st-pending{background:#e5e9f0;color:#5b6779;}
 
   .drop-zone{border:2px dashed var(--line);border-radius:10px;padding:28px 20px;
     text-align:center;cursor:pointer;background:#fafbfd;transition:.15s;}
@@ -198,7 +204,7 @@
   .extracted-form input:focus,.extracted-form select:focus{outline:none;border-color:var(--blue);}
   .extracted-form input.mono{font-family:'JetBrains Mono',monospace;}
 
-  .alert-box{padding:10px 14px;border-radius:8px;font-size:12.5px;margin-top:12px;font-weight:600;}
+  .alert-box{padding:10px 14px;border-radius:8px;font-size:12.5px;margin-top:12px;font-weight:600;line-height:1.7;}
   .alert-warn{background:#fbf0d8;color:#93650a;border:1px solid #f1dfa8;}
   .alert-info{background:#e1ecff;color:#1f4bb8;border:1px solid #bdd2f5;}
   .alert-bad{background:#fce3e3;color:#b23636;border:1px solid #f3c6c6;}
@@ -212,12 +218,12 @@
 </head>
 <body>
 
-<!-- =============== LOGIN =============== -->
+<!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
     <div class="logo-mark login-logo">MFC</div>
     <div class="login-company">MFC Company</div>
-    <h2>RAN Site Tracker v3</h2>
+    <h2>RAN Site Tracker</h2>
     <p>Please sign in to continue.</p>
     <form id="loginForm">
       <label>Username</label>
@@ -230,7 +236,7 @@
   </div>
 </div>
 
-<!-- =============== APP =============== -->
+<!-- APP -->
 <div id="appRoot" style="display:none;">
 <header class="top">
   <div class="top-inner">
@@ -238,7 +244,7 @@
       <div class="logo-mark">MFC</div>
       <div class="brand-text">
         <div class="company">MFC Company</div>
-        <h1>RAN Site Tracker v3</h1>
+        <h1>RAN Site Tracker</h1>
       </div>
       <div class="signal-wrap"><span></span><span></span><span></span><span></span></div>
     </div>
@@ -251,7 +257,7 @@
 <div class="toolbar">
   <div class="search-box">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5b6779" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#5b6779" stroke-width="2" stroke-linecap="round"/></svg>
-    <input id="searchInput" type="text" placeholder="Search Site ID, SMR, team, engineer, notes...">
+    <input id="searchInput" type="text" placeholder="Search Site ID, SMR, team, engineer...">
   </div>
   <select class="filter" id="filterGov"><option value="">All Governorates</option></select>
   <select class="filter" id="filterStates"><option value="">All States</option></select>
@@ -277,7 +283,7 @@
 
 <footer>By: Ali Amer Kareem &nbsp;•&nbsp; Tel: 009647725982056</footer>
 
-<!-- SETTINGS MODAL -->
+<!-- SETTINGS -->
 <div class="modal-backdrop" id="settingsModal">
   <div class="modal">
     <h3>Settings</h3>
@@ -286,7 +292,7 @@
       <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
         <div style="flex:1;">
           <div style="font-size:13.5px;font-weight:600;" id="settingsSyncStatus">Connected</div>
-          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Data & PDFs shared via Google Sheet + Drive.</div>
+          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Data & PDFs shared via Sheet + Drive.</div>
         </div>
         <button class="btn btn-outline" id="syncNowBtn">Sync Now</button>
       </div>
@@ -306,14 +312,14 @@
       <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
         <div style="flex:1;">
           <div style="font-size:13.5px;font-weight:600;">Import spreadsheet</div>
-          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Load an Excel or CSV file.</div>
+          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Load Excel or CSV file.</div>
         </div>
         <button class="btn btn-outline" id="importBtn">Import Excel</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
         <div style="flex:1;">
           <div style="font-size:13.5px;font-weight:600;">Export current view</div>
-          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Download filtered/sorted data.</div>
+          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Download filtered data.</div>
         </div>
         <button class="btn btn-outline" id="exportCsvBtn">CSV</button>
         <button class="btn btn-teal" id="exportXlsxBtn">Excel</button>
@@ -321,7 +327,7 @@
       <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
         <div style="flex:1;">
           <div style="font-size:13.5px;font-weight:600;">Reset local data</div>
-          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Discard local edits and re-pull from Sheet.</div>
+          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Discard local edits and re-pull.</div>
         </div>
         <button class="btn btn-ghost-red" id="resetBtn">Reset</button>
       </div>
@@ -332,7 +338,7 @@
       <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
         <div style="flex:1;">
           <div style="font-size:13.5px;font-weight:600;">Signed in as MFC</div>
-          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">This device stays signed in until you log out.</div>
+          <div style="font-size:12px;color:var(--ink-dim);margin-top:2px;">Stays signed in until you log out.</div>
         </div>
         <button class="btn btn-ghost-red" id="logoutBtn">Log Out</button>
       </div>
@@ -344,7 +350,7 @@
   </div>
 </div>
 
-<!-- EXCEL IMPORT MODAL -->
+<!-- EXCEL IMPORT -->
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
     <h3 id="importTitle">Import spreadsheet</h3>
@@ -352,21 +358,21 @@
     <div class="modal-actions">
       <button class="btn btn-outline" id="importCancel">Cancel</button>
       <button class="btn btn-outline" id="importAppend">Append rows</button>
-      <button class="btn btn-primary" id="importReplace">Replace all data</button>
+      <button class="btn btn-primary" id="importReplace">Replace all</button>
     </div>
   </div>
 </div>
 
-<!-- PDF IMPORT MODAL -->
+<!-- PDF IMPORT -->
 <div class="modal-backdrop" id="pdfImportModal">
-  <div class="modal" style="max-width:720px;">
+  <div class="modal" style="max-width:800px;">
     <h3>📄 Import SMR PDF</h3>
-    <p>Upload the Stock Requisition PDF. It will be uploaded to Google Drive and linked to the site.</p>
+    <p>Upload the Stock Requisition PDF. Items (CODE / DESCRIPTION / QTY / UNIT) will be extracted exactly as-is. No prices are auto-filled.</p>
 
     <div class="drop-zone" id="pdfDropZone">
       <div class="icon">📎</div>
       <div class="txt">Drag PDF here or click to choose</div>
-      <div class="hint">Supported: text-based or scanned PDFs (OCR)</div>
+      <div class="hint">Text-based or scanned PDFs (OCR)</div>
     </div>
     <input type="file" id="pdfFileInput" accept=".pdf" hidden>
 
@@ -376,7 +382,7 @@
     </div>
 
     <div id="pdfExtracted" style="display:none;margin-top:14px;">
-      <div class="alert-box alert-good">✅ Extraction complete — please review before saving.</div>
+      <div class="alert-box alert-good">✅ تم الاستخراج — راجع البيانات قبل الحفظ.</div>
 
       <div class="extracted-form">
         <div><label>SMR Number</label><input id="ex_smrNumber" class="mono"></div>
@@ -393,19 +399,27 @@
       </div>
 
       <div style="margin-top:16px;font-weight:700;font-size:13px;">
-        📋 Extracted Items (<span id="ex_itemsCount">0</span>)
+        📋 Extracted Items (<span id="ex_itemsCount">0</span>) — طبق الأصل من PDF
       </div>
-      <table class="items-table">
-        <thead>
-          <tr><th>Code</th><th>Description</th><th style="text-align:center;">Qty</th>
-              <th style="text-align:center;">Unit</th><th style="text-align:right;">Price</th><th></th></tr>
-        </thead>
-        <tbody id="ex_itemsBody"></tbody>
-      </table>
-      <button class="btn btn-outline btn-sm" id="ex_addItem" style="margin-top:8px;">+ Add item</button>
+      <div style="overflow-x:auto;">
+        <table class="items-table" style="min-width:600px;">
+          <thead>
+            <tr>
+              <th style="width:180px;">Code</th>
+              <th>Description</th>
+              <th style="width:70px;text-align:center;">Qty</th>
+              <th style="width:70px;text-align:center;">Unit</th>
+              <th style="width:110px;text-align:right;">Price (اختياري)</th>
+              <th style="width:36px;"></th>
+            </tr>
+          </thead>
+          <tbody id="ex_itemsBody"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-outline btn-sm" id="ex_addItem" style="margin-top:8px;">+ إضافة بند</button>
 
-      <div style="margin-top:14px;text-align:right;font-weight:800;font-size:14px;">
-        💰 Total: <span id="ex_total" class="mono">0</span>
+      <div style="margin-top:14px;text-align:right;font-weight:800;font-size:14px;color:var(--ink-dim);">
+        💰 Total: <span id="ex_total" class="mono">0</span> <span style="font-size:11px;font-weight:600;">(فقط إذا أدخلت أسعار)</span>
       </div>
 
       <div style="margin-top:14px;">
@@ -418,7 +432,7 @@
 
     <div class="modal-actions">
       <button class="btn btn-outline" id="pdfImportCancel">Cancel</button>
-      <button class="btn btn-primary" id="pdfImportSave" disabled>✔️ Save &amp; Upload to Drive</button>
+      <button class="btn btn-primary" id="pdfImportSave" disabled>✔️ Save &amp; Upload</button>
     </div>
   </div>
 </div>
@@ -436,7 +450,7 @@
   <div class="drawer-body" id="drawerBody"></div>
 </div>
 
-<!-- PDF VIEWER MODAL -->
+<!-- PDF VIEWER -->
 <div class="modal-backdrop" id="pdfViewerModal">
   <div class="modal" style="max-width:900px;padding:0;overflow:hidden;">
     <div style="background:var(--navy-900);color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">
@@ -458,7 +472,7 @@
    ========================================================= */
 const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbw5eHnXphfuHvK0e_gy_a27mc8XzaW3W8yY3Yvc5c66fQL4YuI81_sAnEwcPODaRmiT/exec";
 const SHEET_URL_KEY = "mfc_sheet_api_url";
-const STORAGE_KEY   = "mfc_site_tracker_data_v3";
+const STORAGE_KEY   = "mfc_site_tracker_data_v4";
 const LOGIN_KEY     = "mfc_logged_in";
 const VALID_USER    = "MFC";
 const VALID_PASS    = "MFC@1234";
@@ -506,7 +520,6 @@ const ORIGINAL_DATA = [
   {"SiteID":"6133","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Adnan","Nokia Comments":"Not Partial TDD","Extra Scope":"2nd AKHD added by insource team","Main Scope":"TDD","Antenna Action":"","Date":"27-Sep-25","States":"Done","Payment to subcon":"","Amount to subcon":"","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.5543","Long":"47.7499","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""}
 ];
 
-/* NOTE: "SMR File" + "SMR Drive URL" columns hold the shared Drive links */
 const COLUMNS = [
   "SiteID","Gov","Photo Report","FLM Feedback","Saif Tool","Team",
   "Nokia Comments","Extra Scope","Main Scope","Antenna Action","Date","States",
@@ -530,7 +543,7 @@ let currentDrawerSiteIdx = -1;
 let pendingPDF = null;
 
 /* =========================================================
-   INDEXEDDB (local fallback for PDFs when Drive fails)
+   INDEXEDDB (local PDF fallback)
    ========================================================= */
 const DB_NAME = "mfc_tracker_pdfs";
 const STORE   = "pdfs";
@@ -610,15 +623,13 @@ function mapImportedRows(raw){
       const target = colLookup[normalize(k)];
       if(target) out[target] = (v===null||v===undefined) ? "" : v.toString().trim();
     });
-
-    // Extract Drive info from URL
     const url = out["SMR Drive URL"] || "";
     const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if(m){
-      out.driveFileId       = m[1];
-      out.driveViewUrl      = url;
-      out.drivePrevUrl      = "https://drive.google.com/file/d/" + m[1] + "/preview";
-      out.driveDownloadUrl  = "https://drive.google.com/uc?export=download&id=" + m[1];
+      out.driveFileId      = m[1];
+      out.driveViewUrl     = url;
+      out.drivePrevUrl     = "https://drive.google.com/file/d/" + m[1] + "/preview";
+      out.driveDownloadUrl = "https://drive.google.com/uc?export=download&id=" + m[1];
     }
     return ensureSiteFields(out);
   });
@@ -634,20 +645,20 @@ async function pullFromSheet(silent){
 
     const incoming = mapImportedRows(json.rows);
 
-    // 🔑 MERGE: keep local fields that aren't in the sheet
     const merged = incoming.map(newRow => {
       const existing = data.find(d =>
         (d.SiteID && newRow.SiteID && d.SiteID === newRow.SiteID)
       );
       if(existing){
-        newRow.pdfKey       = existing.pdfKey || newRow.pdfKey || "";
-        newRow.smr          = existing.smr    || newRow.smr;
-        newRow.consumption  = existing.consumption || newRow.consumption || [];
+        newRow.pdfKey      = existing.pdfKey || newRow.pdfKey || "";
+        newRow.smr         = existing.smr    || newRow.smr;
+        newRow.consumption = existing.consumption || newRow.consumption || [];
+        newRow.notes       = existing.notes  || newRow.notes || "";
         if(!newRow.driveFileId && existing.driveFileId){
-          newRow.driveFileId       = existing.driveFileId;
-          newRow.driveViewUrl      = existing.driveViewUrl;
-          newRow.drivePrevUrl      = existing.drivePrevUrl;
-          newRow.driveDownloadUrl  = existing.driveDownloadUrl;
+          newRow.driveFileId      = existing.driveFileId;
+          newRow.driveViewUrl     = existing.driveViewUrl;
+          newRow.drivePrevUrl     = existing.drivePrevUrl;
+          newRow.driveDownloadUrl = existing.driveDownloadUrl;
         }
       }
       return ensureSiteFields(newRow);
@@ -707,8 +718,8 @@ function ensureSiteFields(site){
   if(!Array.isArray(site.consumption)) site.consumption = [];
   if(!site.pdfKey) site.pdfKey = "";
   if(!site.driveFileId) site.driveFileId = "";
+  if(site.notes === undefined) site.notes = "";
 
-  // Sync Drive info into flat columns (for shared Sheet)
   if(site.driveFileId){
     site["SMR File"]      = site.smr?.fileName || site["SMR File"] || "";
     site["SMR Drive URL"] = site.driveViewUrl
@@ -871,7 +882,6 @@ function renderBody(){
       }
       if(r.__key && r.__key === newRowKey && col === "SiteID" && !firstNewCell) firstNewCell = td;
 
-      // Skip editing handlers for Drive URL cell
       if(col !== "SMR Drive URL"){
         td.addEventListener("blur", ()=>{
           let newVal = td.textContent.trim();
@@ -985,7 +995,7 @@ function renderAll(){
 }
 
 /* =========================================================
-   PDF: EXTRACT + PARSE + ANALYZE
+   PDF EXTRACT + PARSE (لا يستخرج أسعار)
    ========================================================= */
 async function extractPdfText(file, onProgress){
   const arrayBuffer = await file.arrayBuffer();
@@ -1013,12 +1023,15 @@ async function extractPdfText(file, onProgress){
   }
   return text;
 }
+
 function normalizeDate(str){
   if(!str) return "";
   const s = str.replace(/\s+/g,"-");
   const d = new Date(s);
   return isNaN(d) ? "" : d.toISOString().slice(0,10);
 }
+
+/* استخراج بنود فقط: CODE + DESCRIPTION + QTY + UNIT — بدون أي سعر */
 function parseSMRText(text){
   const result = { number:null, date:"", project:null, budget:null, siteId:null, items:[], total:0, warning:"" };
   if(!text) return result;
@@ -1039,22 +1052,25 @@ function parseSMRText(text){
              || text.match(/\b(\d{4}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{1,2})\b/i);
   result.date = normalizeDate(dateM ? dateM[1] : "");
 
+  // استخراج بنود: نبحث عن "CODE  QTY  UNIT" بدون سعر
   const lines = text.split(/\r?\n|(?<=\d)\s{2,}(?=[A-Z]{2,})/);
-  const itemRe1 = /([A-Z][A-Z0-9\-\.\/]{2,25}(?:\s+[A-Z0-9\-\.\/]{1,15}){0,3})\s+(\d{1,5})\s*(pcs?|pc|sets?|m|mtr|meter|roll|box|unit|kit|pcs\.)\s*([\d,\.]+)?/i;
-  const itemRe2 = /(\d{1,5})\s*(pcs?|pc|sets?|m|mtr|meter|roll|box|unit|kit)\s+([A-Z][A-Z0-9\-\.\/\s]{2,40})/i;
-
   const seen = new Set();
+
+  // نمط 1: CODE ... QTY UNIT
+  const itemRe1 = /([A-Z][A-Z0-9\-\.\/]{2,25}(?:\s+[A-Z0-9\-\.\/]{1,15}){0,4})\s+(\d{1,5})\s+(pcs?|pc|sets?|m|mtr|meter|roll|box|unit|kit)\b/i;
+  // نمط 2: QTY UNIT CODE
+  const itemRe2 = /(\d{1,5})\s+(pcs?|pc|sets?|m|mtr|meter|roll|box|unit|kit)\s+([A-Z][A-Z0-9\-\.\/\s]{2,40})/i;
+
   lines.forEach(line=>{
     let m = line.match(itemRe1);
     if(m){
       const code = m[1].trim().replace(/\s+/g," ");
       const qty = parseInt(m[2],10);
       const unit = m[3].toLowerCase();
-      const price = m[4] ? parseFloat(m[4].replace(/,/g,"")) : 0;
       const key = code.toLowerCase();
-      if(qty > 0 && qty < 10000 && !seen.has(key)){
+      if(qty > 0 && qty < 100000 && !seen.has(key)){
         seen.add(key);
-        result.items.push({ code, desc:"", qty, unit, price: isNaN(price)?0:price });
+        result.items.push({ code, desc:"", qty, unit, price: 0 });
       }
       return;
     }
@@ -1064,48 +1080,83 @@ function parseSMRText(text){
       const unit = m[2].toLowerCase();
       const code = m[3].trim().replace(/\s+/g," ");
       const key = code.toLowerCase();
-      if(qty > 0 && qty < 10000 && !seen.has(key)){
+      if(qty > 0 && qty < 100000 && !seen.has(key)){
         seen.add(key);
         result.items.push({ code, desc:"", qty, unit, price: 0 });
       }
     }
   });
 
-  result.total = result.items.reduce((s,i)=> s + i.qty * i.price, 0);
   if(!result.items.length){
-    result.warning = "No material items were auto-detected. Please add them manually.";
+    result.warning = "لم يتم التعرف على بنود المواد تلقائياً. أضفها يدوياً من الزر أسفل الجدول.";
   }
   return result;
 }
+
 function normalizeCode(s){
   return String(s||"").trim().toUpperCase().replace(/\s+/g," ");
 }
+
+/* =========================================================
+   MATERIAL CONSUMPTION ANALYSIS — مع حالة Pending
+   ========================================================= */
 function analyzeConsumption(smrItems, consumption){
   const map = new Map();
+
   (smrItems||[]).forEach(it=>{
     const key = normalizeCode(it.code);
     if(!key) return;
-    map.set(key, { code: it.code, unit: it.unit || "-", ordered: it.qty || 0, consumed: 0 });
+    map.set(key, {
+      code: it.code,
+      desc: it.desc || "",
+      unit: it.unit || "-",
+      ordered: it.qty || 0,
+      price: it.price || 0,
+      consumed: 0,
+      note: ""
+    });
   });
+
   (consumption||[]).forEach(c=>{
     const key = normalizeCode(c.code);
     if(!key) return;
-    if(map.has(key)) map.get(key).consumed += (parseInt(c.qty,10) || 0);
-    else map.set(key, { code: c.code, unit: c.unit || "-", ordered: 0, consumed: parseInt(c.qty,10) || 0 });
+    if(map.has(key)){
+      const item = map.get(key);
+      item.consumed += (parseInt(c.qty,10) || 0);
+      if(c.note) item.note = c.note;
+    } else {
+      map.set(key, {
+        code: c.code,
+        desc: c.desc || "",
+        unit: c.unit || "-",
+        ordered: 0,
+        price: 0,
+        consumed: parseInt(c.qty,10) || 0,
+        note: c.note || ""
+      });
+    }
   });
+
   const items = [];
   map.forEach(v=>{
     const diff = v.consumed - v.ordered;
-    let status = "match";
-    if(diff < 0) status = "shortage";
-    else if(diff > 0) status = "excess";
+    let status = "pending";
+    if(v.consumed > 0){
+      if(diff < 0)      status = "shortage";
+      else if(diff > 0) status = "excess";
+      else              status = "match";
+    } else if(v.ordered === 0 && v.consumed === 0){
+      status = "empty";
+    }
     items.push({...v, diff, status});
   });
+
   return {
     items,
     shortages: items.filter(i=>i.status === "shortage"),
     excesses:  items.filter(i=>i.status === "excess"),
-    matches:   items.filter(i=>i.status === "match")
+    matches:   items.filter(i=>i.status === "match"),
+    pendings:  items.filter(i=>i.status === "pending")
   };
 }
 
@@ -1137,17 +1188,18 @@ function closePDFImportModal(){
   document.getElementById("pdfImportModal").classList.remove("show");
   pendingPDF = null;
 }
+
 function renderExtractedItems(items){
   const body = document.getElementById("ex_itemsBody");
   body.innerHTML = "";
   items.forEach((it)=>{
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><input class="mono" style="width:110px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;" data-f="code" value="${escapeHtml(it.code||"")}"></td>
+      <td><input class="mono" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;" data-f="code" value="${escapeHtml(it.code||"")}"></td>
       <td><input style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;" data-f="desc" value="${escapeHtml(it.desc||"")}"></td>
-      <td style="text-align:center;"><input type="number" style="width:60px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;" data-f="qty" value="${it.qty||0}"></td>
+      <td style="text-align:center;"><input type="number" style="width:70px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;" data-f="qty" value="${it.qty||0}"></td>
       <td style="text-align:center;"><input style="width:60px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;" data-f="unit" value="${escapeHtml(it.unit||"")}"></td>
-      <td style="text-align:right;"><input type="number" style="width:100px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:right;" data-f="price" value="${it.price||0}"></td>
+      <td style="text-align:right;"><input type="number" style="width:100px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:right;" data-f="price" value="${it.price||0}" placeholder="0"></td>
       <td><button class="icon-btn del" title="Remove">✕</button></td>
     `;
     tr.querySelector('[data-f="qty"]').addEventListener("input", updateExtractedTotal);
@@ -1165,7 +1217,7 @@ function collectExtractedItems(){
   document.querySelectorAll("#ex_itemsBody tr").forEach(tr=>{
     const get = f => tr.querySelector(`[data-f="${f}"]`)?.value || "";
     const code = get("code").trim();
-    const qty = parseInt(get("qty"),10) || 0;
+    const qty  = parseInt(get("qty"),10) || 0;
     if(!code && !qty) return;
     items.push({
       code, desc: get("desc").trim(),
@@ -1247,7 +1299,7 @@ function fileToBase64(file){
 }
 
 /* =========================================================
-   SAVE PDF → Upload to Drive + link to site
+   SAVE PDF → Drive + link to site
    ========================================================= */
 async function savePDFImport(){
   if(!pendingPDF) return;
@@ -1293,7 +1345,6 @@ async function savePDFImport(){
   btn.disabled = true;
   btn.textContent = "⏳ Uploading to Drive...";
 
-  let uploaded = false;
   try{
     const base64 = await fileToBase64(pendingPDF.file);
     const res = await fetch(getSheetUrl(), {
@@ -1313,7 +1364,6 @@ async function savePDFImport(){
     site.driveViewUrl     = json.viewUrl;
     site.drivePrevUrl     = json.previewUrl;
     site.driveDownloadUrl = json.downloadUrl;
-    uploaded = true;
     btn.textContent = "✔️ Uploaded to Drive";
   }catch(err){
     console.error("Drive upload failed:", err);
@@ -1323,7 +1373,7 @@ async function savePDFImport(){
     );
     if(!keepLocal){
       btn.disabled = false;
-      btn.textContent = "✔️ Save & Upload to Drive";
+      btn.textContent = "✔️ Save & Upload";
       return;
     }
     const pdfKey = pdfKeyForSite(site.SiteID);
@@ -1333,32 +1383,26 @@ async function savePDFImport(){
       btn.textContent = "💾 Saved locally";
     }catch(e){
       console.error("Local save failed too:", e);
-      alert("Could not save PDF locally either.\n\nMetadata will still be saved.");
+      alert("Could not save PDF locally either.\n\nMetadata saved only.");
     }
   }
 
-  // ensure flat columns reflect the drive info
   ensureSiteFields(site);
-
   saveData();
   renderAll();
   setTimeout(closePDFImportModal, 500);
 }
 
 /* =========================================================
-   PDF VIEWER (Drive first, local fallback)
+   PDF VIEWER
    ========================================================= */
 async function openPDFViewer(siteIdx){
   const site = data[siteIdx];
   if(!site) return;
 
   let url = null;
-
-  if(site.drivePrevUrl){
-    url = site.drivePrevUrl;
-  } else if(site.driveFileId){
-    url = "https://drive.google.com/file/d/" + site.driveFileId + "/preview";
-  }
+  if(site.drivePrevUrl)      url = site.drivePrevUrl;
+  else if(site.driveFileId)  url = "https://drive.google.com/file/d/" + site.driveFileId + "/preview";
 
   if(!url){
     let key = site.pdfKey || (site.SiteID ? pdfKeyForSite(site.SiteID) : "");
@@ -1418,6 +1462,7 @@ function openSiteDrawer(idx){
   const body = document.getElementById("drawerBody");
   body.innerHTML = "";
 
+  /* ===== Site Info ===== */
   body.appendChild(section("Site Info", kvGrid([
     ["Site ID", site.SiteID], ["Governorate", site.Gov],
     ["Team", site.Team], ["Main Scope", site["Main Scope"]],
@@ -1426,6 +1471,7 @@ function openSiteDrawer(idx){
     ["Date", site.Date], ["LAT / Long", `${site.LAT||"-"} / ${site.Long||"-"}`],
   ])));
 
+  /* ===== Financial ===== */
   const balance = computeBalance(site);
   body.appendChild(section("Financial", kvGrid([
     ["Contract Value", fmt(site["Contract Value"])],
@@ -1439,10 +1485,11 @@ function openSiteDrawer(idx){
     ["Pending Payment", site["Pending Payment"]],
   ])));
 
+  /* ===== SMR Items (طبق الأصل من PDF) ===== */
   const smr = site.smr || {};
   const smrBlock = document.createElement("div");
   smrBlock.className = "drawer-section";
-  smrBlock.innerHTML = `<h4>SMR (Stock Requisition)</h4>`;
+  smrBlock.innerHTML = `<h4>SMR — Stock Requisition (كما في PDF)</h4>`;
 
   if(!smr.number && !smr.items?.length && !site.driveFileId){
     const empty = document.createElement("div");
@@ -1462,27 +1509,32 @@ function openSiteDrawer(idx){
       tbl.style.marginTop = "10px";
       tbl.innerHTML = `
         <thead><tr>
-          <th>Code</th><th>Description</th>
-          <th style="text-align:center;">Qty</th>
-          <th style="text-align:center;">Unit</th>
-          <th style="text-align:right;">Price</th>
-          <th style="text-align:right;">Total</th>
+          <th style="width:170px;">Code</th>
+          <th>Description</th>
+          <th style="text-align:center;width:70px;">Qty</th>
+          <th style="text-align:center;width:70px;">Unit</th>
+          <th style="text-align:right;width:100px;">Price</th>
+          <th style="text-align:right;width:110px;">Total</th>
         </tr></thead>
         <tbody>${smr.items.map(it=>`
           <tr>
-            <td class="mono">${escapeHtml(it.code||"")}</td>
-            <td>${escapeHtml(it.desc||"")}</td>
+            <td class="mono" style="font-size:11.5px;word-break:break-word;">${escapeHtml(it.code||"")}</td>
+            <td style="font-size:12px;">${escapeHtml(it.desc||"")}</td>
             <td style="text-align:center;">${it.qty||0}</td>
             <td style="text-align:center;">${escapeHtml(it.unit||"")}</td>
-            <td style="text-align:right;" class="mono">${(it.price||0).toLocaleString()}</td>
-            <td style="text-align:right;" class="mono">${((it.qty||0)*(it.price||0)).toLocaleString()}</td>
+            <td style="text-align:right;" class="mono">${it.price ? (it.price).toLocaleString() : "—"}</td>
+            <td style="text-align:right;" class="mono">${it.price ? ((it.qty||0)*(it.price||0)).toLocaleString() : "—"}</td>
           </tr>`).join("")}
         </tbody>`;
       smrBlock.appendChild(tbl);
-      const totalRow = document.createElement("div");
-      totalRow.style.cssText = "text-align:right;font-weight:800;margin-top:8px;font-size:13px;";
-      totalRow.textContent = "Total: " + (smr.items.reduce((s,i)=>s+i.qty*i.price,0)).toLocaleString();
-      smrBlock.appendChild(totalRow);
+
+      const grandTotal = smr.items.reduce((s,i)=> s + (i.qty||0)*(i.price||0), 0);
+      if(grandTotal > 0){
+        const totalRow = document.createElement("div");
+        totalRow.style.cssText = "text-align:right;font-weight:800;margin-top:8px;font-size:13px;";
+        totalRow.textContent = "Total: " + grandTotal.toLocaleString();
+        smrBlock.appendChild(totalRow);
+      }
     }
 
     if(site.pdfKey || site.driveFileId){
@@ -1503,60 +1555,121 @@ function openSiteDrawer(idx){
   }
   body.appendChild(smrBlock);
 
+  /* ===== Consumption Analysis ===== */
   const analysis = analyzeConsumption(smr.items || [], site.consumption || []);
   const consBlock = document.createElement("div");
   consBlock.className = "drawer-section";
-  consBlock.innerHTML = `<h4>Material Consumption Analysis</h4>`;
+  consBlock.innerHTML = `<h4>Material Consumption Analysis — تحليل الاستهلاك</h4>`;
 
   const summary = document.createElement("div");
   summary.style.cssText = "display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;";
   summary.innerHTML = `
     <span class="status-pill st-short">🔴 Shortage: ${analysis.shortages.length}</span>
     <span class="status-pill st-excess">🟡 Excess: ${analysis.excesses.length}</span>
-    <span class="status-pill st-match">🟢 Match: ${analysis.matches.length}</span>`;
+    <span class="status-pill st-match">🟢 Match: ${analysis.matches.length}</span>
+    <span class="status-pill st-pending">⏳ Pending: ${analysis.pendings.length}</span>`;
   consBlock.appendChild(summary);
+
+  /* Auto-notes */
+  const autoNotes = [];
+  if(analysis.shortages.length){
+    autoNotes.push(`🔴 <b>${analysis.shortages.length} بند فيه نقص:</b> ` +
+      analysis.shortages.map(i=>`${escapeHtml(i.code)} (−${Math.abs(i.diff)})`).join(", "));
+  }
+  if(analysis.excesses.length){
+    autoNotes.push(`🟡 <b>${analysis.excesses.length} بند فيه زيادة:</b> ` +
+      analysis.excesses.map(i=>`${escapeHtml(i.code)} (+${i.diff})`).join(", "));
+  }
+  if(autoNotes.length){
+    const noteBox = document.createElement("div");
+    noteBox.className = "alert-box alert-warn";
+    noteBox.innerHTML = `<strong>📝 ملاحظات تلقائية:</strong><br>` + autoNotes.join("<br>");
+    consBlock.appendChild(noteBox);
+  }
 
   if(!analysis.items.length){
     const note = document.createElement("div");
     note.className = "alert-box alert-info";
-    note.textContent = "No consumption data yet. Add used quantities below.";
+    note.textContent = "No items in this SMR yet.";
     consBlock.appendChild(note);
   } else {
     const tbl = document.createElement("table");
     tbl.className = "items-table";
     tbl.innerHTML = `
       <thead><tr>
-        <th>Code</th><th style="text-align:center;">Ordered</th>
-        <th style="text-align:center;">Used</th>
-        <th style="text-align:center;">Diff</th>
-        <th style="text-align:center;">Status</th>
+        <th style="width:170px;">Code</th>
+        <th style="text-align:center;width:60px;">Ordered</th>
+        <th style="text-align:center;width:60px;">Used</th>
+        <th style="text-align:center;width:60px;">Diff</th>
+        <th style="text-align:center;width:90px;">Status</th>
+        <th>Note</th>
       </tr></thead>
-      <tbody>${analysis.items.map(it=>`
+      <tbody>${analysis.items.map((it, i)=>`
         <tr>
-          <td class="mono">${escapeHtml(it.code)}</td>
+          <td class="mono" style="font-size:11.5px;word-break:break-word;">${escapeHtml(it.code)}</td>
           <td style="text-align:center;">${it.ordered}</td>
           <td style="text-align:center;">${it.consumed}</td>
           <td style="text-align:center;font-weight:700;
-              color:${it.diff<0?'#b23636':it.diff>0?'#93650a':'#0b7a5f'};">
-            ${it.diff > 0 ? "+" : ""}${it.diff}
+              color:${it.status==='shortage'?'#b23636':it.status==='excess'?'#93650a':it.status==='match'?'#0b7a5f':'#5b6779'};">
+            ${it.status==='pending' ? '—' : (it.diff > 0 ? "+" : "") + it.diff}
           </td>
           <td style="text-align:center;">
-            <span class="status-pill ${it.status==='shortage'?'st-short':it.status==='excess'?'st-excess':'st-match'}">
-              ${it.status==='shortage'?'🔴 Short':it.status==='excess'?'🟡 Excess':'🟢 Match'}
+            <span class="status-pill ${
+              it.status==='shortage'?'st-short':
+              it.status==='excess'?'st-excess':
+              it.status==='match'?'st-match':'st-pending'
+            }">
+              ${
+                it.status==='shortage' ? '🔴 Short' :
+                it.status==='excess'   ? '🟡 Excess' :
+                it.status==='match'    ? '🟢 Match' :
+                it.status==='pending'  ? '⏳ Pending' :
+                '—'
+              }
             </span>
+          </td>
+          <td>
+            <input type="text"
+                   data-note-idx="${i}"
+                   value="${escapeHtml(it.note || '')}"
+                   placeholder="ملاحظة..."
+                   style="width:100%;min-width:140px;padding:4px 6px;border:1px solid var(--line);
+                          border-radius:5px;font-size:11.5px;">
           </td>
         </tr>`).join("")}
       </tbody>`;
     consBlock.appendChild(tbl);
+
+    tbl.querySelectorAll('input[data-note-idx]').forEach(inp=>{
+      inp.addEventListener("change", ()=>{
+        const iidx = parseInt(inp.dataset.noteIdx, 10);
+        const item = analysis.items[iidx];
+        site.consumption = site.consumption || [];
+        const existing = site.consumption.find(c =>
+          normalizeCode(c.code) === normalizeCode(item.code)
+        );
+        if(existing){
+          existing.note = inp.value.trim();
+        } else {
+          site.consumption.push({
+            code: item.code,
+            qty: 0,
+            note: inp.value.trim()
+          });
+        }
+        saveData();
+      });
+    });
   }
 
+  /* Quick-add used quantity */
   const addRow = document.createElement("div");
   addRow.style.cssText = "display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;";
   addRow.innerHTML = `
     <input id="consCode" placeholder="Item code" class="mono"
       style="flex:1;min-width:120px;padding:7px 9px;border:1.5px solid var(--line);border-radius:7px;font-size:12.5px;">
-    <input id="consQty" type="number" placeholder="Qty"
-      style="width:80px;padding:7px 9px;border:1.5px solid var(--line);border-radius:7px;font-size:12.5px;text-align:center;">
+    <input id="consQty" type="number" placeholder="Qty used"
+      style="width:100px;padding:7px 9px;border:1.5px solid var(--line);border-radius:7px;font-size:12.5px;text-align:center;">
     <button class="btn btn-teal btn-sm" id="consAdd">+ Add Used</button>`;
   consBlock.appendChild(addRow);
 
@@ -1567,7 +1680,7 @@ function openSiteDrawer(idx){
     site.consumption = site.consumption || [];
     const existing = site.consumption.find(c=>normalizeCode(c.code) === normalizeCode(code));
     if(existing) existing.qty = (parseInt(existing.qty,10)||0) + qty;
-    else site.consumption.push({ code, qty });
+    else site.consumption.push({ code, qty, note: "" });
     saveData();
     openSiteDrawer(idx);
   };
@@ -1587,6 +1700,28 @@ function openSiteDrawer(idx){
 
   body.appendChild(consBlock);
 
+  /* ===== Site Notes ===== */
+  const notesBlock = document.createElement("div");
+  notesBlock.className = "drawer-section";
+  notesBlock.innerHTML = `<h4>Site Notes — ملاحظات الموقع</h4>
+    <textarea id="siteNotesArea"
+      placeholder="اكتب هنا أي ملاحظات عامة: أسباب تأخير، نقص مواد، مشاكل مع الموقع..."
+      style="width:100%;min-height:90px;padding:10px;border:1.5px solid var(--line);
+             border-radius:8px;font-size:13px;font-family:'Inter';resize:vertical;">${escapeHtml(site.notes || "")}</textarea>
+    <div style="text-align:right;margin-top:6px;">
+      <button class="btn btn-teal btn-sm" id="saveSiteNotes">💾 حفظ الملاحظات</button>
+    </div>`;
+  body.appendChild(notesBlock);
+
+  notesBlock.querySelector("#saveSiteNotes").onclick = ()=>{
+    site.notes = notesBlock.querySelector("#siteNotesArea").value;
+    saveData();
+    const btn = notesBlock.querySelector("#saveSiteNotes");
+    btn.textContent = "✔️ تم الحفظ";
+    setTimeout(()=>{ btn.textContent = "💾 حفظ الملاحظات"; }, 1500);
+  };
+
+  /* ===== Actions ===== */
   const actions = document.createElement("div");
   actions.className = "drawer-section";
   actions.innerHTML = `<h4>Actions</h4>`;
