@@ -212,7 +212,7 @@ svg{display:block;}
 .kebab-item.danger:hover{background:var(--red-50);}
 .kebab-divider{height:1px;background:var(--border);margin:4px 8px;}
 
-/* TABLE — FIXED sticky + zebra */
+/* TABLE — NO sticky columns */
 .table-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
   overflow:hidden;box-shadow:var(--shadow-sm);}
 .table-head-bar{display:flex;align-items:center;gap:12px;padding:12px 18px;
@@ -237,22 +237,12 @@ table.dt tbody td{padding:11px 14px;border-bottom:1px solid var(--border);
   overflow:hidden;text-overflow:ellipsis;background:var(--bg-card);}
 table.dt.density-compact tbody td{padding:6px 10px;font-size:12.5px;}
 table.dt.density-comfortable tbody td{padding:16px 14px;}
-/* FIX: zebra + sticky fix */
 table.dt tbody tr:nth-child(even) td{background:var(--bg-subtle);}
 table.dt tbody tr:hover td{background:var(--blue-50)!important;}
 [data-theme="dark"] table.dt tbody tr:hover td{background:rgba(59,130,246,.08)!important;}
 table.dt tbody tr.new-row td{animation:rowHi 2s ease;}
 @keyframes rowHi{0%{background:rgba(37,99,235,.15);}100%{background:transparent;}}
 table.dt tbody td[contenteditable="true"]:focus{outline:2px solid var(--primary);outline-offset:-2px;}
-table.dt tbody td.sticky-col-1,
-table.dt tbody td.sticky-col-2{position:sticky;background:inherit;z-index:3;
-  box-shadow:2px 0 4px -2px rgba(0,0,0,.05);}
-table.dt tbody td.sticky-col-1{left:0;}
-table.dt tbody td.sticky-col-2{left:120px;}
-table.dt thead th.sticky-col-1,
-table.dt thead th.sticky-col-2{z-index:6;background:var(--bg-subtle);}
-table.dt thead th.sticky-col-1{left:0;position:sticky;}
-table.dt thead th.sticky-col-2{left:120px;position:sticky;}
 td.num,th.num{font-family:'JetBrains Mono',monospace;text-align:center;}
 td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emerald-700);}
 .site-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--primary);font-size:13px;}
@@ -447,7 +437,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   table.dt tbody tr{display:block;margin-bottom:12px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--bg-card)!important;}
   table.dt tbody td{display:flex;justify-content:space-between;border:none;padding:6px 0;max-width:none;text-align:right;gap:12px;background:transparent!important;}
   table.dt tbody td::before{content:attr(data-label);font-weight:700;font-size:11px;color:var(--text-dim);text-transform:uppercase;text-align:left;flex:none;}
-  table.dt tbody td.sticky-col-1,table.dt tbody td.sticky-col-2{position:static;box-shadow:none;}
   .row-actions{opacity:1;}
 }
 </style>
@@ -707,10 +696,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 <!-- Excel Import Modal -->
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
-    <div class="modal-head">
-      <h3 id="importTitle">Import spreadsheet</h3>
-      <p id="importSummary">Preview will appear here.</p>
-    </div>
+    <div class="modal-head"><h3 id="importTitle">Import spreadsheet</h3><p id="importSummary">Preview will appear here.</p></div>
     <div class="modal-actions">
       <button class="btn btn-outline" id="importCancel">Cancel</button>
       <button class="btn btn-outline" id="importAppend">Append rows</button>
@@ -800,7 +786,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;">
 
 <script>
-/* ============ CONFIG ============ */
+/* CONFIG */
 const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbw5eHnXphfuHvK0e_gy_a27mc8XzaW3W8yY3Yvc5c66fQL4YuI81_sAnEwcPODaRmiT/exec";
 const SHEET_URL_KEY = "mfc_sheet_api_url";
 const STORAGE_KEY   = "mfc_site_tracker_data_v6";
@@ -994,9 +980,7 @@ function setLiveStatus(text, ok=true){
   if(!el) return;
   el.textContent = text;
   const dot = el.parentElement.querySelector('.live-dot');
-  if(dot){
-    dot.style.background = ok ? '#10b981' : '#f59e0b';
-  }
+  if(dot){ dot.style.background = ok ? '#10b981' : '#f59e0b'; }
   const settingsEl = document.getElementById('settingsSyncStatus');
   if(settingsEl) settingsEl.textContent = text;
 }
@@ -1083,8 +1067,8 @@ function logActivityToServer(action, siteId, field, oldVal, newVal){
   const url = getSheetUrl();
   if(!url) return;
   fetch(url, { method:"POST", body: JSON.stringify({
-    action:'logActivity', user: currentUser, action, siteId,
-    field, oldValue: oldVal, newValue: newVal
+    action:'logActivity', user: currentUser, action, siteId, field,
+    oldValue: oldVal, newValue: newVal
   })}).catch(()=>{});
 }
 function startPolling(){
@@ -1198,11 +1182,9 @@ function renderHead(){
   const headRow = document.getElementById('headRow');
   headRow.innerHTML = '';
   const visibleCols = COLUMNS.filter(c=> !hiddenColumns.has(c));
-  visibleCols.forEach((col, idx)=>{
+  visibleCols.forEach((col)=>{
     const th = document.createElement('th');
     th.className = NUM_COLS.includes(col) ? 'num' : '';
-    if(idx === 0) th.classList.add('sticky-col-1');
-    if(idx === 1) th.classList.add('sticky-col-2');
     th.innerHTML = col + (sortState.col===col ? `<span class="arrow">${sortState.dir===1?'▲':'▼'}</span>` : '');
     th.onclick = ()=>{
       if(sortState.col===col) sortState.dir *= -1; else {sortState.col=col; sortState.dir=1;}
@@ -1262,12 +1244,10 @@ function renderBody(){
   rows.forEach(({r,i})=>{
     const tr = document.createElement('tr');
     if(r.__key && r.__key === newRowKey) tr.classList.add('new-row');
-    visibleCols.forEach((col, idx)=>{
+    visibleCols.forEach((col)=>{
       const td = document.createElement('td');
       let val = r[col] || '';
       td.setAttribute('data-label', col);
-      if(idx === 0) td.classList.add('sticky-col-1');
-      if(idx === 1) td.classList.add('sticky-col-2');
 
       if(CALC_COLS.includes(col)){
         const computed = computeBalance(r);
@@ -1540,7 +1520,7 @@ function renderAll(){
   renderHead(); renderBody(); renderStats(); renderCharts(); renderSmartAlerts();
 }
 
-/* ============ PDF EXTRACTION (structure-based) ============ */
+/* PDF EXTRACTION */
 async function extractPdfStructure(file, onProgress){
   const arrayBuffer = await file.arrayBuffer();
   const pages = [];
@@ -2349,7 +2329,7 @@ document.getElementById('backupBtn').onclick = async ()=>{
   try{
     const res = await fetch(getSheetUrl() + "?action=backup&t=" + Date.now());
     const json = await res.json();
-    if(json.ok) toast({type:'success', title:'Backup created', message:'Check MFC_Backups folder in Drive'});
+    if(json.ok) toast({type:'success', title:'Backup created'});
     else throw new Error(json.error);
   }catch(err){
     toast({type:'error', title:'Backup failed', message: err.message});
