@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MFC | Timeline Pro</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --brand-50:#eef2ff;--brand-100:#e0e7ff;--brand-200:#c7d2fe;
+  --brand-400:#818cf8;--brand-500:#6366f1;--brand-600:#4f46e5;--brand-700:#4338ca;
+  --success-50:#ecfdf5;--success-500:#10b981;--success-600:#059669;
+  --warning-50:#fffbeb;--warning-500:#f59e0b;--warning-600:#d97706;
+  --danger-50:#fef2f2;--danger-500:#ef4444;--danger-600:#dc2626;
+  --info-500:#3b82f6;
+  --bg-base:#f8fafc;--bg-surface:#fff;--bg-subtle:#f1f5f9;--bg-elevated:#fff;
+  --bg-overlay:rgba(15,23,42,.55);--bg-glass:rgba(255,255,255,.85);
+  --text-primary:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;
+  --border-subtle:#e2e8f0;--border-default:#cbd5e1;--border-strong:#94a3b8;
+  --shadow-sm:0 1px 3px rgba(15,23,42,.06);
+  --shadow-md:0 4px 6px -1px rgba(15,23,42,.07);
+  --shadow-lg:0 10px 15px -3px rgba(15,23,42,.08);
+  --shadow-xl:0 20px 25px -5px rgba(15,23,42,.10);
+  --shadow-2xl:0 25px 50px -12px rgba(15,23,42,.25);
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --mono:'JetBrains Mono',monospace;
+  --grad-brand:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#06b6d4 100%);
+  --grad-hero:linear-gradient(135deg,#0f172a 0%,#1e293b 40%,#312e81 100%);
+  --sidebar-w:260px;--topbar-h:68px;
+}
+[data-theme="dark"]{
+  --bg-base:#0a0e1a;--bg-surface:#111827;--bg-subtle:#161e2e;--bg-elevated:#1a2233;
+  --bg-overlay:rgba(0,0,0,.75);--bg-glass:rgba(17,24,39,.85);
+  --text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;
+  --border-subtle:#1f2937;--border-default:#334155;--border-strong:#475569;
+}
+[data-theme="midnight"]{
+  --bg-base:#0f1729;--bg-surface:#1a2540;--bg-subtle:#152036;--bg-elevated:#1f2b4d;
+  --text-primary:#dbe4f0;--text-secondary:#8fa3c2;--text-tertiary:#6b7fa0;
+  --border-subtle:#2a3a5c;--border-default:#3d5280;--brand-500:#4f93ff;
+}
+[data-theme="sepia"]{
+  --bg-base:#f5efdc;--bg-surface:#fdfaf0;--bg-subtle:#f0e8d0;
+  --text-primary:#3a2e1f;--text-secondary:#7a6b52;
+  --border-subtle:#e0d5b8;--border-default:#c4b592;--brand-500:#a0661d;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg-base);color:var(--text-primary);font-family:'Inter','Cairo',sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+[dir="rtl"] body{font-family:'Cairo',sans-serif;}
+button{cursor:pointer;border:none;background:none;color:inherit;font:inherit;}
+input,select{font:inherit;color:inherit;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:9999px;}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounceIn{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(99,102,241,.4)}50%{box-shadow:0 0 40px rgba(99,102,241,.7)}}
+
+.app{min-height:100vh;display:grid;grid-template-columns:var(--sidebar-w) 1fr;
+  grid-template-rows:var(--topbar-h) 1fr;grid-template-areas:"sidebar topbar" "sidebar main";}
+.sidebar{grid-area:sidebar;background:var(--grad-hero);color:#fff;display:flex;
+  flex-direction:column;z-index:150;overflow:hidden;border-inline-end:1px solid rgba(255,255,255,.06);}
+.sidebar-brand{display:flex;align-items:center;gap:12px;padding:20px 16px;
+  border-bottom:1px solid rgba(255,255,255,.06);min-height:var(--topbar-h);}
+.sidebar-logo{width:40px;height:40px;border-radius:10px;background:var(--grad-brand);
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+  font-weight:800;font-size:13px;flex:none;animation:glow 3s ease-in-out infinite;}
+.sidebar-brand-text .kicker{font-size:9.5px;letter-spacing:2px;color:#94a3b8;font-weight:700;text-transform:uppercase;}
+.sidebar-brand-text h1{font-size:15px;font-weight:800;margin-top:2px;}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto;}
+.nav-section{margin-bottom:20px;}
+.nav-section-title{font-size:10px;color:#64748b;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;
+  border-radius:10px;color:#cbd5e1;font-size:13.5px;font-weight:500;
+  cursor:pointer;transition:all .15s;margin-bottom:2px;position:relative;}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+.nav-item.active{background:rgba(99,102,241,.18);color:#fff;font-weight:600;}
+.nav-item.active::before{content:"";position:absolute;inset-inline-start:0;
+  top:20%;bottom:20%;width:3px;background:#818cf8;border-radius:0 9999px 9999px 0;}
+.nav-icon{width:20px;flex:none;text-align:center;font-size:16px;}
+.nav-text{flex:1;}
+
+.topbar{grid-area:topbar;background:var(--bg-glass);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;
+  gap:12px;padding:0 24px;position:sticky;top:0;z-index:100;}
+.topbar-btn{width:38px;height:38px;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;color:var(--text-secondary);
+  transition:all .15s;flex:none;}
+.topbar-btn:hover{background:var(--bg-subtle);color:var(--text-primary);}
+.topbar-actions{margin-inline-start:auto;display:flex;gap:8px;}
+
+.main{grid-area:main;padding:24px;overflow-y:auto;overflow-x:hidden;}
+.page-header{margin-bottom:20px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.page-title{font-size:24px;font-weight:800;letter-spacing:-.5px;}
+.page-subtitle{font-size:14px;color:var(--text-secondary);margin-top:2px;}
+.page-actions{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:9px 16px;border-radius:10px;font-weight:600;font-size:13px;
+  transition:all .15s;white-space:nowrap;border:1.5px solid transparent;}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--brand-600);color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.3);}
+.btn-primary:hover{background:var(--brand-700);}
+.btn-outline{background:var(--bg-surface);color:var(--text-primary);border-color:var(--border-default);}
+.btn-outline:hover{border-color:var(--brand-500);color:var(--brand-600);background:var(--brand-50);}
+.btn-ghost{background:transparent;color:var(--text-secondary);}
+.btn-ghost:hover{background:var(--bg-subtle);color:var(--text-primary);}
+.btn-sm{padding:6px 12px;font-size:12.5px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:16px;margin-bottom:20px;}
+.stat-card{background:var(--bg-surface);border:1px solid var(--border-subtle);
+  border-radius:14px;padding:16px 20px;box-shadow:var(--shadow-sm);}
+.stat-label{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;
+  font-weight:700;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.stat-value{font-family:var(--mono);font-size:26px;font-weight:800;color:var(--text-primary);}
+.stat-value.success{color:var(--success-600);}
+.stat-value.warning{color:var(--warning-600);}
+.stat-value.danger{color:var(--danger-600);}
+
+/* TOOLBAR */
+.toolbar{background:var(--bg-surface);border:1px solid var(--border-subtle);
+  border-radius:14px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow-sm);
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+
+/* ZOOM BUTTONS */
+.zoom-group{display:inline-flex;align-items:center;gap:4px;padding:4px;
+  background:var(--bg-subtle);border-radius:10px;border:1px solid var(--border-subtle);}
+.zoom-btn{padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:600;
+  color:var(--text-secondary);transition:all .15s;}
+.zoom-btn:hover{color:var(--text-primary);}
+.zoom-btn.active{background:var(--bg-surface);color:var(--brand-600);box-shadow:var(--shadow-sm);}
+
+/* GANTT CONTAINER */
+.gantt-card{background:var(--bg-surface);border:1px solid var(--border-subtle);
+  border-radius:14px;box-shadow:var(--shadow-sm);overflow:hidden;}
+.gantt-header{display:flex;align-items:center;gap:12px;padding:16px 20px;
+  border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;}
+.gantt-title{font-size:15px;font-weight:800;flex:1;}
+.legend{display:flex;gap:16px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);}
+.legend-dot{width:12px;height:12px;border-radius:4px;}
+.legend-dot.done{background:var(--success-500);}
+.legend-dot.progress{background:var(--info-500);}
+.legend-dot.pending{background:var(--warning-500);}
+.legend-dot.overdue{background:var(--danger-500);}
+.legend-dot.milestone{background:#8b5cf6;transform:rotate(45deg);border-radius:2px;}
+
+.gantt-scroll{overflow:auto;max-height:calc(100vh - 420px);position:relative;}
+.gantt-table{display:grid;grid-template-columns:280px 1fr;min-width:100%;}
+
+/* LEFT COLUMN — Labels */
+.gantt-labels{background:var(--bg-surface);border-inline-end:2px solid var(--border-subtle);
+  position:sticky;inset-inline-start:0;z-index:5;}
+.gantt-label-header{height:56px;padding:0 20px;display:flex;align-items:center;
+  font-size:11px;font-weight:800;color:var(--text-tertiary);
+  text-transform:uppercase;letter-spacing:.8px;background:var(--bg-subtle);
+  border-bottom:2px solid var(--border-subtle);position:sticky;top:0;z-index:6;}
+.gantt-label-row{height:52px;padding:0 20px;display:flex;flex-direction:column;
+  justify-content:center;border-bottom:1px solid var(--border-subtle);
+  cursor:pointer;transition:background .15s;}
+.gantt-label-row:hover{background:var(--brand-50);}
+[data-theme="dark"] .gantt-label-row:hover{background:rgba(99,102,241,.08);}
+.gantt-label-row .site-id{font-family:var(--mono);font-weight:700;font-size:12.5px;
+  color:var(--brand-600);display:flex;align-items:center;gap:8px;}
+.gantt-label-row .site-meta{font-size:11px;color:var(--text-tertiary);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* RIGHT COLUMN — Timeline */
+.gantt-timeline{position:relative;background:var(--bg-surface);min-width:max-content;}
+.timeline-header{height:56px;position:sticky;top:0;z-index:4;
+  background:var(--bg-subtle);border-bottom:2px solid var(--border-subtle);
+  display:flex;}
+.timeline-header-cell{flex:none;height:56px;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;padding:4px 8px;
+  border-inline-end:1px solid var(--border-subtle);
+  font-size:11px;color:var(--text-secondary);font-weight:600;}
+.timeline-header-cell .month{font-size:9px;color:var(--text-tertiary);
+  text-transform:uppercase;letter-spacing:.5px;}
+.timeline-header-cell .day{font-family:var(--mono);font-weight:800;
+  color:var(--text-primary);font-size:13px;}
+.timeline-header-cell.today{background:rgba(99,102,241,.12);}
+.timeline-header-cell.today .day{color:var(--brand-600);}
+.timeline-header-cell.weekend{background:rgba(0,0,0,.02);}
+[data-theme="dark"] .timeline-header-cell.weekend{background:rgba(255,255,255,.02);}
+
+.timeline-row{height:52px;display:flex;position:relative;
+  border-bottom:1px solid var(--border-subtle);}
+.timeline-row:hover{background:rgba(99,102,241,.03);}
+.timeline-cell{flex:none;height:52px;border-inline-end:1px solid var(--border-subtle);}
+.timeline-cell.weekend{background:rgba(0,0,0,.02);}
+[data-theme="dark"] .timeline-cell.weekend{background:rgba(255,255,255,.02);}
+.timeline-cell.today{background:rgba(99,102,241,.06);}
+
+/* Bar */
+.gantt-bar{position:absolute;top:12px;height:28px;border-radius:6px;
+  display:flex;align-items:center;padding:0 10px;
+  font-size:11.5px;font-weight:700;color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;
+  transition:all .2s var(--ease);overflow:hidden;white-space:nowrap;}
+.gantt-bar:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.25);
+  z-index:10;}
+.gantt-bar.done{background:linear-gradient(135deg,#10b981,#059669);}
+.gantt-bar.progress{background:linear-gradient(135deg,#3b82f6,#2563eb);}
+.gantt-bar.pending{background:linear-gradient(135deg,#f59e0b,#d97706);}
+.gantt-bar.overdue{background:linear-gradient(135deg,#ef4444,#dc2626);}
+.gantt-bar.unknown{background:linear-gradient(135deg,#94a3b8,#64748b);}
+
+/* Today Marker */
+.today-marker{position:absolute;top:0;bottom:0;width:2px;
+  background:var(--danger-500);z-index:3;pointer-events:none;
+  box-shadow:0 0 8px rgba(239,68,68,.5);}
+.today-marker::before{content:"";position:absolute;top:-6px;
+  left:50%;transform:translateX(-50%);width:10px;height:10px;
+  border-radius:50%;background:var(--danger-500);}
+
+/* Milestone */
+.milestone{position:absolute;top:16px;width:20px;height:20px;
+  background:#8b5cf6;transform:rotate(45deg);border-radius:3px;
+  box-shadow:0 2px 8px rgba(139,92,246,.5);cursor:pointer;
+  z-index:4;transition:all .2s;border:2px solid #fff;}
+.milestone:hover{transform:rotate(45deg) scale(1.2);}
+
+/* Tooltip */
+.tooltip{position:fixed;background:var(--bg-elevated);
+  border:1px solid var(--border-subtle);border-radius:10px;
+  box-shadow:var(--shadow-xl);padding:12px 16px;z-index:1000;
+  pointer-events:none;opacity:0;transition:opacity .15s;
+  min-width:220px;max-width:320px;}
+.tooltip.show{opacity:1;}
+.tooltip-title{font-size:13px;font-weight:800;color:var(--text-primary);
+  margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle);}
+.tooltip-row{display:flex;justify-content:space-between;gap:12px;
+  font-size:12px;margin-bottom:4px;}
+.tooltip-row .k{color:var(--text-tertiary);}
+.tooltip-row .v{color:var(--text-primary);font-weight:600;font-family:var(--mono);}
+
+/* Empty */
+.empty-state{padding:80px 24px;text-align:center;}
+.empty-icon{width:80px;height:80px;margin:0 auto 20px;border-radius:20px;
+  background:var(--bg-subtle);display:flex;align-items:center;justify-content:center;
+  font-size:36px;}
+.empty-title{font-size:18px;font-weight:700;margin-bottom:8px;}
+.empty-desc{font-size:13.5px;color:var(--text-secondary);max-width:400px;margin:0 auto 20px;}
+
+/* Toast */
+.toast-container{position:fixed;bottom:24px;inset-inline-end:24px;z-index:1000;
+  display:flex;flex-direction:column;gap:12px;max-width:400px;pointer-events:none;}
+.toast{background:var(--bg-elevated);border:1px solid var(--border-subtle);
+  border-radius:10px;box-shadow:var(--shadow-xl);padding:16px;
+  display:flex;gap:12px;border-inline-start:4px solid var(--brand-500);
+  pointer-events:auto;animation:bounceIn .25s cubic-bezier(.34,1.56,.64,1);
+  min-width:300px;}
+.toast.success{border-inline-start-color:var(--success-500);}
+.toast.error{border-inline-start-color:var(--danger-500);}
+.toast.warning{border-inline-start-color:var(--warning-500);}
+.toast.removing{animation:fadeOut .15s forwards;}
+.toast-icon{width:24px;height:24px;border-radius:6px;flex:none;
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  background:var(--bg-subtle);}
+.toast.success .toast-icon{background:var(--success-50);color:var(--success-600);}
+.toast.error .toast-icon{background:var(--danger-50);color:var(--danger-600);}
+.toast-body{flex:1;}
+.toast-title{font-size:13.5px;font-weight:700;}
+.toast-msg{font-size:12.5px;color:var(--text-secondary);}
+
+/* Menu */
+.menu{position:absolute;top:calc(100% + 6px);inset-inline-end:0;min-width:220px;
+  background:var(--bg-elevated);border:1px solid var(--border-subtle);
+  border-radius:12px;box-shadow:var(--shadow-xl);padding:6px;
+  z-index:200;display:none;}
+.menu.show{display:block;}
+.menu-item{display:flex;align-items:center;gap:10px;padding:9px 12px;
+  border-radius:8px;font-size:13px;cursor:pointer;width:100%;text-align:start;}
+.menu-item:hover{background:var(--bg-subtle);}
+.relative{position:relative;}
+
+@media (max-width:960px){
+  .app{grid-template-columns:1fr;grid-template-areas:"topbar" "main";}
+  .sidebar{position:fixed;top:0;bottom:0;inset-inline-start:0;width:var(--sidebar-w);
+    transform:translateX(-100%);transition:transform .25s;z-index:200;}
+  [dir="rtl"] .sidebar{transform:translateX(100%);}
+  .sidebar.open{transform:translateX(0) !important;}
+  .main{padding:16px;}
+  .gantt-table{grid-template-columns:200px 1fr;}
+  .gantt-labels{min-width:200px;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">MFC</div>
+      <div class="sidebar-brand-text">
+        <div class="kicker">MFC Company</div>
+        <h1>Timeline Pro</h1>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Views</div>
+        <div class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></div>
+        <div class="nav-item" data-page="sites"><span class="nav-icon">📋</span><span class="nav-text">Sites</span></div>
+        <div class="nav-item active" data-page="gantt"><span class="nav-icon">📅</span><span class="nav-text">Timeline</span></div>
+      </div>
+    </nav>
+  </aside>
+
+  <header class="topbar">
+    <button class="topbar-btn" id="mobileMenu" style="display:none;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div style="flex:1;"></div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" id="themeToggle" title="Theme"></button>
+      <button class="topbar-btn" id="rtlToggle" title="RTL">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </button>
+      <button class="topbar-btn" id="refreshBtn" title="Refresh">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Timeline</h1>
+        <p class="page-subtitle" id="pageSubtitle">Loading...</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline btn-sm" id="todayBtn">📅 Today</button>
+        <div class="relative">
+          <button class="btn btn-outline btn-sm" id="exportBtn">📥 Export</button>
+          <div class="menu" id="exportMenu">
+            <button class="menu-item" data-export="png">🖼️ PNG Image</button>
+            <button class="menu-item" data-export="xlsx">📊 Excel</button>
+            <button class="menu-item" data-export="csv">📄 CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="zoom-group">
+        <button class="zoom-btn" data-zoom="day">Day</button>
+        <button class="zoom-btn active" data-zoom="week">Week</button>
+        <button class="zoom-btn" data-zoom="month">Month</button>
+        <button class="zoom-btn" data-zoom="quarter">Quarter</button>
+      </div>
+      <div style="flex:1;"></div>
+      <select id="filterSelect" style="padding:8px 12px;border-radius:8px;
+        border:1.5px solid var(--border-subtle);background:var(--bg-subtle);
+        font-size:13px;cursor:pointer;">
+        <option value="">All Sites</option>
+        <option value="done">Done Only</option>
+        <option value="progress">In Progress</option>
+        <option value="pending">Pending</option>
+        <option value="overdue">Overdue</option>
+      </select>
+    </div>
+
+    <!-- Gantt -->
+    <div class="gantt-card">
+      <div class="gantt-header">
+        <div class="gantt-title">Sites Timeline</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot done"></div><span>Done</span></div>
+          <div class="legend-item"><div class="legend-dot progress"></div><span>In Progress</span></div>
+          <div class="legend-item"><div class="legend-dot pending"></div><span>Pending</span></div>
+          <div class="legend-item"><div class="legend-dot overdue"></div><span>Overdue</span></div>
+          <div class="legend-item"><div class="legend-dot milestone"></div><span>Milestone</span></div>
+        </div>
+      </div>
+
+      <div class="gantt-scroll" id="ganttScroll">
+        <div class="gantt-table" id="ganttTable">
+          <div class="gantt-labels" id="ganttLabels"></div>
+          <div class="gantt-timeline" id="ganttTimeline"></div>
+        </div>
+      </div>
+
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-icon">📅</div>
+        <div class="empty-title">No sites with dates</div>
+        <div class="empty-desc">Add dates to your sites to see them on the timeline</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* =========================================================
+   CONFIG & SUPABASE
+   ========================================================= */
+const CONFIG = {
+  supabaseUrl: "https://bagbnoupsnsltflgwpic.supabase.co",
+  supabaseKey: "sb_publishable_jyov6Yn5ulwm3fj3lIs9yw_IDZVhYMd"
+};
+const STORAGE = {
+  theme: 'mfc_theme_v3',
+  rtl: 'mfc_rtl_v3',
+  zoom: 'mfc_gantt_zoom_v3'
+};
+
+let db = null;
+try {
+  if (typeof supabase !== 'undefined' && supabase.createClient) {
+    db = supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+    console.log('%c✅ Supabase ready', 'color:#10b981;font-weight:bold');
+  }
+} catch(e){ console.error('Supabase init failed:', e); }
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const State = {
+  sites: [],
+  filtered: [],
+  zoom: 'week', // day, week, month, quarter
+  startDate: null,
+  endDate: null,
+  filter: '',
+  cellWidth: 40
+};
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $ = (s, c=document)=> c.querySelector(s);
+const $$ = (s, c=document)=> Array.from(c.querySelectorAll(s));
+
+function escapeHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function fmtNum(n){
+  if (n == null || isNaN(n)) return '0';
+  return Number(n).toLocaleString();
+}
+
+function toast({type='info', title='', message='', duration=3500} = {}){
+  const container = $('#toastContainer');
+  const icons = { success:'✓', error:'!', warning:'⚠', info:'i' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `
+    <div class="toast-icon">${icons[type] || 'i'}</div>
+    <div class="toast-body">
+      <div class="toast-title">${escapeHtml(title)}</div>
+      ${message ? `<div class="toast-msg">${escapeHtml(message)}</div>` : ''}
+    </div>
+  `;
+  container.appendChild(el);
+  if (duration > 0) setTimeout(()=>{
+    el.classList.add('removing');
+    setTimeout(()=> el.remove(), 200);
+  }, duration);
+}
+
+/* =========================================================
+   THEME / RTL
+   ========================================================= */
+function initTheme(){
+  const saved = localStorage.getItem(STORAGE.theme) || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon();
+}
+function toggleTheme(){
+  const themes = ['light','dark','midnight','sepia'];
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = themes[(themes.indexOf(cur)+1) % themes.length];
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem(STORAGE.theme, next);
+  updateThemeIcon();
+}
+function updateThemeIcon(){
+  const btn = $('#themeToggle');
+  const cur = document.documentElement.getAttribute('data-theme');
+  btn.innerHTML = (cur === 'dark' || cur === 'midnight')
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+}
+function initRTL(){
+  const saved = localStorage.getItem(STORAGE.rtl) === '1';
+  document.documentElement.setAttribute('dir', saved ? 'rtl' : 'ltr');
+}
+function toggleRTL(){
+  const rtl = document.documentElement.getAttribute('dir') !== 'rtl';
+  document.documentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+  localStorage.setItem(STORAGE.rtl, rtl ? '1' : '0');
+}
+
+/* =========================================================
+   DATE UTILITIES
+   ========================================================= */
+function parseDate(str){
+  if (!str) return null;
+  // Try various formats
+  const s = String(str).trim();
+  // Format: YYYY-MM-DD
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+  // Format: DD-Mon-YY or DD-Mon-YYYY
+  m = s.match(/^(\d{1,2})[-\/\s]([A-Za-z]{3})[-\/\s](\d{2,4})/);
+  if (m) {
+    const months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+    let year = parseInt(m[3]);
+    if (year < 100) year += 2000;
+    return new Date(year, months[m[2].toLowerCase()], parseInt(m[1]));
+  }
+  // Try generic Date parse
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function formatDate(d){
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function daysBetween(a, b){
+  return Math.round((b - a) / (1000 * 60 * 60 * 24));
+}
+
+function addDays(d, n){
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+
+function isWeekend(d){
+  const day = d.getDay();
+  return day === 0 || day === 6;
+}
+
+function isToday(d){
+  const t = new Date();
+  return d.getFullYear() === t.getFullYear() &&
+    d.getMonth() === t.getMonth() &&
+    d.getDate() === t.getDate();
+}
+
+/* =========================================================
+   STATUS CLASSIFICATION
+   ========================================================= */
+function getStatusClass(row){
+  const s = String(row.states || '').toLowerCase();
+  if (s.includes('done') || s.includes('complete')) return 'done';
+  if (s.includes('progress') || s.includes('ongoing')) return 'progress';
+  if (s.includes('pending') || s.includes('waiting')) return 'pending';
+  if (s.includes('overdue') || s.includes('late')) return 'overdue';
+  return 'progress'; // default
+}
+
+/* =========================================================
+   LOAD DATA
+   ========================================================= */
+async function loadSites(){
+  if (!db) {
+    toast({type:'warning', title:'Offline', message:'Supabase not configured'});
+    return;
+  }
+  try {
+    const { data, error } = await db.from('sites').select('*').order('id');
+    if (error) throw error;
+    State.sites = data || [];
+    console.log(`%c📊 Loaded ${State.sites.length} sites`, 'color:#6366f1;font-weight:bold');
+    prepareData();
+  } catch(e){
+    console.error('Load failed:', e);
+    toast({type:'error', title:'Load failed', message:e.message});
+  }
+}
+
+function prepareData(){
+  // Parse dates and filter
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  State.filtered = State.sites
+    .map(r => {
+      const start = parseDate(r.date_field);
+      // Duration: default 30 days if no end date
+      const duration = 30;
+      const end = start ? addDays(start, duration) : null;
+      return { ...r, _start: start, _end: end };
+    })
+    .filter(r => r._start && r._end)
+    .filter(r => {
+      if (!State.filter) return true;
+      const cls = getStatusClass(r);
+      return cls === State.filter;
+    })
+    .sort((a, b) => a._start - b._start);
+
+  if (!State.filtered.length) {
+    $('#emptyState').style.display = 'block';
+    $('#ganttLabels').innerHTML = '';
+    $('#ganttTimeline').innerHTML = '';
+    renderStats();
+    $('#pageSubtitle').textContent = 'No sites with dates';
+    return;
+  }
+
+  $('#emptyState').style.display = 'none';
+
+  // Calculate date range
+  const allDates = State.filtered.flatMap(r => [r._start, r._end]);
+  let minDate = new Date(Math.min(...allDates));
+  let maxDate = new Date(Math.max(...allDates));
+
+  // Add padding
+  minDate = addDays(minDate, -7);
+  maxDate = addDays(maxDate, 7);
+
+  // Ensure today is in range
+  if (today < minDate) minDate = addDays(today, -3);
+  if (today > maxDate) maxDate = addDays(today, 3);
+
+  State.startDate = minDate;
+  State.endDate = maxDate;
+
+  // Calculate cell width based on zoom
+  const totalDays = daysBetween(minDate, maxDate);
+  if (State.zoom === 'day') State.cellWidth = 40;
+  else if (State.zoom === 'week') State.cellWidth = 20;
+  else if (State.zoom === 'month') State.cellWidth = 8;
+  else if (State.zoom === 'quarter') State.cellWidth = 3;
+
+  renderStats();
+  renderGantt();
+  $('#pageSubtitle').textContent = `${State.filtered.length} sites · ${formatDate(minDate)} → ${formatDate(maxDate)}`;
+}
+
+/* =========================================================
+   RENDER STATS
+   ========================================================= */
+function renderStats(){
+  const total = State.filtered.length;
+  const done = State.filtered.filter(r => getStatusClass(r) === 'done').length;
+  const progress = State.filtered.filter(r => getStatusClass(r) === 'progress').length;
+  const overdue = State.filtered.filter(r => getStatusClass(r) === 'overdue').length;
+  const pending = State.filtered.filter(r => getStatusClass(r) === 'pending').length;
+
+  $('#statsRow').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">📊 Total Sites</div>
+      <div class="stat-value">${total}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">✅ Completed</div>
+      <div class="stat-value success">${done}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🔄 In Progress</div>
+      <div class="stat-value" style="color:var(--info-500)">${progress}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">⚠️ Overdue</div>
+      <div class="stat-value danger">${overdue}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">⏳ Pending</div>
+      <div class="stat-value warning">${pending}</div>
+    </div>
+  `;
+}
+
+/* =========================================================
+   RENDER GANTT
+   ========================================================= */
+function renderGantt(){
+  const totalDays = daysBetween(State.startDate, State.endDate) + 1;
+
+  // ============ LEFT: Labels ============
+  let labelsHtml = `<div class="gantt-label-header">Site</div>`;
+  State.filtered.forEach(r => {
+    labelsHtml += `
+      <div class="gantt-label-row" data-site-id="${escapeHtml(r.site_id)}">
+        <div class="site-id">📍 ${escapeHtml(r.site_id || '—')}</div>
+        <div class="site-meta">${escapeHtml(r.gov || '')} · ${escapeHtml(r.team || 'No team')}</div>
+      </div>
+    `;
+  });
+  $('#ganttLabels').innerHTML = labelsHtml;
+
+  // ============ RIGHT: Timeline ============
+  const timeline = $('#ganttTimeline');
+  const totalWidth = totalDays * State.cellWidth;
+
+  // Header cells
+  let headerHtml = '';
+  for (let i = 0; i < totalDays; i++) {
+    const d = addDays(State.startDate, i);
+    const weekend = isWeekend(d);
+    const today = isToday(d);
+    const showLabel = shouldShowDateLabel(d, i);
+    headerHtml += `
+      <div class="timeline-header-cell ${today ? 'today' : ''} ${weekend ? 'weekend' : ''}"
+        style="width:${State.cellWidth}px;"
+        title="${formatDate(d)}">
+        ${showLabel ? `
+          <div class="month">${d.toLocaleDateString('en-US', {month:'short'})}</div>
+          <div class="day">${d.getDate()}</div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  // Body rows
+  let rowsHtml = '';
+  State.filtered.forEach(r => {
+    const startOffset = daysBetween(State.startDate, r._start);
+    const duration = Math.max(1, daysBetween(r._start, r._end));
+    const left = startOffset * State.cellWidth;
+    const width = duration * State.cellWidth;
+    const statusCls = getStatusClass(r);
+
+    let cellsHtml = '';
+    for (let i = 0; i < totalDays; i++) {
+      const d = addDays(State.startDate, i);
+      cellsHtml += `<div class="timeline-cell ${isWeekend(d) ? 'weekend' : ''} ${isToday(d) ? 'today' : ''}" style="width:${State.cellWidth}px;"></div>`;
+    }
+
+    rowsHtml += `
+      <div class="timeline-row" style="width:${totalWidth}px;" data-id="${r.id}">
+        ${cellsHtml}
+        <div class="gantt-bar ${statusCls}"
+          style="left:${left}px;width:${Math.max(width, 60)}px;"
+          data-id="${r.id}"
+          data-site-id="${escapeHtml(r.site_id || '')}"
+          data-status="${statusCls}"
+          data-start="${formatDate(r._start)}"
+          data-end="${formatDate(r._end)}">
+          ${escapeHtml(r.site_id || '')} · ${duration}d
+        </div>
+      </div>
+    `;
+  });
+
+  // Today marker
+  const todayOffset = daysBetween(State.startDate, new Date());
+  const todayLeft = todayOffset * State.cellWidth;
+
+  timeline.innerHTML = `
+    <div class="timeline-header" style="width:${totalWidth}px;">
+      ${headerHtml}
+    </div>
+    <div style="position:relative;">
+      ${rowsHtml}
+      ${todayOffset >= 0 && todayOffset < totalDays ? `
+        <div class="today-marker" style="left:${todayLeft + State.cellWidth/2}px;"></div>
+      ` : ''}
+    </div>
+  `;
+
+  // Bind tooltip events
+  $$('.gantt-bar').forEach(bar => {
+    bar.addEventListener('mouseenter', showTooltip);
+    bar.addEventListener('mousemove', moveTooltip);
+    bar.addEventListener('mouseleave', hideTooltip);
+    bar.addEventListener('click', () => {
+      const id = parseInt(bar.dataset.id, 10);
+      const site = State.sites.find(s => s.id === id);
+      if (site) showSiteDetails(site);
+    });
+  });
+
+  // Label row click
+  $$('.gantt-label-row').forEach(row => {
+    row.onclick = () => {
+      const siteId = row.dataset.siteId;
+      const site = State.sites.find(s => s.site_id === siteId);
+      if (site) showSiteDetails(site);
+    };
+  });
+
+  // Scroll to today
+  setTimeout(() => {
+    const scrollEl = $('#ganttScroll');
+    if (scrollEl && todayOffset >= 0) {
+      const scrollPos = todayLeft - scrollEl.clientWidth / 2 + 280;
+      scrollEl.scrollLeft = Math.max(0, scrollPos);
+    }
+  }, 100);
+}
+
+function shouldShowDateLabel(d, i){
+  if (State.zoom === 'day') return true;
+  if (State.zoom === 'week') return d.getDay() === 1 || i === 0;
+  if (State.zoom === 'month') return d.getDate() === 1 || i === 0;
+  if (State.zoom === 'quarter') return d.getDate() === 1 || i === 0;
+  return false;
+}
+
+/* =========================================================
+   TOOLTIP
+   ========================================================= */
+function showTooltip(e){
+  const bar = e.currentTarget;
+  const tooltip = $('#tooltip');
+  const id = parseInt(bar.dataset.id, 10);
+  const site = State.sites.find(s => s.id === id);
+  if (!site) return;
+
+  const statusCls = bar.dataset.status;
+  const statusLabel = {
+    done: '✅ Done',
+    progress: '🔄 In Progress',
+    pending: '⏳ Pending',
+    overdue: '⚠️ Overdue'
+  }[statusCls] || 'Unknown';
+
+  tooltip.innerHTML = `
+    <div class="tooltip-title">📍 ${escapeHtml(site.site_id || '—')}</div>
+    <div class="tooltip-row"><span class="k">Gov:</span><span class="v">${escapeHtml(site.gov || '—')}</span></div>
+    <div class="tooltip-row"><span class="k">Team:</span><span class="v">${escapeHtml(site.team || '—')}</span></div>
+    <div class="tooltip-row"><span class="k">Status:</span><span class="v">${statusLabel}</span></div>
+    <div class="tooltip-row"><span class="k">Start:</span><span class="v">${bar.dataset.start}</span></div>
+    <div class="tooltip-row"><span class="k">End:</span><span class="v">${bar.dataset.end}</span></div>
+    <div class="tooltip-row"><span class="k">Subcon:</span><span class="v">${fmtNum(parseFloat(site.amount_to_subcon) || 0)}</span></div>
+  `;
+  tooltip.classList.add('show');
+}
+function moveTooltip(e){
+  const tooltip = $('#tooltip');
+  const x = e.clientX + 16;
+  const y = e.clientY + 16;
+  const rect = tooltip.getBoundingClientRect();
+  const maxX = window.innerWidth - rect.width - 10;
+  const maxY = window.innerHeight - rect.height - 10;
+  tooltip.style.left = Math.min(x, maxX) + 'px';
+  tooltip.style.top = Math.min(y, maxY) + 'px';
+}
+function hideTooltip(){
+  $('#tooltip').classList.remove('show');
+}
+
+/* =========================================================
+   SITE DETAILS MODAL
+   ========================================================= */
+function showSiteDetails(site){
+  const statusCls = getStatusClass(site);
+  const statusLabel = {
+    done: '✅ Done',
+    progress: '🔄 In Progress',
+    pending: '⏳ Pending',
+    overdue: '⚠️ Overdue'
+  }[statusCls] || 'Unknown';
+
+  const start = parseDate(site.date_field);
+  const end = start ? addDays(start, 30) : null;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    position:fixed;inset:0;background:var(--bg-overlay);
+    backdrop-filter:blur(6px);z-index:1000;display:flex;
+    align-items:center;justify-content:center;padding:24px;
+    animation:fadeIn .2s;
+  `;
+  modal.innerHTML = `
+    <div style="background:var(--bg-elevated);border-radius:20px;
+      max-width:520px;width:100%;max-height:90vh;overflow-y:auto;
+      box-shadow:var(--shadow-2xl);animation:bounceIn .3s cubic-bezier(.34,1.56,.64,1);">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border-subtle);
+        display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;">
+          <div style="font-size:18px;font-weight:800;">📍 ${escapeHtml(site.site_id || '—')}</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-top:4px;">
+            ${escapeHtml(site.gov || '—')} · ${escapeHtml(site.team || 'No team')}
+          </div>
+        </div>
+        <button class="modal-close" style="width:32px;height:32px;border-radius:8px;
+          display:flex;align-items:center;justify-content:center;
+          background:var(--bg-subtle);color:var(--text-secondary);font-size:16px;">✕</button>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+          <div style="padding:12px;background:var(--bg-subtle);border-radius:10px;">
+            <div style="font-size:10.5px;color:var(--text-tertiary);text-transform:uppercase;
+              font-weight:700;letter-spacing:.5px;margin-bottom:4px;">Status</div>
+            <div style="font-size:13.5px;font-weight:600;">${statusLabel}</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-subtle);border-radius:10px;">
+            <div style="font-size:10.5px;color:var(--text-tertiary);text-transform:uppercase;
+              font-weight:700;letter-spacing:.5px;margin-bottom:4px;">Scope</div>
+            <div style="font-size:13.5px;font-weight:600;">${escapeHtml(site.main_scope || '—')}</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-subtle);border-radius:10px;">
+            <div style="font-size:10.5px;color:var(--text-tertiary);text-transform:uppercase;
+              font-weight:700;letter-spacing:.5px;margin-bottom:4px;">Start</div>
+            <div style="font-size:13.5px;font-weight:600;font-family:var(--mono);">${start ? formatDate(start) : '—'}</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-subtle);border-radius:10px;">
+            <div style="font-size:10.5px;color:var(--text-tertiary);text-transform:uppercase;
+              font-weight:700;letter-spacing:.5px;margin-bottom:4px;">Est. End</div>
+            <div style="font-size:13.5px;font-weight:600;font-family:var(--mono);">${end ? formatDate(end) : '—'}</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-subtle);border-radius:10px;">
+            <div style="font-size:10.5px;color:var(--text-tertiary);text-transform:uppercase;
+              font-weight:700;letter-spacing:.5px;margin-bottom:4px;">Subcon Amount</div>
+            <div style="font-size:13.5px;font-weight:600;font-family:var(--mono);">${fmtNum(parseFloat(site.amount_to_subcon) || 0)} IQD</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-subtle);border-radius:10px;">
+            <div style="font-size:10.5px;color:var(--text-tertiary);text-transform:uppercase;
+              font-weight:700;letter-spacing:.5px;margin-bottom:4px;">Paid</div>
+            <div style="font-size:13.5px;font-weight:600;font-family:var(--mono);">${fmtNum(parseFloat(site.amount_paid) || 0)} IQD</div>
+          </div>
+        </div>
+        ${site.nokia_comments ? `
+          <div style="padding:14px;background:var(--bg-subtle);border-radius:10px;
+            border-inline-start:3px solid var(--brand-500);">
+            <div style="font-size:11px;font-weight:700;color:var(--text-tertiary);
+              text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Comments</div>
+            <div style="font-size:13px;line-height:1.6;">${escapeHtml(site.nokia_comments)}</div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal || e.target.classList.contains('modal-close')) {
+      modal.style.animation = 'fadeOut .15s';
+      setTimeout(() => modal.remove(), 150);
+    }
+  });
+}
+
+/* =========================================================
+   ZOOM & FILTER
+   ========================================================= */
+function setZoom(zoom){
+  State.zoom = zoom;
+  localStorage.setItem(STORAGE.zoom, zoom);
+  $$('.zoom-btn').forEach(b => b.classList.toggle('active', b.dataset.zoom === zoom));
+  prepareData();
+}
+
+/* =========================================================
+   EXPORT
+   ========================================================= */
+function exportData(format){
+  if (format === 'csv') {
+    const cols = ['site_id','gov','team','states','date_field','amount_to_subcon'];
+    const rows = [cols.join(',')];
+    State.filtered.forEach(r => {
+      rows.push(cols.map(c => {
+        let v = String(r[c] ?? '').replace(/"/g, '""');
+        if (v.includes(',') || v.includes('"')) v = `"${v}"`;
+        return v;
+      }).join(','));
+    });
+    const blob = new Blob(['\uFEFF' + rows.join('\n')], { type:'text/csv;charset=utf-8;' });
+    downloadBlob(blob, `mfc_timeline_${new Date().toISOString().slice(0,10)}.csv`);
+    toast({type:'success', title:'CSV exported'});
+  } else if (format === 'xlsx') {
+    const rows = State.filtered.map(r => ({
+      'Site ID': r.site_id || '',
+      'Gov': r.gov || '',
+      'Team': r.team || '',
+      'Status': r.states || '',
+      'Date': r.date_field || '',
+      'Amount': parseFloat(r.amount_to_subcon) || 0
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Timeline');
+    XLSX.writeFile(wb, `mfc_timeline_${new Date().toISOString().slice(0,10)}.xlsx`);
+    toast({type:'success', title:'Excel exported'});
+  } else if (format === 'png') {
+    toast({type:'info', title:'PNG export', message:'Screenshot feature — coming in Part 9'});
+  }
+}
+
+function downloadBlob(blob, name){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function bindEvents(){
+  const mm = $('#mobileMenu');
+  mm.onclick = () => $('#sidebar').classList.toggle('open');
+  const upd = () => mm.style.display = window.innerWidth <= 960 ? 'flex' : 'none';
+  window.addEventListener('resize', upd);
+  upd();
+
+  $('#themeToggle').onclick = toggleTheme;
+  $('#rtlToggle').onclick = toggleRTL;
+  $('#refreshBtn').onclick = () => {
+    toast({type:'info', title:'Refreshing...', duration:1500});
+    loadSites();
+  };
+
+  $('#todayBtn').onclick = () => {
+    const scrollEl = $('#ganttScroll');
+    const todayOffset = daysBetween(State.startDate, new Date());
+    const todayLeft = todayOffset * State.cellWidth;
+    if (scrollEl) {
+      scrollEl.scrollTo({ left: Math.max(0, todayLeft - scrollEl.clientWidth / 2 + 280), behavior: 'smooth' });
+    }
+    toast({type:'info', title:'Jumped to today', duration:1500});
+  };
+
+  $$('.zoom-btn').forEach(btn => {
+    btn.onclick = () => setZoom(btn.dataset.zoom);
+  });
+
+  $('#filterSelect').onchange = (e) => {
+    State.filter = e.target.value;
+    prepareData();
+  };
+
+  $('#exportBtn').onclick = (e) => {
+    e.stopPropagation();
+    $('#exportMenu').classList.toggle('show');
+  };
+  $('#exportMenu').onclick = (e) => e.stopPropagation();
+  $$('#exportMenu .menu-item').forEach(b => {
+    b.onclick = () => {
+      exportData(b.dataset.export);
+      $('#exportMenu').classList.remove('show');
+    };
+  });
+  document.addEventListener('click', () => $('#exportMenu').classList.remove('show'));
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === '/') { e.preventDefault(); toggleTheme(); }
+    if (e.key === 'Escape') {
+      $('#exportMenu').classList.remove('show');
+      hideTooltip();
+    }
+  });
+}
+
+async function init(){
+  console.log('%c🚀 MFC Timeline Pro', 'color:#6366f1;font-weight:bold;font-size:14px');
+  initTheme();
+  initRTL();
+  State.zoom = localStorage.getItem(STORAGE.zoom) || 'week';
+  $$('.zoom-btn').forEach(b => b.classList.toggle('active', b.dataset.zoom === State.zoom));
+  bindEvents();
+  await loadSites();
+  console.log('%c✅ Ready — Phase 4 Complete', 'color:#10b981;font-weight:bold');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
