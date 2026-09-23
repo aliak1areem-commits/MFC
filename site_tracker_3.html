@@ -267,8 +267,10 @@ td.num,th.num{font-family:'JetBrains Mono',monospace;text-align:center;}
 td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emerald-700);}
 .site-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--primary);font-size:13px;cursor:pointer;}
 .site-id:hover{text-decoration:underline;}
-.row-actions{display:flex;gap:4px;justify-content:center;opacity:0;transition:opacity var(--transition);}
-table.dt tbody tr:hover .row-actions{opacity:1;}
+
+/* Actions دائماً ظاهرة */
+.row-actions{display:flex;gap:4px;justify-content:center;opacity:1 !important;}
+
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;
   font-size:11.5px;font-weight:600;border:1px solid;}
 .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none;}
@@ -316,8 +318,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 .drawer-tab:hover{color:var(--text);}
 .drawer-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
 .drawer-body{padding:22px 26px;overflow-y:auto;flex:1;}
-.drawer-pane{display:none;}
-.drawer-pane.active{display:block;}
 .d-section{margin-bottom:22px;}
 .d-section-title{font-size:11px;font-weight:800;color:var(--text-dim);
   text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;
@@ -328,21 +328,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 .kv .v{font-size:13.5px;font-weight:600;color:var(--text);word-break:break-word;}
 .kv.danger .v{color:var(--red-600);}
 .kv.success .v{color:var(--emerald-700);}
-.kv.clickable{cursor:pointer;transition:var(--transition);}
-.kv.clickable:hover{border-color:var(--primary);background:var(--blue-50);}
-.it{width:100%;border-collapse:collapse;font-size:12.5px;}
-.it thead th{background:var(--bg-subtle);padding:9px 12px;font-weight:700;font-size:10.5px;
-  color:var(--text-dim);text-transform:uppercase;letter-spacing:.4px;
-  border-bottom:1px solid var(--border);text-align:left;}
-.it tbody td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12.5px;}
-.it tbody tr:last-child td{border-bottom:none;}
-.it tbody tr:hover{background:var(--bg-subtle);}
-.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;
-  font-size:11px;font-weight:700;white-space:nowrap;border:1px solid;}
-.sp-short{color:var(--red-700);background:var(--red-50);border-color:rgba(239,68,68,.3);}
-.sp-excess{color:var(--amber-700);background:var(--amber-50);border-color:rgba(245,158,11,.3);}
-.sp-match{color:var(--emerald-700);background:var(--emerald-50);border-color:rgba(16,185,129,.3);}
-.sp-pending{color:var(--text-dim);background:var(--gray-100);border-color:var(--border-strong);}
+
 .alert{padding:12px 16px;border-radius:10px;font-size:12.5px;line-height:1.6;font-weight:500;border-left:3px solid;}
 .alert-warn{background:var(--amber-50);color:var(--amber-700);border-color:var(--amber-500);}
 .alert-info{background:var(--blue-50);color:var(--blue-700);border-color:var(--blue-500);}
@@ -415,11 +401,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 .toast-body{flex:1;min-width:0;}
 .toast-title{font-size:13.5px;font-weight:700;margin-bottom:2px;}
 .toast-msg{font-size:12.5px;color:var(--text-dim);line-height:1.4;}
-.toast-actions{display:flex;gap:6px;margin-top:8px;}
-.toast-btn{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;
-  background:var(--gray-100);color:var(--text-dim);}
-.toast-btn.primary{background:var(--primary);color:#fff;}
-.toast-close{color:var(--text-muted);font-size:14px;line-height:1;padding:2px 6px;border-radius:6px;}
 
 .cmdk-backdrop{position:fixed;inset:0;background:rgba(5,13,26,.7);backdrop-filter:blur(4px);
   display:none;align-items:flex-start;justify-content:center;z-index:600;padding-top:15vh;}
@@ -437,13 +418,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 .cmdk-item-title{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .cmdk-item-sub{font-size:11.5px;color:var(--text-dim);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .cmdk-empty{padding:40px 20px;text-align:center;color:var(--text-dim);font-size:13px;}
-
-.shortcut-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;
-  border-bottom:1px solid var(--border);font-size:13px;}
-.shortcut-row:last-child{border-bottom:none;}
-.shortcut-keys{display:flex;gap:4px;}
-.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 8px;border-radius:6px;
-  background:var(--gray-100);border:1px solid var(--border);color:var(--text-dim);font-weight:600;}
 
 .chat-fab{position:fixed;bottom:24px;right:24px;z-index:490;
   width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);
@@ -482,18 +456,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 .gantt-bar.done{background:var(--emerald-500);}
 .gantt-bar.progress{background:var(--blue-500);}
 
-.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:10px;}
-.gallery-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
-  background:var(--bg-subtle);border:1px solid var(--border);cursor:pointer;}
-.gallery-item img{width:100%;height:100%;object-fit:cover;}
-.gallery-item .del{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;
-  background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;
-  font-size:12px;opacity:0;}
-.gallery-item:hover .del{opacity:1;}
-.gallery-upload{border:2px dashed var(--border-strong);border-radius:10px;aspect-ratio:1;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-  cursor:pointer;color:var(--text-dim);font-size:11.5px;font-weight:600;background:var(--bg-subtle);}
-
 .activity-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:12.5px;}
 .activity-icon{width:32px;height:32px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;
   background:var(--blue-50);color:var(--primary);}
@@ -501,6 +463,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 .activity-text{color:var(--text);margin-bottom:2px;}
 .activity-meta{font-size:11px;color:var(--text-muted);display:flex;gap:10px;}
 
+/* Labels على الخريطة */
 .site-label{
   background:rgba(255,255,255,0.95)!important;
   border:1px solid rgba(37,99,235,.3)!important;
@@ -512,6 +475,41 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   color:#1d4ed8!important;
   box-shadow:0 2px 6px rgba(0,0,0,.15)!important;
   white-space:nowrap!important;
+}
+
+/* Checkbox للأعمدة الجديدة */
+.col-checkbox{
+  width:16px;height:16px;cursor:pointer;accent-color:var(--primary);
+}
+
+/* Multi-select للسايتات */
+.site-select{
+  width:16px;height:16px;cursor:pointer;accent-color:var(--primary);
+}
+
+/* Map multi-select toolbar */
+.map-toolbar{
+  position:absolute;top:16px;right:16px;z-index:500;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;
+  box-shadow:var(--shadow-lg);display:flex;
+  align-items:center;gap:10px;font-size:13px;
+}
+.map-toolbar .count{
+  font-weight:700;color:var(--primary);
+  padding-right:10px;border-right:1px solid var(--border);
+}
+
+/* Dropdown داخل الجدول */
+td select{
+  width:100%!important;
+  padding:6px 8px!important;
+  border:1px solid var(--border)!important;
+  border-radius:6px!important;
+  font-size:12.5px!important;
+  background:var(--bg-card)!important;
+  color:var(--text)!important;
+  cursor:pointer!important;
 }
 
 @media (max-width:960px){
@@ -528,7 +526,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   table.dt tbody tr{display:block;margin-bottom:12px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--bg-card)!important;}
   table.dt tbody td{display:flex;justify-content:space-between;border:none;padding:6px 0;max-width:none;text-align:right;gap:12px;background:transparent!important;}
   table.dt tbody td::before{content:attr(data-label);font-weight:700;font-size:11px;color:var(--text-dim);text-transform:uppercase;text-align:left;flex:none;}
-  .row-actions{opacity:1;}
   .gantt-label{width:100px;}
 }
 </style>
@@ -580,8 +577,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </header>
 
   <div class="container">
-    <div id="alertsBanner" style="display:none;margin-bottom:16px;"></div>
-
     <div class="view-tabs" id="viewTabs">
       <button class="view-tab active" data-view="dashboard">📊 Dashboard</button>
       <button class="view-tab" data-view="sites">📋 Sites</button>
@@ -593,8 +588,8 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
     <div id="view-dashboard">
       <div class="kpi-groups" id="kpiGroups"></div>
       <div class="charts-row">
-        <div class="chart-card"><div class="chart-title">Site Status Distribution</div><div class="chart-canvas-wrap"><canvas id="chartStatus"></canvas></div></div>
-        <div class="chart-card"><div class="chart-title">Sites by Governorate</div><div class="chart-canvas-wrap"><canvas id="chartGov"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">Status Distribution</div><div class="chart-canvas-wrap"><canvas id="chartStatus"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">By Governorate</div><div class="chart-canvas-wrap"><canvas id="chartGov"></canvas></div></div>
         <div class="chart-card"><div class="chart-title">Financial Overview</div><div class="chart-canvas-wrap"><canvas id="chartFinance"></canvas></div></div>
         <div class="chart-card"><div class="chart-title">Monthly Trends</div><div class="chart-canvas-wrap"><canvas id="chartMonthly"></canvas></div></div>
         <div class="chart-card"><div class="chart-title">Team Performance</div><div class="chart-canvas-wrap"><canvas id="chartTeams"></canvas></div></div>
@@ -625,9 +620,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
               <button class="kebab-item" id="exportCsvBtn">📥 Export CSV</button>
               <button class="kebab-item" id="exportXlsxBtn">📊 Export Excel</button>
               <button class="kebab-item" id="exportReportBtn">📑 Export PDF Report</button>
-              <button class="kebab-item" id="importBtn">📤 Import Excel</button>
               <div class="kebab-divider"></div>
-              <button class="kebab-item" id="emailReportBtn">📧 Send Email Report</button>
               <button class="kebab-item" id="backupBtn">💾 Create Backup</button>
               <div class="kebab-divider"></div>
               <button class="kebab-item danger" id="resetBtn">🗑️ Reset Data</button>
@@ -639,7 +632,11 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 
       <div class="table-card">
         <div class="table-head-bar">
-          <div class="table-count"><span id="tableCount">0</span> sites <span id="tableCountFiltered"></span></div>
+          <div class="table-count">
+            <input type="checkbox" class="site-select" id="selectAllSites" title="Select all">
+            <span id="tableCount">0</span> sites <span id="tableCountFiltered"></span>
+            <span id="selectedCount" style="color:var(--primary);font-weight:700;margin-inline-start:8px;"></span>
+          </div>
           <div class="table-actions">
             <button class="density-btn" data-density="compact">Compact</button>
             <button class="density-btn active" data-density="normal">Normal</button>
@@ -704,7 +701,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
     <button class="icon-btn-hero" id="chatClose" style="background:rgba(255,255,255,.1);">✕</button>
   </div>
   <div class="chat-body" id="chatBody">
-    <div class="chat-msg bot">مرحباً! أنا مساعدك الذكي. اسألني عن:<br>• عدد المواقع<br>• أفضل فريق<br>• المدفوعات المتأخرة<br>• إحصائيات Basra<br>• Snags مفتوحة</div>
+    <div class="chat-msg bot">مرحباً! اسألني عن:<br>• عدد المواقع<br>• أفضل فريق<br>• المدفوعات<br>• إحصائيات Basra</div>
   </div>
   <div class="chat-input-wrap">
     <input class="chat-input" id="chatInput" placeholder="Ask me anything...">
@@ -731,7 +728,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   <div class="modal wide">
     <div class="modal-head">
       <h3>📄 Import SMR PDF</h3>
-      <p>Upload a Stock Requisition PDF. Items will be extracted exactly as-is (no prices).</p>
+      <p>Upload a Stock Requisition PDF. Items will be extracted exactly as-is.</p>
     </div>
     <div class="modal-body">
       <div class="drop-zone" id="pdfDropZone">
@@ -765,7 +762,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
           </div>
           <div style="display:flex;gap:6px;">
             <button class="btn btn-outline btn-sm" id="ex_debugBtn">Debug Text</button>
-            <button class="btn btn-outline btn-sm" id="ex_structBtn">Debug Structure</button>
             <button class="btn btn-outline btn-sm" id="ex_addItem">+ Add item</button>
           </div>
         </div>
@@ -793,18 +789,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
     <div class="modal-actions">
       <button class="btn btn-outline" id="pdfImportCancel">Cancel</button>
       <button class="btn btn-primary" id="pdfImportSave" disabled>Save &amp; Upload</button>
-    </div>
-  </div>
-</div>
-
-<!-- EXCEL IMPORT MODAL -->
-<div class="modal-backdrop" id="importModal">
-  <div class="modal">
-    <div class="modal-head"><h3 id="importTitle">Import spreadsheet</h3><p id="importSummary">Preview will appear here.</p></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" id="importCancel">Cancel</button>
-      <button class="btn btn-outline" id="importAppend">Append rows</button>
-      <button class="btn btn-primary" id="importReplace">Replace all</button>
     </div>
   </div>
 </div>
@@ -848,24 +832,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
-<!-- EMAIL MODAL -->
-<div class="modal-backdrop" id="emailModal">
-  <div class="modal">
-    <div class="modal-head"><h3>📧 Send Email Report</h3><p>The report will be sent to the recipient below.</p></div>
-    <div class="modal-body">
-      <div class="form-grid" style="grid-template-columns:1fr;">
-        <div><label>Recipient Email</label><input type="email" id="emailTo"></div>
-        <div><label>Subject</label><input type="text" id="emailSubject" value="MFC Site Tracker Report"></div>
-        <div><label>Message (optional)</label><textarea id="emailMessage" rows="4" style="width:100%;padding:9px 12px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;"></textarea></div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" id="emailCancel">Cancel</button>
-      <button class="btn btn-primary" id="emailSend">Send Report</button>
-    </div>
-  </div>
-</div>
-
 <!-- PDF VIEWER -->
 <div class="modal-backdrop" id="pdfViewerModal">
   <div class="pdf-viewer">
@@ -880,34 +846,24 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 
 <!-- MAP MODAL -->
 <div class="modal-backdrop" id="mapModal">
-  <div class="modal" style="max-width:1100px;padding:0;overflow:hidden;">
+  <div class="modal" style="max-width:1100px;padding:0;overflow:hidden;position:relative;">
     <div class="modal-head" style="background:var(--navy-900);color:#fff;border:none;">
       <h3 style="color:#fff;">🗺️ Site Map</h3>
-      <p style="color:#8fa3c2;">Sites plotted by LAT/Long · Clustered</p>
+      <p style="color:#8fa3c2;">Click sites to select · Copy Lat/Long · Colors by status</p>
     </div>
     <div id="leafletMap" style="height:70vh;width:100%;"></div>
+    <div id="mapToolbar" class="map-toolbar" style="display:none;">
+      <span class="count"><span id="mapSelectedCount">0</span> selected</span>
+      <button class="btn btn-primary btn-sm" id="mapCopyCoords">📋 Copy Lat/Long</button>
+      <button class="btn btn-outline btn-sm" id="mapCopyLinks">🔗 Copy Links</button>
+      <button class="btn btn-ghost btn-sm" id="mapClearSel">✕</button>
+    </div>
     <div class="modal-actions"><button class="btn btn-outline" id="mapClose">Close</button></div>
   </div>
 </div>
 
-<!-- SHORTCUTS MODAL -->
-<div class="modal-backdrop" id="shortcutsModal">
-  <div class="modal">
-    <div class="modal-head"><h3>⌨️ Keyboard Shortcuts</h3></div>
-    <div class="modal-body">
-      <div class="shortcut-row"><span>Command Palette</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">K</span></div></div>
-      <div class="shortcut-row"><span>New Site</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">N</span></div></div>
-      <div class="shortcut-row"><span>Search</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">F</span></div></div>
-      <div class="shortcut-row"><span>Export Excel</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">E</span></div></div>
-      <div class="shortcut-row"><span>PDF Report</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">P</span></div></div>
-      <div class="shortcut-row"><span>Dashboard</span><div class="shortcut-keys"><span class="kbd">G</span><span class="kbd">D</span></div></div>
-      <div class="shortcut-row"><span>Map</span><div class="shortcut-keys"><span class="kbd">G</span><span class="kbd">M</span></div></div>
-      <div class="shortcut-row"><span>Show Shortcuts</span><div class="shortcut-keys"><span class="kbd">?</span></div></div>
-      <div class="shortcut-row"><span>Close</span><div class="shortcut-keys"><span class="kbd">Esc</span></div></div>
-    </div>
-    <div class="modal-actions"><button class="btn btn-outline" id="shortcutsClose">Close</button></div>
-  </div>
-</div>
+<!-- TOASTS -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- COMMAND PALETTE -->
 <div class="cmdk-backdrop" id="cmdkBackdrop">
@@ -921,95 +877,139 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
-<!-- TOASTS -->
-<div class="toast-container" id="toastContainer"></div>
-
 <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;">
-<input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none;" multiple>
 
 <script>
-  /* =========================================================
+/* =========================================================
+   /* =========================================================
    CONFIG
    ========================================================= */
 const SUPABASE_URL = "https://bagbnoupsnsltflgwpic.supabase.co";
 const SUPABASE_KEY = "sb_publishable_jyov6Yn5ulwm3fj3lIs9yw_IDZVhYMd";
 
-const STORAGE_KEY = "mfc_site_tracker_data_v8";
-const LOGIN_KEY   = "mfc_logged_in_v8";
+const STORAGE_KEY = "mfc_site_tracker_data_v9";
+const LOGIN_KEY   = "mfc_logged_in_v9";
 const THEME_KEY   = "mfc_theme";
 const DENSITY_KEY = "mfc_density";
 const PINNED_KEY  = "mfc_pinned_columns";
 const VALID_USER  = "MFC";
 const VALID_PASS  = "MFC@1234";
+const TRANSPORT_COST = 150000;
 
 /* Supabase client */
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* =========================================================
-   COLUMNS
+   COLUMNS — النسخة الجديدة
    ========================================================= */
 const COLUMNS = [
-  "SiteID","Gov","Photo Report","Photo Report Reason",
+  "SiteID","Gov",
+  "Photo Report","Photo Report Reason",
   "FLM Feedback","FLM Rejection Reason",
   "Saif Tool","Team",
   "Nokia Comments","Nokia Rejection Reason",
-  "Extra Scope","Main Scope","FTK Status","Details of request","Date",
+  "Extra Scope","Main Scope","FTK Status",
+  "Details of request","Date",
   "States","Status Rejection Reason",
   "PO","PO2","Pending Payment",
   "Nokia Price","Subcon Price","Paid Amount","Balance",
   "Payment Status","Payment Date",
   "Transport & Crane","Total Cost",
   "SMR Number","SMR File","SMR Drive URL",
-  "LAT","Long","Dismantle","Snags 1","Snags 2","Snags 3"
+  "LAT","Long","Dismantle",
+  "Snags 1","Snags 2","Snags 3"
 ];
-const NUM_COLS = ["Nokia Price","Subcon Price","Paid Amount","Balance","Transport & Crane","Total Cost","Pending Payment"];
-const CALC_COLS  = ["Balance"];
-const WIDE_COLS  = ["Team","Nokia Comments","Extra Scope","Snags 1","Snags 2","Field Engineer","Subcontractor","SMR Drive URL"];
-const BADGE_COLS = ["FLM Feedback","Saif Tool","States","Payment Status"];
+
+const NUM_COLS = [
+  "Nokia Price","Subcon Price","Paid Amount","Balance",
+  "Transport & Crane","Total Cost","Pending Payment"
+];
+
+const CALC_COLS = ["Balance","Total Cost"];
+
+const WIDE_COLS = [
+  "Team","Nokia Comments","Extra Scope","Snags 1","Snags 2",
+  "Photo Report Reason","FLM Rejection Reason","Nokia Rejection Reason",
+  "Status Rejection Reason","SMR Drive URL"
+];
+
+const BADGE_COLS = [
+  "FLM Feedback","Saif Tool","States","Payment Status",
+  "Photo Report","Nokia Comments","Main Scope","FTK Status"
+];
+
+/* الأعمدة المخفية افتراضياً */
+const HIDDEN_BY_DEFAULT = [
+  "Photo Report Reason","FLM Rejection Reason",
+  "Nokia Rejection Reason","Status Rejection Reason",
+  "FTK Status"
+];
 
 /* DB mapping */
 const DB_MAP = {
-  "SiteID":"site_id",
-  "Gov":"gov",
-  "Photo Report":"photo_report",
-  "Photo Report Reason":"photo_report_reason",
-  "FLM Feedback":"flm_feedback",
-  "FLM Rejection Reason":"flm_rejection_reason",
-  "Saif Tool":"saif_tool",
-  "Team":"team",
-  "Nokia Comments":"nokia_comments",
-  "Nokia Rejection Reason":"nokia_rejection_reason",
-  "Extra Scope":"extra_scope",
-  "Main Scope":"main_scope",
-  "FTK Status":"ftk_status",
-  "Details of request":"details_of_request",
-  "Date":"date_field",
-  "States":"states",
-  "Status Rejection Reason":"status_rejection_reason",
-  "PO":"po",
-  "PO2":"po2",
-  "Pending Payment":"pending_payment",
-  "Nokia Price":"nokia_price",
-  "Subcon Price":"subcon_price",
-  "Paid Amount":"paid_amount",
-  "Balance":"balance",
-  "Payment Status":"payment_status",
-  "Payment Date":"payment_date",
-  "Transport & Crane":"transport_crane",
-  "Total Cost":"total_cost",
-  "SMR Number":"smr_number",
-  "SMR File":"smr_file",
-  "SMR Drive URL":"smr_drive_url",
-  "LAT":"lat",
-  "Long":"long",
-  "Dismantle":"dismantle",
-  "Snags 1":"snags_1",
-  "Snags 2":"snags_2",
-  "Snags 3":"snags_3"
+  "SiteID":"site_id","Gov":"gov",
+  "Photo Report":"photo_report","Photo Report Reason":"photo_report_reason",
+  "FLM Feedback":"flm_feedback","FLM Rejection Reason":"flm_rejection_reason",
+  "Saif Tool":"saif_tool","Team":"team",
+  "Nokia Comments":"nokia_comments","Nokia Rejection Reason":"nokia_rejection_reason",
+  "Extra Scope":"extra_scope","Main Scope":"main_scope","FTK Status":"ftk_status",
+  "Details of request":"details_of_request","Date":"date_field",
+  "States":"states","Status Rejection Reason":"status_rejection_reason",
+  "PO":"po","PO2":"po2","Pending Payment":"pending_payment",
+  "Nokia Price":"nokia_price","Subcon Price":"subcon_price",
+  "Paid Amount":"paid_amount","Balance":"balance",
+  "Payment Status":"payment_status","Payment Date":"payment_date",
+  "Transport & Crane":"transport_crane","Total Cost":"total_cost",
+  "SMR Number":"smr_number","SMR File":"smr_file","SMR Drive URL":"smr_drive_url",
+  "LAT":"lat","Long":"long","Dismantle":"dismantle",
+  "Snags 1":"snags_1","Snags 2":"snags_2","Snags 3":"snags_3"
 };
 const DB_REVERSE = {};
 Object.entries(DB_MAP).forEach(([k,v]) => DB_REVERSE[v] = k);
+
+/* =========================================================
+   DROPDOWN OPTIONS — النسخة النهائية
+   ========================================================= */
+const DROPDOWN_OPTIONS = {
+  "Photo Report": ["Not Shared", "Shared"],
+  "FLM Feedback": ["Pending", "In Progress", "Accepted", "Rejected"],
+  "Saif Tool": ["Pending", "Accepted", "Rejected"],
+  "Nokia Comments": ["Pending", "In Progress", "Accepted", "Rejected"],
+  "Main Scope": ["FTK", "TDD", "MM", "4th Sector"],
+  "States": ["In Progress", "Accepted", "Rejected"],
+  "Payment Status": ["Paid", "Unpaid", "In Progress"],
+  "FTK Status": ["Done", "Not Done"]
+};
+
+/* الأعمدة التي تحتاج سبب عند اختيار قيمة معينة */
+const REASON_REQUIRED = {
+  "Photo Report": {
+    value: "Not Shared",
+    reasonCol: "Photo Report Reason",
+    label: "سبب عدم مشاركة الصور"
+  },
+  "FLM Feedback": {
+    value: "Rejected",
+    reasonCol: "FLM Rejection Reason",
+    label: "سبب الرفض من FLM"
+  },
+  "Nokia Comments": {
+    value: "Rejected",
+    reasonCol: "Nokia Rejection Reason",
+    label: "سبب الرفض من Nokia"
+  },
+  "States": {
+    value: "Rejected",
+    reasonCol: "Status Rejection Reason",
+    label: "سبب رفض الحالة"
+  }
+};
+
+/* الأعمدة الشرطية (تظهر فقط في حالة معينة) */
+const CONDITIONAL_COLS = {
+  "FTK Status": { dependsOn: "Main Scope", value: "FTK" }
+};
 
 /* =========================================================
    STATE
@@ -1027,6 +1027,11 @@ let currentTheme = "light";
 let leafletInstance = null;
 let lastKeyPress = null;
 let isSaving = false;
+
+/* State جديد */
+let selectedSites = new Set();       // للـ Multi-select في الجدول
+let mapSelectedSites = new Set();    // للـ Multi-select في الخريطة
+let mapMarkers = {};                 // للوصول لماركر كل سايت
 
 /* =========================================================
    HELPERS
@@ -1071,16 +1076,17 @@ function setLiveStatus(text, ok=true){
     const dot = el.parentElement.querySelector('.live-dot');
     if(dot) dot.style.background = ok ? '#10b981' : '#f59e0b';
   }
-  const badge = document.getElementById('syncBadge');
-  const badgeText = document.getElementById('syncBadgeText');
-  if(badge) badge.className = 'sync-badge ' + (ok ? 'connected' : 'syncing');
-  if(badgeText) badgeText.textContent = text;
   const settingsEl = document.getElementById('settingsSyncStatus');
   if(settingsEl) settingsEl.textContent = text;
 }
 
+function fmtMoney(v){
+  const n = parseFloat(v);
+  return isNaN(n) ? (v || '—') : n.toLocaleString();
+}
+
 /* =========================================================
-   SUPABASE: DB ↔ SITE MAPPING
+   DB ↔ SITE MAPPING
    ========================================================= */
 function dbRowToSite(row){
   const site = {};
@@ -1095,6 +1101,12 @@ function dbRowToSite(row){
       }
     }
   });
+
+  // ضمان Transport & Crane
+  if(!site["Transport & Crane"]) site["Transport & Crane"] = String(TRANSPORT_COST);
+  // حساب Total Cost
+  const subcon = parseFloat(site["Subcon Price"]) || 0;
+  site["Total Cost"] = String(subcon + TRANSPORT_COST);
 
   site._id = row.id;
   site.smr = {
@@ -1140,7 +1152,7 @@ function siteToDbRow(site){
 }
 
 /* =========================================================
-   SUPABASE: CRUD
+   SUPABASE CRUD
    ========================================================= */
 async function supabaseLoad(){
   setLiveStatus("Loading...", false);
@@ -1206,7 +1218,7 @@ async function supabaseLogActivity(action, siteId, field, oldVal, newVal){
 }
 
 /* =========================================================
-   SUPABASE: REALTIME
+   REALTIME
    ========================================================= */
 function subscribeRealtime(){
   if(realtimeChannel){
@@ -1248,39 +1260,175 @@ function subscribeRealtime(){
 }
 
 /* =========================================================
+   COMPUTE
+   ========================================================= */
+function computeBalance(row){
+  const total = parseFloat(row['Subcon Price']) || 0;
+  const paid  = parseFloat(row['Paid Amount']) || 0;
+  return total - paid;
+}
+
+function recalcTotalCost(idx){
+  const row = data[idx];
+  const subcon = parseFloat(row['Subcon Price']) || 0;
+  row['Transport & Crane'] = String(TRANSPORT_COST);
+  row['Total Cost'] = String(subcon + TRANSPORT_COST);
+}
+
+/* =========================================================
+   DROPDOWN CREATOR
+   ========================================================= */
+function createDropdown(col, currentVal, rowIdx){
+  const opts = DROPDOWN_OPTIONS[col];
+  if(!opts) return null;
+
+  const sel = document.createElement('select');
+  sel.style.cssText = `width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;background:var(--bg-card);color:var(--text);font-family:inherit;cursor:pointer;`;
+
+  const blank = document.createElement('option');
+  blank.value = '';
+  blank.textContent = '—';
+  sel.appendChild(blank);
+
+  opts.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o;
+    opt.textContent = o;
+    if(o === currentVal) opt.selected = true;
+    sel.appendChild(opt);
+  });
+
+  // لون الحدود حسب القيمة
+  const applyColor = (val)=>{
+    const v = (val || '').toLowerCase();
+    if(v === 'rejected' || v === 'cancel' || v === 'not shared') sel.style.borderColor = 'var(--red-500)';
+    else if(v === 'accepted' || v === 'done' || v === 'paid' || v === 'shared' || v === 'approved') sel.style.borderColor = 'var(--emerald-500)';
+    else if(v === 'in progress' || v === 'pending' || v === 'wip' || v === 'partial') sel.style.borderColor = 'var(--amber-500)';
+    else sel.style.borderColor = 'var(--border)';
+  };
+  applyColor(currentVal);
+
+  sel.addEventListener('change', async (e) => {
+    e.stopPropagation();
+    const newVal = sel.value;
+    const oldVal = data[rowIdx][col];
+    if(oldVal === newVal) return;
+    data[rowIdx][col] = newVal;
+    applyColor(newVal);
+
+    // فحص إذا يحتاج سبب
+    const reasonRule = REASON_REQUIRED[col];
+    if(reasonRule && newVal === reasonRule.value){
+      setTimeout(()=>{
+        const reason = prompt(reasonRule.label + ' (إلزامي):');
+        if(reason && reason.trim()){
+          data[rowIdx][reasonRule.reasonCol] = reason.trim();
+          toast({type:'success', title:'Reason saved', duration:1500});
+          supabaseUpdate(data[rowIdx]);
+        } else {
+          toast({type:'warning', title:'Reason required', message:'الرجاء كتابة السبب'});
+        }
+      }, 100);
+    }
+
+    // إذا تغيّر States → أعِد حساب Total Cost
+    if(col === 'States'){
+      recalcTotalCost(rowIdx);
+    }
+
+    // إذا تغيّر Main Scope → حدّث العرض (FTK Status يظهر/يختفي)
+    if(col === 'Main Scope'){
+      renderHead();
+      renderBody();
+    }
+
+    try {
+      await supabaseUpdate(data[rowIdx]);
+      supabaseLogActivity('update', data[rowIdx].SiteID, col, oldVal, newVal);
+      renderStats();
+      renderCharts();
+      renderFilterMenu();
+    } catch(err){
+      toast({type:'error', title:'Save failed', message:err.message});
+    }
+  });
+
+  // منع انتشار النقر (لتجنب فتح Drawer)
+  sel.addEventListener('click', e => e.stopPropagation());
+  sel.addEventListener('mousedown', e => e.stopPropagation());
+
+  return sel;
+}
+
+/* =========================================================
+   BADGE CLASS
+   ========================================================= */
+function badgeClass(col, val){
+  const v = (val||"").toString().trim().toLowerCase();
+  if(!v) return "badge-gray";
+
+  // Rejected / Cancel / Not Shared → أحمر
+  if(v.includes("reject") || v === "cancel" || v.includes("not shared")) return "badge-red";
+
+  // Accepted / Done / Paid / Shared / Approved → أخضر
+  if(v.includes("accept") || v === "done" || v === "paid" || v === "shared" || v === "approved") return "badge-green";
+
+  // In Progress / Pending / WIP / Partial → أصفر
+  if(v.includes("progress") || v.includes("pending") || v.includes("wip") || v.includes("partial")) return "badge-amber";
+
+  return "badge-gray";
+}
+
+/* =========================================================
    RENDERING: STATS
    ========================================================= */
 function renderStats(){
   const total = data.length;
-  const done = data.filter(r=>(r.States||'').toLowerCase()==='done').length;
+  const done = data.filter(r=>(r.States||'').toLowerCase()==='accepted').length;
+  const rejected = data.filter(r=>(r.States||'').toLowerCase()==='rejected').length;
+  const inProgress = data.filter(r=>(r.States||'').toLowerCase()==='in progress').length;
   const accepted = data.filter(r=>(r['FLM Feedback']||'').toLowerCase().includes('accept')).length;
   const govCount = new Set(data.map(r=>r.Gov).filter(Boolean)).size;
-  const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Amount'])||0), 0);
-  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Amount to subcon'])||0), 0);
-  const totalSMR    = data.reduce((s,r)=> s + (parseFloat(r['SMR Value'])||0), 0);
-  const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Amount Paid'])||0), 0);
+
+  const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Price'])||0), 0);
+  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Subcon Price'])||0), 0);
+  const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Paid Amount'])||0), 0);
+  const totalTransport = data.reduce((s,r)=> s + (parseFloat(r['Transport & Crane'])||TRANSPORT_COST), 0);
+  const totalCost   = data.reduce((s,r)=> s + (parseFloat(r['Total Cost'])||0), 0);
   const totalBalance = totalSubcon - totalPaid;
+
   const withSMR = data.filter(r=>r.smr?.number || r.driveFileId).length;
   const smrItems = data.reduce((s,r)=> s + (r.smr?.items?.length || 0), 0);
-  const donePct = total ? Math.round(done / total * 100) : 0;
+  const acceptedPct = total ? Math.round(done / total * 100) : 0;
 
   const groups = [
     {title:'Operations', icon:'📊', items:[
       {label:'Total Sites', value: total},
       {label:'Governorates', value: govCount},
-      {label:'Done', value: `${donePct}%`},
+      {label:'Accepted', value: `${acceptedPct}%`},
       {label:'FLM Accepted', value: accepted}
     ]},
+    {title:'Status Breakdown', icon:'🎯', items:[
+      {label:'Accepted', value: done},
+      {label:'In Progress', value: inProgress},
+      {label:'Rejected', value: rejected},
+      {label:'Other', value: total - done - inProgress - rejected}
+    ]},
     {title:'Financials', icon:'💰', items:[
-      {label:'Subcon Amount', value: fmtShort(totalSubcon)},
-      {label:'Total Paid', value: fmtShort(totalPaid)},
-      {label:'Balance Due', value: fmtShort(totalBalance), danger: totalBalance>0},
-      {label:'Nokia Amount', value: fmtShort(totalNokia)}
+      {label:'Nokia Price', value: fmtShort(totalNokia)},
+      {label:'Subcon Price', value: fmtShort(totalSubcon)},
+      {label:'Transport', value: fmtShort(totalTransport)},
+      {label:'Total Cost', value: fmtShort(totalCost)}
+    ]},
+    {title:'Payments', icon:'💳', items:[
+      {label:'Paid', value: fmtShort(totalPaid)},
+      {label:'Balance', value: fmtShort(totalBalance), danger: totalBalance>0},
+      {label:'Profit (Nokia-Subcon)', value: fmtShort(totalNokia - totalSubcon)},
+      {label:'Profit (Nokia-Total)', value: fmtShort(totalNokia - totalCost)}
     ]},
     {title:'SMR Materials', icon:'📄', items:[
       {label:'Sites with SMR', value: `${withSMR}/${total}`},
       {label:'Total Items', value: smrItems.toLocaleString()},
-      {label:'SMR Value', value: fmtShort(totalSMR)},
       {label:'Coverage', value: total ? Math.round(withSMR/total*100)+'%' : '0%'}
     ]}
   ];
@@ -1305,7 +1453,19 @@ function renderStats(){
 function renderHead(){
   const headRow = document.getElementById('headRow');
   headRow.innerHTML = '';
+
+  // عمود التحديد
+  const thChk = document.createElement('th');
+  thChk.style.cssText = 'width:40px;text-align:center;';
+  thChk.innerHTML = '<input type="checkbox" class="col-checkbox" id="headSelectAll" title="Select all">';
+  thChk.onclick = (e) => e.stopPropagation();
+  headRow.appendChild(thChk);
+
   COLUMNS.forEach((col)=>{
+    // تخطي الأعمدة المخفية افتراضياً إذا لم تكن هناك بيانات
+    const hasData = data.some(r => r[col]);
+    if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
+
     const th = document.createElement('th');
     th.className = NUM_COLS.includes(col) ? 'num' : '';
     const isPinned = pinnedColumns.has(col);
@@ -1327,27 +1487,33 @@ function renderHead(){
     };
     headRow.appendChild(th);
   });
+
   const thAct = document.createElement('th');
-  thAct.textContent = '';
-  thAct.style.cssText = 'text-align:center;width:100px;';
+  thAct.textContent = 'Actions';
+  thAct.style.cssText = 'text-align:center;width:120px;';
   headRow.appendChild(thAct);
+
+  // Bind select all
+  setTimeout(()=>{
+    const selAll = document.getElementById('headSelectAll');
+    if(selAll){
+      selAll.onchange = () => {
+        const filtered = getFilteredSorted();
+        if(selAll.checked){
+          filtered.forEach(({r}) => selectedSites.add(r._id));
+        } else {
+          selectedSites.clear();
+        }
+        renderBody();
+        updateSelectedCount();
+      };
+    }
+  }, 0);
 }
 
 /* =========================================================
    RENDERING: FILTERS
    ========================================================= */
-function badgeClass(col, val){
-  const v = (val||"").toString().trim().toLowerCase();
-  if(!v) return "badge-gray";
-  if(v.includes("reject")) return "badge-red";
-  if(v==="0") return "badge-amber";
-  if(v.includes("accept") || v==="done" || v==="paid" || v==="approved") return "badge-green";
-  if(v.includes("wcl") || v.includes("need") || v.includes("partial") || v.includes("submitted")) return "badge-amber";
-  if(v.includes("unpaid") || v.includes("draft")) return "badge-gray";
-  if(v.includes("overdue")) return "badge-red";
-  return "badge-gray";
-}
-
 function uniqueVals(col){
   const s = new Set();
   data.forEach(r=>{ if(r[col]) s.add(r[col]); });
@@ -1360,9 +1526,11 @@ function renderFilterMenu(){
     {id:"Gov", label:"Governorate"},
     {id:"States", label:"Status"},
     {id:"FLM Feedback", label:"FLM Feedback"},
+    {id:"Saif Tool", label:"Saif Tool"},
     {id:"Team", label:"Team"},
     {id:"Main Scope", label:"Main Scope"},
-    {id:"Payment Status", label:"Payment Status"}
+    {id:"Payment Status", label:"Payment Status"},
+    {id:"Photo Report", label:"Photo Report"}
   ];
   menu.innerHTML = '';
   filterCols.forEach(col=>{
@@ -1417,7 +1585,7 @@ function renderFilterChips(){
 }
 
 /* =========================================================
-   RENDERING: BODY
+   FILTERS & SORT
    ========================================================= */
 function matchesFilters(row){
   const search = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -1445,12 +1613,9 @@ function getFilteredSorted(){
   return rows;
 }
 
-function computeBalance(row){
-  const total = parseFloat(row['Subcon Price']) || 0;
-  const paid  = parseFloat(row['Paid Amount']) || 0;
-  return total - paid;
-}
-
+/* =========================================================
+   RENDER BODY
+   ========================================================= */
 function renderBody(){
   const body = document.getElementById('bodyRows');
   body.innerHTML = '';
@@ -1465,34 +1630,66 @@ function renderBody(){
 
   let firstNewCell = null;
 
-    rows.forEach(({r,i})=>{
+  rows.forEach(({r,i})=>{
     const tr = document.createElement('tr');
     if(r.__key && r.__key === newRowKey) tr.classList.add('new-row');
+    if(selectedSites.has(r._id)) tr.style.background = 'var(--blue-50)';
 
-    // فحص الأعمدة الشرطية (FTK Status)
-    const conditionalSkip = {};
-    Object.entries(CONDITIONAL_COLS).forEach(([condCol, rule]) => {
-      if(col === condCol && r[rule.dependsOn] !== rule.value){
-        conditionalSkip[col] = true;
-      }
-    });
+    // عمود التحديد
+    const tdChk = document.createElement('td');
+    tdChk.style.cssText = 'width:40px;text-align:center;';
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.className = 'site-select';
+    chk.checked = selectedSites.has(r._id);
+    chk.onchange = (e)=>{
+      e.stopPropagation();
+      if(chk.checked) selectedSites.add(r._id);
+      else selectedSites.delete(r._id);
+      updateSelectedCount();
+      tr.style.background = chk.checked ? 'var(--blue-50)' : '';
+    };
+    chk.onclick = (e) => e.stopPropagation();
+    tdChk.appendChild(chk);
+    tr.appendChild(tdChk);
 
     COLUMNS.forEach((col)=>{
-      // تخطي الأعمدة الشرطية إذا لم يتحقق الشرط
-      if(conditionalSkip[col]) return;
-      
-      const td = document.createElement('td');
+      // تخطي الأعمدة المخفية افتراضياً إذا لم يكن لها بيانات
+      const hasData = data.some(x => x[col]);
+      if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
+
       const td = document.createElement('td');
       let val = r[col] || '';
       td.setAttribute('data-label', col);
 
-      if(CALC_COLS.includes(col)){
+      // Total Cost — حساب تلقائي
+      if(col === 'Total Cost'){
+        const subcon = parseFloat(r['Subcon Price']) || 0;
+        const transport = parseFloat(r['Transport & Crane']) || TRANSPORT_COST;
+        td.className = 'num calc';
+        td.textContent = (subcon + transport).toLocaleString();
+        tr.appendChild(td);
+        return;
+      }
+
+      // Balance — حساب تلقائي
+      if(col === 'Balance'){
         const computed = computeBalance(r);
         td.className = 'num calc';
         td.textContent = computed.toLocaleString();
         tr.appendChild(td);
         return;
       }
+
+      // Transport & Crane — عرض تلقائي
+      if(col === 'Transport & Crane'){
+        td.className = 'num';
+        td.textContent = (parseFloat(r[col]) || TRANSPORT_COST).toLocaleString();
+        tr.appendChild(td);
+        return;
+      }
+
+      // SMR Drive URL
       if(col === 'SMR Drive URL'){
         td.textContent = val ? '🔗 Open' : '';
         if(val){
@@ -1501,11 +1698,20 @@ function renderBody(){
           td.style.fontWeight = '600';
           td.onclick = ()=> window.open(val, '_blank');
         }
-      } else if(BADGE_COLS.includes(col)){
+      }
+      // قوائم منسدلة
+      else if(DROPDOWN_OPTIONS[col]){
+        td.style.padding = '4px 6px';
+        const sel = createDropdown(col, val, i);
+        if(sel) td.appendChild(sel);
+      }
+      // Badges
+      else if(BADGE_COLS.includes(col)){
         td.style.textAlign = 'center';
         td.innerHTML = val ? `<span class="badge ${badgeClass(col,val)}">${escapeHtml(val)}</span>` : '';
-        td.contentEditable = 'true';
-      } else if(col === 'SiteID'){
+      }
+      // SiteID
+      else if(col === 'SiteID'){
         td.className = 'site-id';
         td.textContent = val;
         td.contentEditable = 'true';
@@ -1513,19 +1719,25 @@ function renderBody(){
           if(!e.target.isContentEditable || e.target.contentEditable !== 'true') return;
           navigator.clipboard.writeText(val).then(()=> toast({type:'success', title:'Copied', message:`Site ID: ${val}`, duration:2000})).catch(()=>{});
         };
-      } else if(NUM_COLS.includes(col)){
+      }
+      // أرقام
+      else if(NUM_COLS.includes(col)){
         td.className = 'num';
         const n = parseFloat(val);
         td.textContent = isNaN(n) ? val : n.toLocaleString();
         td.contentEditable = 'true';
-      } else {
+      }
+      // نصوص
+      else {
         td.textContent = val;
         td.contentEditable = 'true';
         if(WIDE_COLS.includes(col)) td.style.minWidth = '150px';
       }
+
       if(r.__key && r.__key === newRowKey && col === 'SiteID' && !firstNewCell) firstNewCell = td;
 
-      if(col !== 'SMR Drive URL'){
+      // Blur save للأعمدة النصية فقط
+      if(col !== 'SMR Drive URL' && !DROPDOWN_OPTIONS[col] && BADGE_COLS.indexOf(col) === -1){
         td.addEventListener('blur', async ()=>{
           const oldVal = data[i][col];
           let newVal = td.textContent.trim();
@@ -1534,10 +1746,11 @@ function renderBody(){
           if(oldVal === newVal) return;
           data[i][col] = newVal;
           if(col === 'SMR Number') data[i].smr.number = newVal;
-
-          if(BADGE_COLS.includes(col)){
-            td.innerHTML = newVal ? `<span class="badge ${badgeClass(col,newVal)}">${escapeHtml(newVal)}</span>` : '';
+          if(col === 'Subcon Price'){
+            recalcTotalCost(i);
+            renderBody();
           }
+
           if(isNumeric){
             const n = parseFloat(newVal);
             td.textContent = isNaN(n) ? newVal : n.toLocaleString();
@@ -1547,16 +1760,18 @@ function renderBody(){
             await supabaseUpdate(data[i]);
             supabaseLogActivity('update', data[i].SiteID, col, oldVal, newVal);
             renderStats();
+            renderCharts();
             renderFilterMenu();
           }catch(e){
             toast({type:'error', title:'Save failed', message: e.message});
           }
         });
       }
+
       tr.appendChild(td);
     });
 
-    /* Actions */
+    /* Actions — دائماً ظاهرة */
     const tdAct = document.createElement('td');
     tdAct.style.textAlign = 'center';
     tdAct.innerHTML = `
@@ -1568,6 +1783,7 @@ function renderBody(){
     body.appendChild(tr);
   });
 
+  // Bind actions
   body.querySelectorAll('.row-actions button').forEach(btn=>{
     btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
@@ -1600,10 +1816,17 @@ function renderBody(){
     sel.removeAllRanges(); sel.addRange(range);
     newRowKey = null;
   }
+
+  updateSelectedCount();
+}
+
+function updateSelectedCount(){
+  const el = document.getElementById('selectedCount');
+  if(el) el.textContent = selectedSites.size > 0 ? `· ${selectedSites.size} selected` : '';
 }
 
 /* =========================================================
-   RENDERING: CHARTS
+   RENDER CHARTS
    ========================================================= */
 function renderCharts(){
   const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#6b7280';
@@ -1642,17 +1865,17 @@ function renderCharts(){
   });
 
   /* Finance bar */
-  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Amount to subcon'])||0), 0);
-  const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Amount Paid'])||0), 0);
-  const totalSMR    = data.reduce((s,r)=> s + (parseFloat(r['SMR Value'])||0), 0);
-  const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Amount'])||0), 0);
+  const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Price'])||0), 0);
+  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Subcon Price'])||0), 0);
+  const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Paid Amount'])||0), 0);
+  const totalCost   = data.reduce((s,r)=> s + (parseFloat(r['Total Cost'])||0), 0);
   destroy('finance');
   const ctx3 = document.getElementById('chartFinance');
   if(ctx3) charts.finance = new Chart(ctx3, {
     type:'bar',
-    data:{ labels:['Subcon','Paid','SMR','Nokia'],
-      datasets:[{ data: [totalSubcon, totalPaid, totalSMR, totalNokia].map(v => v/1e6),
-        backgroundColor:['#3b82f6','#10b981','#f59e0b','#8b5cf6'], borderRadius:6, maxBarThickness:48 }]},
+    data:{ labels:['Nokia','Subcon','Paid','Total Cost'],
+      datasets:[{ data: [totalNokia, totalSubcon, totalPaid, totalCost].map(v => v/1e6),
+        backgroundColor:['#8b5cf6','#3b82f6','#10b981','#f59e0b'], borderRadius:6, maxBarThickness:48 }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
       scales:{ x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10}, callback: v => v + 'M' }, beginAtZero:true } } }
@@ -1686,7 +1909,7 @@ function renderCharts(){
     if(!r.Team) return;
     if(!teamMap[r.Team]) teamMap[r.Team] = { done:0, total:0 };
     teamMap[r.Team].total++;
-    if((r.States||'').toLowerCase() === 'done') teamMap[r.Team].done++;
+    if((r.States||'').toLowerCase() === 'accepted') teamMap[r.Team].done++;
   });
   const teamLabels = Object.keys(teamMap).slice(0,6);
   const teamDone = teamLabels.map(t=>teamMap[t].done);
@@ -1697,7 +1920,7 @@ function renderCharts(){
     type:'bar',
     data:{ labels: teamLabels,
       datasets:[
-        { label:'Done', data: teamDone, backgroundColor:'#10b981', borderRadius:6, maxBarThickness:24 },
+        { label:'Accepted', data: teamDone, backgroundColor:'#10b981', borderRadius:6, maxBarThickness:24 },
         { label:'Total', data: teamTotal, backgroundColor:'rgba(59,130,246,.4)', borderRadius:6, maxBarThickness:24 }
       ]},
     options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
@@ -1730,6 +1953,7 @@ function renderAll(){
 }
 
 /* =========================================================
+ /* =========================================================
    PDF EXTRACTION
    ========================================================= */
 async function extractPdfStructure(file, onProgress){
@@ -1787,42 +2011,35 @@ function parseSMRFromStructure(pages){
   result.number = (allText.match(/\b(BN\d{3,6})\b/i) || [])[1] || null;
   const siteM = allText.match(/\bSite\s*[#:]*\s*(\d{3,6})\b/i) || allText.match(/\bSite[-\s]?ID[:\s]*(\d{3,6})\b/i);
   result.siteId = siteM ? siteM[1] : null;
-  const projM = allText.match(/\b(FTK|Ziyara|MFC|FTTX|RF)\b/i);
+  const projM = allText.match(/\b(FTK|Ziyara|MFC|FTTX|RF|TDD|MM)\b/i);
   result.project = projM ? projM[1].toUpperCase() : null;
   const budgetM = allText.match(/(RF\s*CAPEX\s*\d+|CAPEX\s*\d+|OPEX\s*\d+)/i);
   result.budget = budgetM ? budgetM[1].replace(/\s+/g," ").toUpperCase() : null;
   const dateM = allText.match(/\b(\d{1,2}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{2,4})\b/i);
   result.date = normalizeDate(dateM ? dateM[1] : "");
 
-  // ============ DEBUG: اطبع النص في console ============
   console.log('=== PDF TEXT ===');
   console.log(allText);
   console.log('=== END PDF TEXT ===');
 
-  // ============ استخراج مرن: ابحث عن أي صف يحتوي Index + Qty ============
   let headerInfo = null;
   for(const p of pages){
     for(let ri = 0; ri < p.rows.length; ri++){
       const row = p.rows[ri];
       const texts = row.cells.map(c => c.str.toLowerCase().trim());
-      
-      // شرط أكثر تسامحاً: ابحث عن "index" + "qty" فقط
-      const hasIndex = texts.some(t => /index|^no\.?$|^#$/i.test(t));
+      const hasIndex = texts.some(t => /index|^no\.?$|^#$|serial/i.test(t));
       const hasQty   = texts.some(t => /qty|quantity|accepted/i.test(t));
-      
       if(hasIndex && hasQty){
         const map = {};
         texts.forEach((t, i)=>{
-          if(/index|^no\.?$|^#$/i.test(t)) map.indexIdx = i;
+          if(/index|^no\.?$|^#$|serial/i.test(t)) map.indexIdx = i;
           else if(/product|item|code|material/i.test(t)) map.codeIdx = i;
           else if(/description|desc/i.test(t)) map.descIdx = i;
           else if(/qty|quantity|accepted/i.test(t)) map.qtyIdx = i;
           else if(/unit|uom/i.test(t)) map.unitIdx = i;
         });
         headerInfo = { page: p, row: row, map: map, y: row.y };
-        console.log('✅ Header found at page', p.pageNum, 'row', ri);
-        console.log('   Map:', map);
-        result.debugLog.push('✅ Header found');
+        console.log('✅ Header found at page', p.pageNum, 'row', ri, 'map:', map);
         break;
       }
     }
@@ -1839,10 +2056,9 @@ function parseSMRFromStructure(pages){
         if(row.y >= headerY || row === headerInfo.row) return;
         const cells = row.cells;
         if(cells.length < 2) return;
-        
         const firstCell = cells[0]?.str.replace(/,/g,'').trim() || '';
         if(!/^\d{1,5}$/.test(firstCell)) return;
-        
+
         const codeCell = cells[map.codeIdx ?? 1];
         if(!codeCell) return;
         const code = codeCell.str.trim();
@@ -1853,7 +2069,6 @@ function parseSMRFromStructure(pages){
           const q = cells[map.qtyIdx].str.replace(/,/g,'').trim();
           if(isNumber(q)) qty = parseFloat(q);
         }
-        // إذا لم يجد qty بالعمود المحدد، ابحث عن أي رقم في الصف
         if(qty === null){
           for(const c of cells){
             const q = c.str.replace(/,/g,'').trim();
@@ -1884,20 +2099,16 @@ function parseSMRFromStructure(pages){
 
         const key = code.toLowerCase();
         if(result.items.some(it => it.code.toLowerCase() === key)) return;
-
         result.items.push({ code, desc, qty, unit, price: 0 });
       });
     });
-    result.debugLog.push('Extracted ' + result.items.length + ' items');
   }
 
-  // ============ Fallback: استخراج من النص ============
+  // Fallback: text-based
   if(!result.items.length){
-    console.log('[Fallback] Trying text-based extraction...');
     const lines = allText.split(/\n/).map(l => l.trim()).filter(Boolean);
     const seen = new Set();
     for(const line of lines){
-      // نمط: "1  CODE  Description  5  pcs"
       const m = line.match(/^\d{1,4}[\s\t]+([A-Z0-9][\w\-\.\/]{2,})[\s\t]+(.+?)[\s\t]+(\d+(?:\.\d+)?)[\s\t]*([a-zA-Z]{1,5})?$/i);
       if(m){
         const code = m[1], desc = m[2].trim(), qty = parseFloat(m[3]), unit = m[4] || 'pcs';
@@ -1908,7 +2119,6 @@ function parseSMRFromStructure(pages){
         }
       }
     }
-    console.log('[Fallback] Found', result.items.length, 'items');
   }
 
   if(!result.items.length){
@@ -1916,6 +2126,7 @@ function parseSMRFromStructure(pages){
   }
   return result;
 }
+
 /* =========================================================
    PDF IMPORT MODAL
    ========================================================= */
@@ -2041,15 +2252,6 @@ async function handlePDFFile(file){
   }
 }
 
-function fileToBase64(file){
-  return new Promise((res, rej)=>{
-    const r = new FileReader();
-    r.onload = () => res((r.result.split(',')[1]) || '');
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-}
-
 async function savePDFImport(){
   if(!pendingPDF) return;
   const items = collectExtractedItems();
@@ -2069,12 +2271,13 @@ async function savePDFImport(){
     const blank = {};
     COLUMNS.forEach(c=> blank[c] = '');
     blank.SiteID = siteId || '';
+    blank["Transport & Crane"] = String(TRANSPORT_COST);
+    blank["Total Cost"] = String(TRANSPORT_COST);
     blank.smr = { number, items };
     blank.consumption = [];
     blank.photos = [];
     blank.notes = "";
     blank["SMR Number"] = number;
-    blank["SMR Value"] = total ? total.toString() : "";
     data.unshift(blank);
     idx = 0;
     newRowKey = null;
@@ -2082,7 +2285,6 @@ async function savePDFImport(){
 
   const site = data[idx];
   site["SMR Number"] = number;
-  site["SMR Value"]  = total ? total.toString() : "";
   site.smr = site.smr || {};
   site.smr.number = number;
   site.smr.date = date;
@@ -2102,9 +2304,6 @@ async function savePDFImport(){
     const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const fileName = `site_${site.SiteID || 'unknown'}_${Date.now()}_${cleanName}`;
 
-    console.log('[PDF] Uploading to Supabase:', fileName);
-
-    // 1) ارفع الملف إلى Storage
     const { error: uploadErr } = await db.storage
       .from('smr-files')
       .upload(fileName, file, {
@@ -2115,15 +2314,12 @@ async function savePDFImport(){
 
     if(uploadErr) throw uploadErr;
 
-    // 2) احصل على الرابط العام
     const { data: urlData } = db.storage
       .from('smr-files')
       .getPublicUrl(fileName);
 
     const publicUrl = urlData.publicUrl;
-    console.log('[PDF] Public URL:', publicUrl);
 
-    // 3) احفظ المعلومات في قاعدة البيانات
     site.smr.fileUrl = publicUrl;
     site.smr.storagePath = fileName;
     site["SMR File"] = file.name;
@@ -2157,6 +2353,7 @@ async function savePDFImport(){
     btn.textContent = 'Save & Upload';
   }
 }
+
 /* =========================================================
    PDF VIEWER
    ========================================================= */
@@ -2190,6 +2387,14 @@ function openPDFViewer(siteIdx){
 
   document.getElementById('pdfViewerModal').classList.add('show');
 }
+
+function closePDFViewer(){
+  const modal = document.getElementById('pdfViewerModal');
+  const frame = document.getElementById('pdfViewerFrame');
+  if(modal) modal.classList.remove('show');
+  if(frame) frame.src = '';
+}
+
 /* =========================================================
    SITE DRAWER
    ========================================================= */
@@ -2235,9 +2440,13 @@ function renderDrawerBody(){
         <div class="d-section-title">Site Info</div>
         <div class="kv-grid">
           ${[['Site ID', site.SiteID],['Governorate', site.Gov],['Team', site.Team],
-             ['Main Scope', site["Main Scope"]],['Field Engineer', site["Field Engineer"]],
-             ['Subcontractor', site.Subcontractor],['FLM Feedback', site["FLM Feedback"]],
-             ['Status', site.States],['Date', site.Date],
+             ['Main Scope', site["Main Scope"]],['FTK Status', site["FTK Status"]],
+             ['Photo Report', site["Photo Report"]],['Photo Reason', site["Photo Report Reason"]],
+             ['FLM Feedback', site["FLM Feedback"]],['FLM Reason', site["FLM Rejection Reason"]],
+             ['Nokia Comment', site["Nokia Comments"]],['Nokia Reason', site["Nokia Rejection Reason"]],
+             ['Saif Tool', site["Saif Tool"]],
+             ['Status', site.States],['Status Reason', site["Status Rejection Reason"]],
+             ['Date', site.Date],
              ['LAT / Long', `${site.LAT||'-'} / ${site.Long||'-'}`]]
             .map(([k,v])=>`<div class="kv"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v||'—')}</div></div>`).join('')}
         </div>
@@ -2245,14 +2454,14 @@ function renderDrawerBody(){
       <div class="d-section">
         <div class="d-section-title">Financial</div>
         <div class="kv-grid">
-          ${[['Contract Value', fmtMoney(site["Contract Value"])],
-             ['Amount to Subcon', fmtMoney(site["Amount to subcon"])],
-             ['Amount Paid', fmtMoney(site["Amount Paid"])],
+          ${[['Nokia Price', fmtMoney(site["Nokia Price"])],
+             ['Subcon Price', fmtMoney(site["Subcon Price"])],
+             ['Paid Amount', fmtMoney(site["Paid Amount"])],
              ['Balance', fmtMoney(balance), balance>0?'danger':'success'],
-             ['Nokia Amount', fmtMoney(site["Nokia Amount"])],
+             ['Transport & Crane', fmtMoney(site["Transport & Crane"] || TRANSPORT_COST)],
+             ['Total Cost', fmtMoney(site["Total Cost"])],
              ['Payment Status', site["Payment Status"]],
-             ['Payment Date', site["Payment Date"]],
-             ['PO', site.PO]]
+             ['Payment Date', site["Payment Date"]]]
             .map(([k,v,cls])=>`<div class="kv ${cls||''}"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v||'—')}</div></div>`).join('')}
         </div>
       </div>
@@ -2266,13 +2475,13 @@ function renderDrawerBody(){
       body.innerHTML = `
         <div class="d-section">
           <div class="d-section-title">SMR: ${escapeHtml(site.smr.number||'—')}</div>
-          <table class="it">
-            <thead><tr><th>Code</th><th>Description</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Unit</th></tr></thead>
+          <table class="it" style="width:100%;border-collapse:collapse;font-size:12.5px;">
+            <thead><tr><th style="background:var(--bg-subtle);padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);">Code</th><th style="background:var(--bg-subtle);padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);">Description</th><th style="background:var(--bg-subtle);padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);">Qty</th><th style="background:var(--bg-subtle);padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);">Unit</th></tr></thead>
             <tbody>${items.map(it=>`
-              <tr><td class="mono" style="font-size:11.5px;">${escapeHtml(it.code||'')}</td>
-                  <td>${escapeHtml(it.desc||'')}</td>
-                  <td style="text-align:center;">${it.qty||0}</td>
-                  <td style="text-align:center;">${escapeHtml(it.unit||'')}</td></tr>`).join('')}
+              <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px;">${escapeHtml(it.code||'')}</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid var(--border);">${escapeHtml(it.desc||'')}</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid var(--border);text-align:center;">${it.qty||0}</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid var(--border);text-align:center;">${escapeHtml(it.unit||'')}</td></tr>`).join('')}
             </tbody>
           </table>
         </div>`;
@@ -2284,14 +2493,16 @@ function renderDrawerBody(){
       <div class="d-section">
         <div class="d-section-title">Financial Details</div>
         <div class="kv-grid">
-          ${[['Contract Value', fmtMoney(site["Contract Value"])],
-             ['Amount to Subcon', fmtMoney(site["Amount to subcon"])],
-             ['Amount Paid', fmtMoney(site["Amount Paid"])],
+          ${[['Nokia Price', fmtMoney(site["Nokia Price"])],
+             ['Subcon Price', fmtMoney(site["Subcon Price"])],
+             ['Paid Amount', fmtMoney(site["Paid Amount"])],
              ['Balance', fmtMoney(balance), balance>0?'danger':'success'],
-             ['Nokia Amount', fmtMoney(site["Nokia Amount"])],
+             ['Transport & Crane', fmtMoney(site["Transport & Crane"] || TRANSPORT_COST)],
+             ['Total Cost', fmtMoney(site["Total Cost"])],
              ['Payment Status', site["Payment Status"]],
              ['Payment Date', site["Payment Date"]],
-             ['PO', site.PO],['PO2', site.PO2],['Pending Payment', site["Pending Payment"]]]
+             ['PO', site.PO],['PO2', site.PO2],
+             ['Pending Payment', site["Pending Payment"]]]
             .map(([k,v,cls])=>`<div class="kv ${cls||''}"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v||'—')}</div></div>`).join('')}
         </div>
       </div>`;
@@ -2321,11 +2532,6 @@ function closeDrawer(){
   drawerSiteIdx = -1;
 }
 
-function fmtMoney(v){
-  const n = parseFloat(v);
-  return isNaN(n) ? (v || '—') : n.toLocaleString();
-}
-
 /* =========================================================
    GANTT
    ========================================================= */
@@ -2333,11 +2539,11 @@ function renderGantt(){
   const wrap = document.getElementById('ganttWrap');
   if(!wrap) return;
   const items = data.filter(r=> r.Date).map(r=>{
-    const start = parseDate(r.Date);
+    const start = parseGanttDate(r.Date);
     return {
       site: r.SiteID, team: r.Team || '', start: start,
       end: start ? new Date(start.getTime() + 30*86400000) : null,
-      status: (r.States||'').toLowerCase() === 'done' ? 'done' : 'progress'
+      status: (r.States||'').toLowerCase() === 'accepted' ? 'done' : 'progress'
     };
   }).filter(i=> i.start);
 
@@ -2350,7 +2556,7 @@ function renderGantt(){
   const maxDate = new Date(Math.max(...items.map(i=>i.end.getTime())));
   const totalDays = Math.max(1, Math.ceil((maxDate - minDate)/86400000));
 
-  let html = `<div class="gantt-header"><div class="gantt-label">Site</div><div class="gantt-track" style="display:flex;"><div style="flex:1;text-align:left;">${fmtDate(minDate)}</div><div style="flex:1;text-align:right;">${fmtDate(maxDate)}</div></div></div>`;
+  let html = `<div class="gantt-header"><div class="gantt-label">Site</div><div class="gantt-track" style="display:flex;"><div style="flex:1;text-align:left;">${fmtGanttDate(minDate)}</div><div style="flex:1;text-align:right;">${fmtGanttDate(maxDate)}</div></div></div>`;
 
   items.sort((a,b)=>a.start - b.start).forEach(it=>{
     const startPct = ((it.start - minDate)/86400000) / totalDays * 100;
@@ -2365,7 +2571,7 @@ function renderGantt(){
   wrap.innerHTML = html;
 }
 
-function parseDate(s){
+function parseGanttDate(s){
   if(!s) return null;
   const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
   const m = s.match(/^(\d{1,2})[-\s]([A-Za-z]{3})[-\s](\d{2,4})$/);
@@ -2378,7 +2584,7 @@ function parseDate(s){
   return isNaN(d) ? null : d;
 }
 
-function fmtDate(d){
+function fmtGanttDate(d){
   return d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'2-digit'});
 }
 
@@ -2417,10 +2623,12 @@ async function loadActivity(){
 }
 
 /* =========================================================
-   MAP
+   MAP — النسخة الجديدة (Multi-select + Colors by Status)
    ========================================================= */
 function openMap(){
   document.getElementById('mapModal').classList.add('show');
+  mapSelectedSites.clear();
+
   setTimeout(()=>{
     if(leafletInstance){ leafletInstance.remove(); }
     leafletInstance = L.map('leafletMap').setView([31.5, 45], 6);
@@ -2428,13 +2636,26 @@ function openMap(){
       maxZoom: 18, attribution: '© OpenStreetMap'
     }).addTo(leafletInstance);
 
+    mapMarkers = {};
+
+    // دالة تحديد اللون حسب Status
     const getColor = (r)=>{
       const s = (r.States||'').toLowerCase();
-      if(s === 'done') return '#10b981';
-      if(s.includes('progress')) return '#f59e0b';
-      return '#6b7280';
+      if(s === 'accepted') return '#10b981';       // أخضر
+      if(s === 'in progress') return '#f59e0b';    // أصفر
+      if(s === 'rejected') return '#ef4444';       // أحمر
+      return '#6b7280';                             // رمادي
     };
 
+    const getBorderColor = (r)=>{
+      const s = (r.States||'').toLowerCase();
+      if(s === 'accepted') return '#059669';
+      if(s === 'in progress') return '#d97706';
+      if(s === 'rejected') return '#dc2626';
+      return '#4b5563';
+    };
+
+    // تجميع السايتات حسب الإحداثيات
     const groups = new Map();
     data.forEach(r => {
       if(!r.LAT || !r.Long) return;
@@ -2448,41 +2669,173 @@ function openMap(){
     groups.forEach(group => {
       const first = group[0];
       const r = first.r;
+      const color = getColor(r);
+
       if(group.length === 1){
         const marker = L.circleMarker([first.lat, first.lng], {
-          radius: 7, fillColor: getColor(r), color: '#fff',
-          weight: 2, opacity: 1, fillOpacity: 0.9
+          radius: 9,
+          fillColor: color,
+          color: '#fff',
+          weight: 2.5,
+          opacity: 1,
+          fillOpacity: 0.95
         }).addTo(leafletInstance);
+
+        marker.siteId = r._id;
+        mapMarkers[r._id] = marker;
+
         marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
           permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
         });
-        marker.bindPopup(`<div style="font-family:Inter,sans-serif;font-size:13px;min-width:180px;">
-          <b>Site ${escapeHtml(r.SiteID)}</b><br>
-          <span style="color:#6b7280;">${escapeHtml(r.Gov||'')} · ${escapeHtml(r.Team||'')}</span><br>
-          <span style="color:#6b7280;">${escapeHtml(r.States||'—')}</span>
-        </div>`);
+        marker.bindPopup(buildPopupHtml(r), { maxWidth: 300 });
+
+        // انقر → حدد/ألغِ التحديد
+        marker.on('click', (e)=>{
+          L.DomEvent.stopPropagation(e);
+          toggleMapSelection(r._id, marker, color);
+        });
       } else {
-        const ids = group.map(g => g.r.SiteID).join(', ');
         const marker = L.circleMarker([first.lat, first.lng], {
-          radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff',
-          weight: 2, opacity: 1, fillOpacity: 0.9
+          radius: 10 + group.length * 2,
+          fillColor: '#8b5cf6',
+          color: '#fff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
         }).addTo(leafletInstance);
         marker.bindTooltip(`<b>${group.length} sites</b>`, {
           permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
         });
+
+        // Popup يعرض كل السايتات في الموقع
+        const popupHtml = group.map(g => {
+          const c = getColor(g.r);
+          return `<div style="padding:6px 0;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:${c};display:inline-block;"></span>
+            <b>Site ${escapeHtml(g.r.SiteID)}</b> · ${escapeHtml(g.r.States||'—')}
+          </div>`;
+        }).join('');
+        marker.bindPopup(`<div style="min-width:200px;">${popupHtml}</div>`);
       }
     });
 
+    // ملاءمة العرض
     const allPoints = Array.from(groups.values()).flat().map(g => [g.lat, g.lng]);
     if(allPoints.length){
       leafletInstance.fitBounds(allPoints, { padding: [40, 40], maxZoom: 12 });
     }
+
+    // إخفاء toolbar في البداية
+    document.getElementById('mapToolbar').style.display = 'none';
   }, 100);
+}
+
+function buildPopupHtml(r){
+  const color = (() => {
+    const s = (r.States||'').toLowerCase();
+    if(s === 'accepted') return '#10b981';
+    if(s === 'in progress') return '#f59e0b';
+    if(s === 'rejected') return '#ef4444';
+    return '#6b7280';
+  })();
+
+  return `<div style="font-family:Inter,sans-serif;font-size:13px;min-width:220px;">
+    <div style="display:flex;align-items:center;gap:8px;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid #eee;">
+      <span style="width:12px;height:12px;border-radius:50%;background:${color};display:inline-block;"></span>
+      <b style="font-size:14px;">Site ${escapeHtml(r.SiteID)}</b>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:12.5px;">
+      <div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">Gov:</span><b>${escapeHtml(r.Gov||'—')}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">Team:</span><b>${escapeHtml(r.Team||'—')}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">Status:</span><b style="color:${color};">${escapeHtml(r.States||'—')}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">Scope:</span><b>${escapeHtml(r['Main Scope']||'—')}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">Subcon:</span><b>${fmtMoney(r['Subcon Price'])}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">LAT/Long:</span><b style="font-family:monospace;font-size:11px;">${r.LAT}, ${r.Long}</b></div>
+    </div>
+  </div>`;
+}
+
+function toggleMapSelection(siteId, marker, baseColor){
+  if(mapSelectedSites.has(siteId)){
+    mapSelectedSites.delete(siteId);
+    marker.setStyle({
+      fillColor: baseColor,
+      weight: 2.5,
+      radius: 9
+    });
+  } else {
+    mapSelectedSites.add(siteId);
+    marker.setStyle({
+      fillColor: '#8b5cf6',
+      weight: 4,
+      radius: 13,
+      color: '#fff'
+    });
+  }
+  updateMapToolbar();
+}
+
+function updateMapToolbar(){
+  const toolbar = document.getElementById('mapToolbar');
+  const countEl = document.getElementById('mapSelectedCount');
+  if(mapSelectedSites.size > 0){
+    toolbar.style.display = 'flex';
+    countEl.textContent = mapSelectedSites.size;
+  } else {
+    toolbar.style.display = 'none';
+  }
+}
+
+function copySelectedCoords(){
+  if(!mapSelectedSites.size) return;
+  const lines = [];
+  data.forEach(r => {
+    if(mapSelectedSites.has(r._id) && r.LAT && r.Long){
+      lines.push(`${r.SiteID || ''}\t${r.LAT}\t${r.Long}`);
+    }
+  });
+  const text = 'SiteID\tLAT\tLONG\n' + lines.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    toast({type:'success', title:`✅ Copied ${lines.length} sites`, message:'Lat/Long copied to clipboard'});
+  }).catch(()=>{
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast({type:'success', title:`✅ Copied ${lines.length} sites`});
+  });
+}
+
+function copySelectedLinks(){
+  if(!mapSelectedSites.size) return;
+  const lines = [];
+  data.forEach(r => {
+    if(mapSelectedSites.has(r._id) && r.LAT && r.Long){
+      lines.push(`https://www.google.com/maps/search/?api=1&query=${r.LAT},${r.Long}`);
+    }
+  });
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    toast({type:'success', title:`✅ Copied ${lines.length} Google Maps links`});
+  }).catch(()=>{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast({type:'success', title:`✅ Copied ${lines.length} links`});
+  });
 }
 
 function closeMap(){
   document.getElementById('mapModal').classList.remove('show');
   if(leafletInstance){ leafletInstance.remove(); leafletInstance = null; }
+  mapSelectedSites.clear();
+  mapMarkers = {};
 }
 
 /* =========================================================
@@ -2571,14 +2924,17 @@ function addChatMsg(text, who='bot'){
 function answerQuestion(q){
   const text = q.toLowerCase();
   const total = data.length;
-  const done = data.filter(r=>(r.States||'').toLowerCase()==='done').length;
+  const done = data.filter(r=>(r.States||'').toLowerCase()==='accepted').length;
+  const rejected = data.filter(r=>(r.States||'').toLowerCase()==='rejected').length;
+  const inProgress = data.filter(r=>(r.States||'').toLowerCase()==='in progress').length;
   const accepted = data.filter(r=>(r['FLM Feedback']||'').toLowerCase().includes('accept')).length;
-  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Amount to subcon'])||0), 0);
-  const totalPaid = data.reduce((s,r)=> s + (parseFloat(r['Amount Paid'])||0), 0);
+  const totalNokia = data.reduce((s,r)=> s + (parseFloat(r['Nokia Price'])||0), 0);
+  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Subcon Price'])||0), 0);
+  const totalPaid = data.reduce((s,r)=> s + (parseFloat(r['Paid Amount'])||0), 0);
   const balance = totalSubcon - totalPaid;
 
   if(/how many|كم|عدد|total sites/i.test(text) && !/basra|babil|gov|محافظ/i.test(text)){
-    return `عندك <b>${total}</b> موقع. منها <b>${done}</b> منجزة (<b>${total?Math.round(done/total*100):0}%</b>).`;
+    return `عندك <b>${total}</b> موقع. منها <b>${done}</b> Accepted (<b>${total?Math.round(done/total*100):0}%</b>).`;
   }
   if(/basra|بصرة/i.test(text)){
     const basra = data.filter(r=> (r.Gov||'').toLowerCase().includes('basra'));
@@ -2594,21 +2950,24 @@ function answerQuestion(q){
       if(!r.Team) return;
       if(!teams[r.Team]) teams[r.Team] = { done:0, total:0 };
       teams[r.Team].total++;
-      if((r.States||'').toLowerCase()==='done') teams[r.Team].done++;
+      if((r.States||'').toLowerCase()==='accepted') teams[r.Team].done++;
     });
     const best = Object.entries(teams).sort((a,b)=> b[1].done - a[1].done)[0];
     if(!best) return 'No team data.';
     return `أفضل فريق: <b>${escapeHtml(best[0])}</b> — ${best[1].done}/${best[1].total}`;
   }
-  if(/money|مالية|balance|دفع|payment/i.test(text)){
-    return `المالية:<br>• Subcon: <b>${fmtShort(totalSubcon)} IQD</b><br>• Paid: <b>${fmtShort(totalPaid)} IQD</b><br>• Balance: <b style="color:var(--red-600)">${fmtShort(balance)} IQD</b>`;
+  if(/money|مالية|balance|دفع|payment|فلوس/i.test(text)){
+    return `المالية:<br>• Nokia: <b>${fmtShort(totalNokia)} IQD</b><br>• Subcon: <b>${fmtShort(totalSubcon)} IQD</b><br>• Paid: <b>${fmtShort(totalPaid)} IQD</b><br>• Balance: <b style="color:var(--red-600)">${fmtShort(balance)} IQD</b>`;
+  }
+  if(/status|حالة|states/i.test(text)){
+    return `توزيع الحالات:<br>• Accepted: <b style="color:var(--emerald-600)">${done}</b><br>• In Progress: <b style="color:var(--amber-600)">${inProgress}</b><br>• Rejected: <b style="color:var(--red-600)">${rejected}</b>`;
   }
   if(/smr|مواد/i.test(text)){
     const withSMR = data.filter(r=> r.smr?.number).length;
     return `عندك <b>${withSMR}/${total}</b> موقع مع SMR.`;
   }
   if(/flm/i.test(text)) return `FLM Accepted: <b>${accepted}</b> موقع.`;
-  return `جرّب: "كم موقع Basra؟" أو "أفضل فريق" أو "المالية".`;
+  return `جرّب: "كم موقع Basra؟" أو "أفضل فريق" أو "المالية" أو "الحالات".`;
 }
 
 /* =========================================================
@@ -2635,70 +2994,37 @@ function switchView(view){
 function openSettings(){
   document.getElementById('settingsModal').classList.add('show');
 }
+
 /* =========================================================
-   PDF VIEWER
-   ========================================================= */
-function closePDFViewer(){
-  const modal = document.getElementById('pdfViewerModal');
-  const frame = document.getElementById('pdfViewerFrame');
-  if(modal) modal.classList.remove('show');
-  if(frame) frame.src = '';
-}
-
-function openPDFViewer(siteIdx){
-  const site = data[siteIdx];
-  if(!site) return;
-
-  let url = null;
-  if(site.smr?.fileUrl) url = site.smr.fileUrl;
-  else if(site.drivePrevUrl) url = site.drivePrevUrl;
-  else if(site.driveFileId) url = 'https://drive.google.com/file/d/' + site.driveFileId + '/preview';
-
-  if(!url){
-    toast({type:'warning', title:'No PDF available'});
-    return;
-  }
-
-  const title = `${site.smr?.number || site.SiteID || ''} — ${site.smr?.fileName || 'SMR.pdf'}`;
-  document.getElementById('pdfViewerTitle').textContent = title;
-
-  const viewerUrl = 'https://docs.google.com/viewer?embedded=true&url=' + encodeURIComponent(url);
-  document.getElementById('pdfViewerFrame').src = viewerUrl;
-
-  document.getElementById('pdfViewerDownload').onclick = ()=>{
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = site.smr?.fileName || 'SMR.pdf';
-    a.target = '_blank';
-    a.click();
-  };
-
-  document.getElementById('pdfViewerModal').classList.add('show');
-}
 /* =========================================================
    EVENT BINDINGS
    ========================================================= */
+
+/* ---- Search ---- */
 document.getElementById('searchInput').addEventListener('input', ()=>{
   clearTimeout(window.__searchT);
   window.__searchT = setTimeout(renderBody, 200);
 });
 
+/* ---- Filter Button ---- */
 document.getElementById('filterBtn').onclick = (e)=>{
   e.stopPropagation();
   document.getElementById('filterMenu').classList.toggle('show');
 };
 document.getElementById('filterMenu').onclick = e => e.stopPropagation();
 document.addEventListener('click', ()=>{
-  document.getElementById('filterMenu').classList.remove('show');
-  document.getElementById('kebabList').classList.remove('show');
+  const fm = document.getElementById('filterMenu'); if(fm) fm.classList.remove('show');
+  const kl = document.getElementById('kebabList'); if(kl) kl.classList.remove('show');
 });
 
+/* ---- Kebab Menu ---- */
 document.getElementById('kebabBtn').onclick = (e)=>{
   e.stopPropagation();
   document.getElementById('kebabList').classList.toggle('show');
 };
 document.getElementById('kebabList').onclick = e => e.stopPropagation();
 
+/* ---- Density ---- */
 document.querySelectorAll('.density-btn').forEach(btn=>{
   btn.onclick = ()=>{
     document.querySelectorAll('.density-btn').forEach(b=>b.classList.remove('active'));
@@ -2711,9 +3037,12 @@ const savedDensity = localStorage.getItem(DENSITY_KEY) || 'normal';
 document.querySelectorAll('.density-btn').forEach(b=>{ b.classList.toggle('active', b.dataset.density === savedDensity); });
 document.getElementById('dataTable').className = 'dt density-' + savedDensity;
 
+/* ---- Add Site ---- */
 document.getElementById('addRowBtn').onclick = async ()=>{
   const blank = {};
   COLUMNS.forEach(c=> blank[c] = '');
+  blank["Transport & Crane"] = String(TRANSPORT_COST);
+  blank["Total Cost"] = String(TRANSPORT_COST);
   blank.smr = { number:"", items: [] };
   blank.consumption = [];
   blank.photos = [];
@@ -2729,6 +3058,7 @@ document.getElementById('addRowBtn').onclick = async ()=>{
   }
 };
 
+/* ---- PDF Import ---- */
 document.getElementById('importPDFQuickBtn').onclick = openPDFImportModal;
 document.getElementById('pdfImportCancel').onclick = closePDFImportModal;
 document.getElementById('pdfImportSave').onclick = savePDFImport;
@@ -2742,8 +3072,11 @@ document.getElementById('pdfFileInput').onchange = (e)=>{
   e.target.value = '';
 };
 
+/* ---- Drawer ---- */
 document.getElementById('drawerClose').onclick = closeDrawer;
 document.getElementById('drawerBackdrop').onclick = closeDrawer;
+
+/* ---- PDF Viewer ---- */
 document.getElementById('pdfViewerClose').onclick = function(){
   document.getElementById('pdfViewerModal').classList.remove('show');
   document.getElementById('pdfViewerFrame').src = '';
@@ -2751,12 +3084,44 @@ document.getElementById('pdfViewerClose').onclick = function(){
 document.getElementById('pdfViewerModal').addEventListener('click', e=>{
   if(e.target.id === 'pdfViewerModal') closePDFViewer();
 });
+
+/* ---- Map ---- */
 document.getElementById('mapClose').onclick = closeMap;
 document.getElementById('mapBtn').onclick = openMap;
 document.getElementById('bnMap').onclick = openMap;
-document.getElementById('bnAddSite').onclick = ()=> document.getElementById('addRowBtn').click();
+document.getElementById('mapModal').addEventListener('click', e=>{
+  if(e.target.id === 'mapModal') closeMap();
+});
+
+/* ---- Map Toolbar Buttons ---- */
+document.getElementById('mapCopyCoords').onclick = copySelectedCoords;
+document.getElementById('mapCopyLinks').onclick = copySelectedLinks;
+document.getElementById('mapClearSel').onclick = ()=>{
+  mapSelectedSites.forEach(id => {
+    const marker = mapMarkers[id];
+    if(marker){
+      const r = data.find(x => x._id === id);
+      const color = (()=>{
+        const s = (r?.States||'').toLowerCase();
+        if(s === 'accepted') return '#10b981';
+        if(s === 'in progress') return '#f59e0b';
+        if(s === 'rejected') return '#ef4444';
+        return '#6b7280';
+      })();
+      marker.setStyle({ fillColor: color, weight: 2.5, radius: 9 });
+    }
+  });
+  mapSelectedSites.clear();
+  updateMapToolbar();
+};
+
+/* ---- Activity ---- */
 document.getElementById('refreshActivity').onclick = loadActivity;
 
+/* ---- Bottom Nav ---- */
+document.getElementById('bnAddSite').onclick = ()=> document.getElementById('addRowBtn').click();
+
+/* ---- View Tabs ---- */
 document.querySelectorAll('.view-tab').forEach(t=>{
   t.onclick = ()=> switchView(t.dataset.view);
 });
@@ -2764,6 +3129,7 @@ document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
   t.onclick = ()=> switchView(t.dataset.view);
 });
 
+/* ---- Settings ---- */
 document.getElementById('settingsBtn').onclick = openSettings;
 document.getElementById('settingsClose').onclick = ()=> document.getElementById('settingsModal').classList.remove('show');
 document.getElementById('syncNowBtn').onclick = async ()=>{
@@ -2777,6 +3143,7 @@ document.getElementById('logoutBtn').onclick = ()=>{
   }
 };
 
+/* ---- Theme Options ---- */
 document.querySelectorAll('.theme-opt').forEach(btn=>{
   btn.onclick = ()=>{
     const t = btn.dataset.themeOpt;
@@ -2796,7 +3163,7 @@ document.getElementById('themeBtn').onclick = ()=>{
 };
 
 /* =========================================================
-   EXPORT
+   EXPORT — CSV / Excel / PDF / Backup
    ========================================================= */
 document.getElementById('exportCsvBtn').onclick = ()=>{
   document.getElementById('kebabList').classList.remove('show');
@@ -2809,8 +3176,8 @@ document.getElementById('exportCsvBtn').onclick = ()=>{
       return v;
     }).join(','));
   });
-  downloadFile('mfc_site_tracker.csv', 'text/csv;charset=utf-8;', '\uFEFF'+csvRows.join('\n'));
-  toast({type:'success', title:'CSV exported'});
+  downloadFile('mfc_site_tracker_' + new Date().toISOString().slice(0,10) + '.csv', 'text/csv;charset=utf-8;', '\uFEFF'+csvRows.join('\n'));
+  toast({type:'success', title:'CSV exported', message:`${rows.length} sites`});
 };
 
 document.getElementById('exportXlsxBtn').onclick = ()=>{
@@ -2818,66 +3185,108 @@ document.getElementById('exportXlsxBtn').onclick = ()=>{
   const rows = getFilteredSorted().map(x=>{
     const clean = {};
     COLUMNS.forEach(c=> clean[c] = x.r[c] || '');
+    // ضمان القيم المحسوبة
+    if(!clean['Transport & Crane']) clean['Transport & Crane'] = TRANSPORT_COST;
+    const subcon = parseFloat(clean['Subcon Price']) || 0;
+    clean['Total Cost'] = subcon + TRANSPORT_COST;
+    clean['Balance'] = (parseFloat(clean['Subcon Price']) || 0) - (parseFloat(clean['Paid Amount']) || 0);
     return clean;
   });
   const ws = XLSX.utils.json_to_sheet(rows, {header: COLUMNS});
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Site Tracker');
-  XLSX.writeFile(wb, 'mfc_site_tracker.xlsx');
-  toast({type:'success', title:'Excel exported'});
+  XLSX.writeFile(wb, 'mfc_site_tracker_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  toast({type:'success', title:'Excel exported', message:`${rows.length} sites`});
 };
 
 document.getElementById('exportReportBtn').onclick = async ()=>{
   document.getElementById('kebabList').classList.remove('show');
   try{
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    doc.setFillColor(10, 26, 48);
-    doc.rect(0, 0, 210, 60, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(28);
-    doc.text('MFC Company', 15, 25);
-    doc.setFontSize(18);
-    doc.text('RAN Site Tracker Report', 15, 38);
-    doc.setFontSize(11);
-    doc.text('Generated: ' + new Date().toLocaleString(), 15, 50);
-    doc.setTextColor(30, 30, 30);
-    doc.setFontSize(16);
-    doc.text('Summary', 15, 80);
+    const doc = new jsPDF('l', 'mm', 'a4');
 
-    const total = data.length;
-    const totalSubcon = data.reduce((s,r) => s + (parseFloat(r['Amount to subcon'])||0), 0);
-    const totalPaid = data.reduce((s,r) => s + (parseFloat(r['Amount Paid'])||0), 0);
-    doc.setFontSize(11);
-    let y = 90;
-    [['Total Sites', total], ['Subcon', totalSubcon.toLocaleString() + ' IQD'],
-     ['Paid', totalPaid.toLocaleString() + ' IQD'],
-     ['Balance', (totalSubcon - totalPaid).toLocaleString() + ' IQD']].forEach(([k,v])=>{
+    // Header
+    doc.setFillColor(10, 26, 48);
+    doc.rect(0, 0, 297, 50, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MFC Company', 15, 22);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'normal');
+    doc.text('RAN Site Tracker Report', 15, 34);
+    doc.setFontSize(10);
+    doc.text('Generated: ' + new Date().toLocaleString() + '  |  ' + data.length + ' sites total', 15, 44);
+
+    // Summary
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Summary', 15, 65);
+
+    const totalNokia = data.reduce((s,r) => s + (parseFloat(r['Nokia Price'])||0), 0);
+    const totalSubcon = data.reduce((s,r) => s + (parseFloat(r['Subcon Price'])||0), 0);
+    const totalPaid = data.reduce((s,r) => s + (parseFloat(r['Paid Amount'])||0), 0);
+    const totalTransport = data.length * TRANSPORT_COST;
+    const totalCost = totalSubcon + totalTransport;
+
+    doc.setFontSize(10);
+    let y = 75;
+    [
+      ['Total Sites', data.length],
+      ['Nokia Price (total)', totalNokia.toLocaleString() + ' IQD'],
+      ['Subcon Price (total)', totalSubcon.toLocaleString() + ' IQD'],
+      ['Transport & Crane', totalTransport.toLocaleString() + ' IQD'],
+      ['Total Cost', totalCost.toLocaleString() + ' IQD'],
+      ['Paid Amount', totalPaid.toLocaleString() + ' IQD'],
+      ['Outstanding Balance', (totalSubcon - totalPaid).toLocaleString() + ' IQD'],
+      ['Profit (Nokia - Subcon)', (totalNokia - totalSubcon).toLocaleString() + ' IQD'],
+      ['Profit (Nokia - Total Cost)', (totalNokia - totalCost).toLocaleString() + ' IQD']
+    ].forEach(([k,v])=>{
       doc.setFont('helvetica', 'bold');
       doc.text(k + ':', 15, y);
       doc.setFont('helvetica', 'normal');
-      doc.text(String(v), 80, y);
-      y += 8;
+      doc.text(String(v), 90, y);
+      y += 7;
     });
+
+    // Sites Table
     doc.addPage();
     doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
     doc.text('Sites Detail', 15, 20);
+
     const rows = getFilteredSorted().map(x=>{
       const r = x.r;
-      return [r.SiteID||'', r.Gov||'', r.Team||'', r.States||'',
-        (parseFloat(r['Amount to subcon'])||0).toLocaleString(),
-        (parseFloat(r['Amount Paid'])||0).toLocaleString()];
+      const subcon = parseFloat(r['Subcon Price']) || 0;
+      const paid = parseFloat(r['Paid Amount']) || 0;
+      return [
+        r.SiteID || '',
+        r.Gov || '',
+        r.Team || '',
+        r.States || '',
+        r['Main Scope'] || '',
+        subcon.toLocaleString(),
+        TRANSPORT_COST.toLocaleString(),
+        (subcon + TRANSPORT_COST).toLocaleString(),
+        paid.toLocaleString(),
+        (subcon - paid).toLocaleString()
+      ];
     });
+
     doc.autoTable({
       startY: 28,
-      head: [['SiteID','Gov','Team','Status','Subcon','Paid']],
+      head: [['SiteID','Gov','Team','Status','Scope','Subcon','Transport','Total Cost','Paid','Balance']],
       body: rows,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [10, 26, 48], textColor: [255,255,255] }
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [10, 26, 48], textColor: [255,255,255], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 250, 252] }
     });
+
     doc.save('MFC_Report_' + new Date().toISOString().slice(0,10) + '.pdf');
-    toast({type:'success', title:'Report generated'});
+    toast({type:'success', title:'PDF Report generated'});
   }catch(err){
+    console.error(err);
     toast({type:'error', title:'Report failed', message: err.message});
   }
 };
@@ -2886,17 +3295,7 @@ document.getElementById('backupBtn').onclick = ()=>{
   document.getElementById('kebabList').classList.remove('show');
   const json = JSON.stringify(data, null, 2);
   downloadFile('mfc_backup_' + new Date().toISOString().slice(0,10) + '.json', 'application/json', json);
-  toast({type:'success', title:'Backup downloaded'});
-};
-
-document.getElementById('emailReportBtn').onclick = ()=>{
-  document.getElementById('kebabList').classList.remove('show');
-  document.getElementById('emailModal').classList.add('show');
-};
-document.getElementById('emailCancel').onclick = ()=> document.getElementById('emailModal').classList.remove('show');
-document.getElementById('emailSend').onclick = ()=>{
-  toast({type:'warning', title:'Email not configured', message:'Use Export PDF instead'});
-  document.getElementById('emailModal').classList.remove('show');
+  toast({type:'success', title:'Backup downloaded', message: `${data.length} sites`});
 };
 
 document.getElementById('resetBtn').onclick = ()=>{
@@ -2924,11 +3323,6 @@ document.addEventListener('keydown', e=>{
   if((e.metaKey || e.ctrlKey) && e.key === 'f'){ e.preventDefault(); document.getElementById('searchInput').focus(); return; }
   if((e.metaKey || e.ctrlKey) && e.key === 'e'){ e.preventDefault(); document.getElementById('exportXlsxBtn').click(); return; }
   if((e.metaKey || e.ctrlKey) && e.key === 'p'){ e.preventDefault(); document.getElementById('exportReportBtn').click(); return; }
-  if(e.key === '?' && !e.metaKey && !e.ctrlKey){
-    e.preventDefault();
-    document.getElementById('shortcutsModal').classList.add('show');
-    return;
-  }
   if(e.key === 'g'){ lastKeyPress = 'g'; setTimeout(()=>{ lastKeyPress = null; }, 800); return; }
   if(lastKeyPress === 'g' && e.key === 'd'){ switchView('dashboard'); lastKeyPress = null; return; }
   if(lastKeyPress === 'g' && e.key === 'm'){ openMap(); lastKeyPress = null; return; }
@@ -2938,14 +3332,13 @@ document.addEventListener('keydown', e=>{
       closePDFViewer();
       closeDrawer();
       closeMap();
-      document.getElementById('shortcutsModal').classList.remove('show');
-      document.getElementById('emailModal').classList.remove('show');
+      closePDFImportModal();
       document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
     }
   }
 });
 
-document.getElementById('shortcutsClose').onclick = ()=> document.getElementById('shortcutsModal').classList.remove('show');
+/* ---- Command Palette Input ---- */
 document.getElementById('cmdkInput').addEventListener('input', e => renderCmdk(e.target.value));
 document.getElementById('cmdkInput').addEventListener('keydown', e=>{
   const items = document.querySelectorAll('#cmdkResults .cmdk-item');
@@ -2970,7 +3363,7 @@ document.getElementById('cmdkBackdrop').addEventListener('click', e=>{
   if(e.target.id === 'cmdkBackdrop') closeCmdk();
 });
 
-/* Chat */
+/* ---- Chat ---- */
 document.getElementById('chatFab').onclick = openChat;
 document.getElementById('chatClose').onclick = closeChat;
 document.getElementById('chatSend').onclick = ()=>{
@@ -2985,7 +3378,7 @@ document.getElementById('chatInput').addEventListener('keydown', e=>{
   if(e.key === 'Enter') document.getElementById('chatSend').click();
 });
 
-/* Clock */
+/* ---- Clock ---- */
 function updateClock(){
   const el = document.getElementById('heroClock');
   if(el) el.textContent = new Date().toLocaleTimeString('en-GB', {hour12:false});
@@ -2993,8 +3386,17 @@ function updateClock(){
 setInterval(updateClock, 1000);
 updateClock();
 
+/* ---- Clear Filters ---- */
+document.getElementById('clearFiltersEmpty').onclick = ()=>{
+  activeFilters = {};
+  document.getElementById('searchInput').value = '';
+  renderFilterMenu();
+  renderBody();
+  renderFilterChips();
+};
+
 /* =========================================================
-   INIT
+   INIT APP
    ========================================================= */
 async function initApp(){
   document.getElementById('loginOverlay').style.display = 'none';
@@ -3013,9 +3415,15 @@ async function initApp(){
   /* Load data + subscribe */
   await supabaseLoad();
   subscribeRealtime();
+
+  console.log('%c✅ MFC Site Tracker v9 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
+  console.log('%c📊 ' + data.length + ' sites loaded', 'color:#3b82f6;font-size:12px');
+  console.log('%c⌨️  Shortcuts: Ctrl+K (palette), Ctrl+N (new), Ctrl+F (search), Ctrl+E (excel), Ctrl+P (pdf)', 'color:#6b7280;font-size:11px');
 }
 
-/* Login */
+/* =========================================================
+   LOGIN
+   ========================================================= */
 document.getElementById('loginForm').addEventListener('submit', (e)=>{
   e.preventDefault();
   const u = document.getElementById('loginUser').value.trim();
@@ -3030,6 +3438,12 @@ document.getElementById('loginForm').addEventListener('submit', (e)=>{
 });
 
 if(localStorage.getItem(LOGIN_KEY) === '1') initApp();
+
+/* =========================================================
+   ✅ نهاية الملف
+   ========================================================= */
 </script>
 </body>
-</html>
+</html>الإغلاق
+
+ 
