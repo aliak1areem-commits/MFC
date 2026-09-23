@@ -1504,30 +1504,7 @@ function pushToSheet(force){
     }
   }
 
-  clearTimeout(pushTimer);
-  pushTimer = setTimeout(async ()=>{
-    if(isPushing) return;
-    isPushing = true;
-    setLiveStatus("Saving...", false);
-    try{
-      const payload = rowsToSheetPayload();
 
-      /* ✅ text/plain + no-cors لتجنب CORS */
-      await fetch(url, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
-
-      window.__lastPushCount = data.length;
-      setLiveStatus("Live · Connected", true);
-    }catch(err){
-      setLiveStatus("Save failed", false);
-      console.error('[pushToSheet]', err);
-    }finally{ isPushing = false; }
-  }, 900);
-}
 
   clearTimeout(pushTimer);
   pushTimer = setTimeout(async ()=>{
@@ -1549,6 +1526,15 @@ function pushToSheet(force){
         setLiveStatus('Save blocked', false);
         return;
       }
+
+      window.__lastPushCount = data.length;
+      setLiveStatus("Live · Connected", true);
+    }catch(err){
+      setLiveStatus("Save failed", false);
+      console.error('[pushToSheet]', err);
+    }finally{ isPushing = false; }
+  }, 900);
+}
 
       window.__lastPushCount = data.length;
       setLiveStatus("Live · Connected", true);
