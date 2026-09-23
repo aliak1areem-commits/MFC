@@ -1687,7 +1687,7 @@ function renderBody(){
       let val = r[col] || '';
       td.setAttribute('data-label', col);
 
-            if(col === 'Total Cost'){
+      if(col === 'Total Cost'){
         const subcon = parseFloat(r['Subcon Price']) || 0;
         const transport = parseFloat(r['Transport & Crane']) || 0;
         td.className = 'num calc';
@@ -1704,11 +1704,10 @@ function renderBody(){
         return;
       }
 
-                 if(col === 'Transport & Crane'){
+      if(col === 'Transport & Crane'){
         td.className = 'num';
         td.style.cursor = 'text';
         td.contentEditable = 'true';
-        // اعرض القيمة كما هي (رقم أو فارغ)
         const rawVal = String(r[col] || '').trim();
         if(rawVal === '' || rawVal === '0'){
           td.textContent = rawVal === '0' ? '0' : '';
@@ -1761,7 +1760,7 @@ function renderBody(){
 
       if(r.__key && r.__key === newRowKey && col === 'SiteID' && !firstNewCell) firstNewCell = td;
 
-            if(col !== 'SMR Drive URL' && !DROPDOWN_OPTIONS[col] && !BADGE_COLS.includes(col)){
+      if(col !== 'SMR Drive URL' && !DROPDOWN_OPTIONS[col] && !BADGE_COLS.includes(col)){
         td.addEventListener('blur', async ()=>{
           const oldVal = data[i][col];
           let newVal = td.textContent.trim();
@@ -1770,36 +1769,31 @@ function renderBody(){
           if(oldVal === newVal) return;
           data[i][col] = newVal;
           if(col === 'SMR Number') data[i].smr.number = newVal;
-
-          // احسب Total Cost إذا تغير Subcon أو Transport
           if(col === 'Subcon Price' || col === 'Transport & Crane'){
             recalcTotalCost(i);
           }
-
           try{
-            // احفظ في Supabase أولاً
             await supabaseUpdate(data[i]);
             supabaseLogActivity('update', data[i].SiteID, col, oldVal, newVal);
-            
-            // إذا نجح الحفظ → أعد الرسم
             if(col === 'Subcon Price' || col === 'Transport & Crane'){
               renderBody();
             } else if(isNumeric){
               const n = parseFloat(newVal);
               td.textContent = isNaN(n) ? newVal : n.toLocaleString();
             }
-            
             renderStats();
             renderCharts();
             renderFilterMenu();
           }catch(e){
-            // فشل الحفظ → استعد القيمة القديمة
             data[i][col] = oldVal;
             td.textContent = oldVal ? parseFloat(oldVal).toLocaleString() : '';
             toast({type:'error', title:'Save failed', message: e.message});
           }
         });
       }
+
+      tr.appendChild(td);
+    });
 
     const tdAct = document.createElement('td');
     tdAct.style.textAlign = 'center';
@@ -1847,7 +1841,6 @@ function renderBody(){
 
   updateSelectedCount();
 }
-
 function updateSelectedCount(){
   const el = document.getElementById('selectedCount');
   if(el) el.textContent = selectedSites.size > 0 ? `· ${selectedSites.size} selected` : '';
