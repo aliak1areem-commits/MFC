@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <title>MFC | RAN Site Tracker Pro</title>
-<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -235,7 +234,7 @@ svg{display:block;}
   overflow:hidden;box-shadow:var(--shadow-sm);}
 .table-head-bar{display:flex;align-items:center;gap:12px;padding:12px 18px;
   border-bottom:1px solid var(--border);background:var(--bg-card);}
-.table-count{font-size:13px;font-weight:600;color:var(--text);}
+.table-count{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px;}
 .table-count span{color:var(--text-dim);font-weight:500;}
 .table-actions{margin-inline-start:auto;display:flex;gap:6px;align-items:center;}
 .density-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;
@@ -268,7 +267,6 @@ td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emera
 .site-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--primary);font-size:13px;cursor:pointer;}
 .site-id:hover{text-decoration:underline;}
 
-/* Actions دائماً ظاهرة */
 .row-actions{display:flex;gap:4px;justify-content:center;opacity:1 !important;}
 
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;
@@ -463,7 +461,6 @@ td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emera
 .activity-text{color:var(--text);margin-bottom:2px;}
 .activity-meta{font-size:11px;color:var(--text-muted);display:flex;gap:10px;}
 
-/* Labels على الخريطة */
 .site-label{
   background:rgba(255,255,255,0.95)!important;
   border:1px solid rgba(37,99,235,.3)!important;
@@ -477,19 +474,11 @@ td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emera
   white-space:nowrap!important;
 }
 
-/* Checkbox للأعمدة الجديدة */
-.col-checkbox{
-  width:16px;height:16px;cursor:pointer;accent-color:var(--primary);
-}
-
-/* Multi-select للسايتات */
-.site-select{
-  width:16px;height:16px;cursor:pointer;accent-color:var(--primary);
-}
-
-/* Map multi-select toolbar */
+.col-checkbox{width:16px;height:16px;cursor:pointer;accent-color:var(--primary);}
+.site-select{width:16px;height:16px;cursor:pointer;accent-color:var(--primary);}
 .map-toolbar{
-  position:absolute;top:16px;right:16px;z-index:500;
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  z-index:500;
   background:var(--bg-card);border:1px solid var(--border);
   border-radius:12px;padding:10px 14px;
   box-shadow:var(--shadow-lg);display:flex;
@@ -500,7 +489,6 @@ td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emera
   padding-right:10px;border-right:1px solid var(--border);
 }
 
-/* Dropdown داخل الجدول */
 td select{
   width:100%!important;
   padding:6px 8px!important;
@@ -527,6 +515,7 @@ td select{
   table.dt tbody td{display:flex;justify-content:space-between;border:none;padding:6px 0;max-width:none;text-align:right;gap:12px;background:transparent!important;}
   table.dt tbody td::before{content:attr(data-label);font-weight:700;font-size:11px;color:var(--text-dim);text-transform:uppercase;text-align:left;flex:none;}
   .gantt-label{width:100px;}
+  .map-toolbar{left:16px;right:16px;transform:none;}
 }
 </style>
 </head>
@@ -559,7 +548,7 @@ td select{
         <div class="hero-text">
           <div class="kicker">MFC Company</div>
           <h1>RAN Site Tracker</h1>
-          <div class="sub">Live Operations Dashboard · Pro</div>
+          <div class="sub">Live Operations Dashboard · Pro v2</div>
         </div>
       </div>
       <div class="hero-right">
@@ -701,7 +690,7 @@ td select{
     <button class="icon-btn-hero" id="chatClose" style="background:rgba(255,255,255,.1);">✕</button>
   </div>
   <div class="chat-body" id="chatBody">
-    <div class="chat-msg bot">مرحباً! اسألني عن:<br>• عدد المواقع<br>• أفضل فريق<br>• المدفوعات<br>• إحصائيات Basra</div>
+    <div class="chat-msg bot">مرحباً! اسألني عن:<br>• عدد المواقع<br>• أفضل فريق<br>• المدفوعات<br>• إحصائيات Basra<br>• الحالات</div>
   </div>
   <div class="chat-input-wrap">
     <input class="chat-input" id="chatInput" placeholder="Ask me anything...">
@@ -799,6 +788,17 @@ td select{
     <div class="modal-head"><h3>⚙️ Settings</h3><p>Configuration and tools</p></div>
     <div class="modal-body">
       <div class="d-section">
+        <div class="d-section-title">💰 Transport &amp; Crane Cost</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+          <div style="flex:1;">
+            <div style="font-size:13.5px;font-weight:600;">Current Value (IQD)</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:2px;" id="transportCostDisplay">150,000</div>
+          </div>
+          <input type="number" id="transportCostInput" value="150000" style="width:140px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-subtle);color:var(--text);font-family:'JetBrains Mono',monospace;">
+          <button class="btn btn-primary btn-sm" id="saveTransportBtn">Save</button>
+        </div>
+      </div>
+      <div class="d-section">
         <div class="d-section-title">Supabase Sync</div>
         <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
           <div style="flex:1;">
@@ -806,17 +806,6 @@ td select{
             <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Real-time sync enabled</div>
           </div>
           <button class="btn btn-outline btn-sm" id="syncNowBtn">🔄 Sync Now</button>
-        </div>
-      </div>
-      <div class="d-section">
-        <div class="d-section-title">💰 Transport & Crane Cost</div>
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
-          <div style="flex:1;">
-            <div style="font-size:13.5px;font-weight:600;">Current Value (IQD)</div>
-            <div style="font-size:12px;color:var(--text-dim);margin-top:2px;" id="transportCostDisplay">150,000</div>
-          </div>
-          <input type="number" id="transportCostInput" value="150000" style="width:140px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-subtle);color:var(--text);font-family:var(--font-mono);">
-          <button class="btn btn-primary btn-sm" id="saveTransportBtn">Save</button>
         </div>
       </div>
       <div class="d-section">
@@ -870,9 +859,9 @@ td select{
         <option value="no">Show on Map = No</option>
       </select>
       <div style="flex:1;"></div>
-      <span id="mapSiteCount" style="font-size:12px;color:var(--text-dim);font-family:var(--font-mono);"></span>
+      <span id="mapSiteCount" style="font-size:12px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span>
     </div>
-    <div id="leafletMap" style="height:70vh;width:100%;"></div>
+    <div id="leafletMap" style="height:65vh;width:100%;"></div>
     <div id="mapToolbar" class="map-toolbar" style="display:none;">
       <span class="count"><span id="mapSelectedCount">0</span> selected</span>
       <button class="btn btn-primary btn-sm" id="mapCopyCoords">📋 Copy Lat/Long</button>
@@ -908,99 +897,33 @@ td select{
 const SUPABASE_URL = "https://bagbnoupsnsltflgwpic.supabase.co";
 const SUPABASE_KEY = "sb_publishable_jyov6Yn5ulwm3fj3lIs9yw_IDZVhYMd";
 
-const STORAGE_KEY = "mfc_site_tracker_data_v9";
-const LOGIN_KEY   = "mfc_logged_in_v9";
+const STORAGE_KEY = "mfc_site_tracker_data_v10";
+const LOGIN_KEY   = "mfc_logged_in_v10";
 const THEME_KEY   = "mfc_theme";
 const DENSITY_KEY = "mfc_density";
 const PINNED_KEY  = "mfc_pinned_columns";
 const VALID_USER  = "MFC";
 const VALID_PASS  = "MFC@1234";
+
+/* Transport Cost — قيمة قابلة للتعديل */
 let TRANSPORT_COST = parseFloat(localStorage.getItem('mfc_transport_cost')) || 150000;
+
 /* Supabase client */
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-  function redrawMapMarkers(){
-  if(!leafletInstance) return;
-  const filter = document.getElementById('mapVisibilityFilter')?.value || 'yes';
-  
-  // احذف كل الـ markers القديمة
-  Object.values(mapMarkers).forEach(m => leafletInstance.removeLayer(m));
-  mapMarkers = {};
-  
-  const getColor = (r)=>{
-    const s = (r.States||'').toLowerCase();
-    if(s === 'accepted') return '#10b981';
-    if(s === 'in progress') return '#f59e0b';
-    if(s === 'rejected') return '#ef4444';
-    return '#6b7280';
-  };
-  
-  let count = 0;
-  
-  const groups = new Map();
-  data.forEach(r => {
-    if(!r.LAT || !r.Long) return;
-    const showVal = (r['Show on Map'] || 'Yes').toLowerCase();
-    if(filter === 'yes' && showVal !== 'yes') return;
-    if(filter === 'no' && showVal !== 'no') return;
-    
-    const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
-    if(isNaN(lat) || isNaN(lng)) return;
-    const key = lat.toFixed(4) + ',' + lng.toFixed(4);
-    if(!groups.has(key)) groups.set(key, []);
-    groups.get(key).push({r, lat, lng});
-  });
-  
-  groups.forEach(group => {
-    const first = group[0];
-    const r = first.r;
-    const color = getColor(r);
-    
-    if(group.length === 1){
-      const marker = L.circleMarker([first.lat, first.lng], {
-        radius: 9, fillColor: color, color: '#fff',
-        weight: 2.5, opacity: 1, fillOpacity: 0.95
-      }).addTo(leafletInstance);
-      marker.siteId = r._id;
-      mapMarkers[r._id] = marker;
-      marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
-        permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
-      });
-      marker.bindPopup(buildPopupHtml(r), { maxWidth: 300 });
-      marker.on('click', (e)=>{
-        L.DomEvent.stopPropagation(e);
-        toggleMapSelection(r._id, marker, color);
-      });
-      count++;
-    } else {
-      const marker = L.circleMarker([first.lat, first.lng], {
-        radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff',
-        weight: 2, opacity: 1, fillOpacity: 0.9
-      }).addTo(leafletInstance);
-      marker.bindTooltip(`<b>${group.length} sites</b>`, {
-        permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
-      });
-      count += group.length;
-    }
-  });
-  
-  const countEl = document.getElementById('mapSiteCount');
-  if(countEl) countEl.textContent = count + ' sites shown';
-}
 
 /* =========================================================
-   COLUMNS — النسخة الجديدة
+   COLUMNS
    ========================================================= */
 const COLUMNS = [
   "SiteID","Gov","Show on Map",
   "Photo Report","Photo Report Reason",
-    "States","Sub Status","Status Rejection Reason",
   "FLM Feedback","FLM Rejection Reason",
   "Saif Tool","Team",
   "Nokia Comments","Nokia Rejection Reason",
   "Extra Scope","Main Scope","FTK Status",
   "Details of request","Date",
-  "States","Status Rejection Reason",
+  "States","Sub Status","Status Rejection Reason",
   "PO","PO2","Pending Payment",
   "Nokia Price","Subcon Price","Paid Amount","Balance",
   "Payment Status","Payment Date",
@@ -1025,26 +948,26 @@ const WIDE_COLS = [
 
 const BADGE_COLS = [
   "FLM Feedback","Saif Tool","States","Payment Status",
-  "Photo Report","Nokia Comments","Main Scope","FTK Status"
+  "Photo Report","Nokia Comments","Main Scope","FTK Status",
+  "Show on Map","Sub Status"
 ];
 
-/* الأعمدة المخفية افتراضياً */
 const HIDDEN_BY_DEFAULT = [
   "Photo Report Reason","FLM Rejection Reason",
   "Nokia Rejection Reason","Status Rejection Reason",
-  "FTK Status"
+  "FTK Status","Sub Status"
 ];
 
 /* DB mapping */
 const DB_MAP = {
-   "SiteID":"site_id","Gov":"gov","Show on Map":"show_on_map",
+  "SiteID":"site_id","Gov":"gov","Show on Map":"show_on_map",
   "Photo Report":"photo_report","Photo Report Reason":"photo_report_reason",
   "FLM Feedback":"flm_feedback","FLM Rejection Reason":"flm_rejection_reason",
   "Saif Tool":"saif_tool","Team":"team",
   "Nokia Comments":"nokia_comments","Nokia Rejection Reason":"nokia_rejection_reason",
   "Extra Scope":"extra_scope","Main Scope":"main_scope","FTK Status":"ftk_status",
   "Details of request":"details_of_request","Date":"date_field",
-   "States":"states","Sub Status":"sub_status","Status Rejection Reason":"status_rejection_reason",
+  "States":"states","Sub Status":"sub_status","Status Rejection Reason":"status_rejection_reason",
   "PO":"po","PO2":"po2","Pending Payment":"pending_payment",
   "Nokia Price":"nokia_price","Subcon Price":"subcon_price",
   "Paid Amount":"paid_amount","Balance":"balance",
@@ -1058,7 +981,7 @@ const DB_REVERSE = {};
 Object.entries(DB_MAP).forEach(([k,v]) => DB_REVERSE[v] = k);
 
 /* =========================================================
-   DROPDOWN OPTIONS — النسخة النهائية
+   DROPDOWN OPTIONS
    ========================================================= */
 const DROPDOWN_OPTIONS = {
   "Photo Report": ["Not Shared", "Shared"],
@@ -1073,7 +996,6 @@ const DROPDOWN_OPTIONS = {
   "Show on Map": ["Yes", "No"]
 };
 
-/* الأعمدة التي تحتاج سبب عند اختيار قيمة معينة */
 const REASON_REQUIRED = {
   "Photo Report": {
     value: "Not Shared",
@@ -1097,7 +1019,6 @@ const REASON_REQUIRED = {
   }
 };
 
-/* الأعمدة الشرطية (تظهر فقط في حالة معينة) */
 const CONDITIONAL_COLS = {
   "FTK Status": { dependsOn: "Main Scope", value: "FTK" },
   "Sub Status": { dependsOn: "States", value: "In Progress" }
@@ -1120,10 +1041,9 @@ let leafletInstance = null;
 let lastKeyPress = null;
 let isSaving = false;
 
-/* State جديد */
-let selectedSites = new Set();       // للـ Multi-select في الجدول
-let mapSelectedSites = new Set();    // للـ Multi-select في الخريطة
-let mapMarkers = {};                 // للوصول لماركر كل سايت
+let selectedSites = new Set();
+let mapSelectedSites = new Set();
+let mapMarkers = {};
 
 /* =========================================================
    HELPERS
@@ -1194,11 +1114,12 @@ function dbRowToSite(row){
     }
   });
 
-  // ضمان Transport & Crane
   if(!site["Transport & Crane"]) site["Transport & Crane"] = String(TRANSPORT_COST);
-  // حساب Total Cost
   const subcon = parseFloat(site["Subcon Price"]) || 0;
-  site["Total Cost"] = String(subcon + TRANSPORT_COST);
+  const transport = parseFloat(site["Transport & Crane"]) || TRANSPORT_COST;
+  site["Total Cost"] = String(subcon + transport);
+
+  if(!site["Show on Map"]) site["Show on Map"] = "Yes";
 
   site._id = row.id;
   site.smr = {
@@ -1363,8 +1284,8 @@ function computeBalance(row){
 function recalcTotalCost(idx){
   const row = data[idx];
   const subcon = parseFloat(row['Subcon Price']) || 0;
-  row['Transport & Crane'] = String(TRANSPORT_COST);
-  row['Total Cost'] = String(subcon + TRANSPORT_COST);
+  const transport = parseFloat(row['Transport & Crane']) || TRANSPORT_COST;
+  row['Total Cost'] = String(subcon + transport);
 }
 
 /* =========================================================
@@ -1390,11 +1311,10 @@ function createDropdown(col, currentVal, rowIdx){
     sel.appendChild(opt);
   });
 
-  // لون الحدود حسب القيمة
   const applyColor = (val)=>{
     const v = (val || '').toLowerCase();
     if(v === 'rejected' || v === 'cancel' || v === 'not shared') sel.style.borderColor = 'var(--red-500)';
-    else if(v === 'accepted' || v === 'done' || v === 'paid' || v === 'shared' || v === 'approved') sel.style.borderColor = 'var(--emerald-500)';
+    else if(v === 'accepted' || v === 'done' || v === 'paid' || v === 'shared' || v === 'approved' || v === 'yes') sel.style.borderColor = 'var(--emerald-500)';
     else if(v === 'in progress' || v === 'pending' || v === 'wip' || v === 'partial') sel.style.borderColor = 'var(--amber-500)';
     else sel.style.borderColor = 'var(--border)';
   };
@@ -1408,7 +1328,6 @@ function createDropdown(col, currentVal, rowIdx){
     data[rowIdx][col] = newVal;
     applyColor(newVal);
 
-    // فحص إذا يحتاج سبب
     const reasonRule = REASON_REQUIRED[col];
     if(reasonRule && newVal === reasonRule.value){
       setTimeout(()=>{
@@ -1423,10 +1342,8 @@ function createDropdown(col, currentVal, rowIdx){
       }, 100);
     }
 
-       // إذا تغيّر States → أعِد حساب Total Cost + حدّث Sub Status
     if(col === 'States'){
       recalcTotalCost(rowIdx);
-      // إذا In Progress → أظهر Sub Status / إذا Accepted → أخفِ Sub Status
       renderHead();
       renderBody();
       if(newVal === 'In Progress'){
@@ -1434,7 +1351,6 @@ function createDropdown(col, currentVal, rowIdx){
       }
     }
 
-    // إذا تغيّر Main Scope → حدّث العرض (FTK Status يظهر/يختفي)
     if(col === 'Main Scope'){
       renderHead();
       renderBody();
@@ -1451,7 +1367,6 @@ function createDropdown(col, currentVal, rowIdx){
     }
   });
 
-  // منع انتشار النقر (لتجنب فتح Drawer)
   sel.addEventListener('click', e => e.stopPropagation());
   sel.addEventListener('mousedown', e => e.stopPropagation());
 
@@ -1465,13 +1380,8 @@ function badgeClass(col, val){
   const v = (val||"").toString().trim().toLowerCase();
   if(!v) return "badge-gray";
 
-  // Rejected / Cancel / Not Shared → أحمر
-  if(v.includes("reject") || v === "cancel" || v.includes("not shared")) return "badge-red";
-
-  // Accepted / Done / Paid / Shared / Approved → أخضر
-  if(v.includes("accept") || v === "done" || v === "paid" || v === "shared" || v === "approved") return "badge-green";
-
-  // In Progress / Pending / WIP / Partial → أصفر
+  if(v.includes("reject") || v === "cancel" || v.includes("not shared") || v === "no") return "badge-red";
+  if(v.includes("accept") || v === "done" || v === "paid" || v === "shared" || v === "approved" || v === "yes") return "badge-green";
   if(v.includes("progress") || v.includes("pending") || v.includes("wip") || v.includes("partial")) return "badge-amber";
 
   return "badge-gray";
@@ -1552,19 +1462,16 @@ function renderHead(){
   const headRow = document.getElementById('headRow');
   headRow.innerHTML = '';
 
-  // عمود التحديد
   const thChk = document.createElement('th');
   thChk.style.cssText = 'width:40px;text-align:center;';
   thChk.innerHTML = '<input type="checkbox" class="col-checkbox" id="headSelectAll" title="Select all">';
   thChk.onclick = (e) => e.stopPropagation();
   headRow.appendChild(thChk);
 
-    COLUMNS.forEach((col)=>{
-    // تخطي الأعمدة المخفية افتراضياً إذا لم تكن هناك بيانات
+  COLUMNS.forEach((col)=>{
     const hasData = data.some(r => r[col]);
     if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
 
-    // احترام CONDITIONAL_COLS — إذا كان العمود شرطي ولم يتحقق → لا تعرضه
     if(CONDITIONAL_COLS[col]){
       const rule = CONDITIONAL_COLS[col];
       const hasMatch = data.some(r => r[rule.dependsOn] === rule.value);
@@ -1598,7 +1505,6 @@ function renderHead(){
   thAct.style.cssText = 'text-align:center;width:120px;';
   headRow.appendChild(thAct);
 
-  // Bind select all
   setTimeout(()=>{
     const selAll = document.getElementById('headSelectAll');
     if(selAll){
@@ -1617,7 +1523,7 @@ function renderHead(){
 }
 
 /* =========================================================
-   RENDERING: FILTERS
+   FILTERS
    ========================================================= */
 function uniqueVals(col){
   const s = new Set();
@@ -1630,12 +1536,14 @@ function renderFilterMenu(){
   const filterCols = [
     {id:"Gov", label:"Governorate"},
     {id:"States", label:"Status"},
+    {id:"Sub Status", label:"Sub Status"},
     {id:"FLM Feedback", label:"FLM Feedback"},
     {id:"Saif Tool", label:"Saif Tool"},
     {id:"Team", label:"Team"},
     {id:"Main Scope", label:"Main Scope"},
     {id:"Payment Status", label:"Payment Status"},
-    {id:"Photo Report", label:"Photo Report"}
+    {id:"Photo Report", label:"Photo Report"},
+    {id:"Show on Map", label:"Show on Map"}
   ];
   menu.innerHTML = '';
   filterCols.forEach(col=>{
@@ -1740,7 +1648,6 @@ function renderBody(){
     if(r.__key && r.__key === newRowKey) tr.classList.add('new-row');
     if(selectedSites.has(r._id)) tr.style.background = 'var(--blue-50)';
 
-    // عمود التحديد
     const tdChk = document.createElement('td');
     tdChk.style.cssText = 'width:40px;text-align:center;';
     const chk = document.createElement('input');
@@ -1758,12 +1665,10 @@ function renderBody(){
     tdChk.appendChild(chk);
     tr.appendChild(tdChk);
 
-        COLUMNS.forEach((col)=>{
-      // تخطي الأعمدة المخفية افتراضياً إذا لم يكن لها بيانات
+    COLUMNS.forEach((col)=>{
       const hasData = data.some(x => x[col]);
       if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
 
-      // احترام CONDITIONAL_COLS
       if(CONDITIONAL_COLS[col]){
         const rule = CONDITIONAL_COLS[col];
         if(r[rule.dependsOn] !== rule.value) return;
@@ -1773,7 +1678,6 @@ function renderBody(){
       let val = r[col] || '';
       td.setAttribute('data-label', col);
 
-      // Total Cost — حساب تلقائي
       if(col === 'Total Cost'){
         const subcon = parseFloat(r['Subcon Price']) || 0;
         const transport = parseFloat(r['Transport & Crane']) || TRANSPORT_COST;
@@ -1783,7 +1687,6 @@ function renderBody(){
         return;
       }
 
-      // Balance — حساب تلقائي
       if(col === 'Balance'){
         const computed = computeBalance(r);
         td.className = 'num calc';
@@ -1792,15 +1695,15 @@ function renderBody(){
         return;
       }
 
-      // Transport & Crane — عرض تلقائي
       if(col === 'Transport & Crane'){
         td.className = 'num';
+        td.style.cursor = 'text';
         td.textContent = (parseFloat(r[col]) || TRANSPORT_COST).toLocaleString();
+        td.contentEditable = 'true';
         tr.appendChild(td);
         return;
       }
 
-      // SMR Drive URL
       if(col === 'SMR Drive URL'){
         td.textContent = val ? '🔗 Open' : '';
         if(val){
@@ -1810,18 +1713,15 @@ function renderBody(){
           td.onclick = ()=> window.open(val, '_blank');
         }
       }
-      // قوائم منسدلة
       else if(DROPDOWN_OPTIONS[col]){
         td.style.padding = '4px 6px';
         const sel = createDropdown(col, val, i);
         if(sel) td.appendChild(sel);
       }
-      // Badges
       else if(BADGE_COLS.includes(col)){
         td.style.textAlign = 'center';
         td.innerHTML = val ? `<span class="badge ${badgeClass(col,val)}">${escapeHtml(val)}</span>` : '';
       }
-      // SiteID
       else if(col === 'SiteID'){
         td.className = 'site-id';
         td.textContent = val;
@@ -1831,14 +1731,12 @@ function renderBody(){
           navigator.clipboard.writeText(val).then(()=> toast({type:'success', title:'Copied', message:`Site ID: ${val}`, duration:2000})).catch(()=>{});
         };
       }
-      // أرقام
       else if(NUM_COLS.includes(col)){
         td.className = 'num';
         const n = parseFloat(val);
         td.textContent = isNaN(n) ? val : n.toLocaleString();
         td.contentEditable = 'true';
       }
-      // نصوص
       else {
         td.textContent = val;
         td.contentEditable = 'true';
@@ -1847,8 +1745,7 @@ function renderBody(){
 
       if(r.__key && r.__key === newRowKey && col === 'SiteID' && !firstNewCell) firstNewCell = td;
 
-      // Blur save للأعمدة النصية فقط
-      if(col !== 'SMR Drive URL' && !DROPDOWN_OPTIONS[col] && BADGE_COLS.indexOf(col) === -1){
+      if(col !== 'SMR Drive URL' && !DROPDOWN_OPTIONS[col] && !BADGE_COLS.includes(col)){
         td.addEventListener('blur', async ()=>{
           const oldVal = data[i][col];
           let newVal = td.textContent.trim();
@@ -1857,7 +1754,7 @@ function renderBody(){
           if(oldVal === newVal) return;
           data[i][col] = newVal;
           if(col === 'SMR Number') data[i].smr.number = newVal;
-          if(col === 'Subcon Price'){
+          if(col === 'Subcon Price' || col === 'Transport & Crane'){
             recalcTotalCost(i);
             renderBody();
           }
@@ -1882,7 +1779,6 @@ function renderBody(){
       tr.appendChild(td);
     });
 
-    /* Actions — دائماً ظاهرة */
     const tdAct = document.createElement('td');
     tdAct.style.textAlign = 'center';
     tdAct.innerHTML = `
@@ -1894,7 +1790,6 @@ function renderBody(){
     body.appendChild(tr);
   });
 
-  // Bind actions
   body.querySelectorAll('.row-actions button').forEach(btn=>{
     btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
@@ -1944,7 +1839,6 @@ function renderCharts(){
   const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#e5e7eb';
   const destroy = (key)=>{ if(charts[key]){ try{charts[key].destroy();}catch(e){} delete charts[key]; } };
 
-  /* Status doughnut */
   const states = {};
   data.forEach(r=>{ const k = (r.States || 'Unknown').toString(); states[k] = (states[k]||0)+1; });
   const statusLabels = Object.keys(states);
@@ -1960,7 +1854,6 @@ function renderCharts(){
       plugins:{ legend:{ position:'right', labels:{ boxWidth:10, boxHeight:10, padding:10, color:textColor, font:{size:11} } } } }
   });
 
-  /* Gov bar */
   const govCounts = {};
   data.forEach(r=>{ if(r.Gov) govCounts[r.Gov] = (govCounts[r.Gov]||0)+1; });
   const govLabels = Object.keys(govCounts).slice(0,8);
@@ -1975,7 +1868,6 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
   });
 
-  /* Finance bar */
   const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Price'])||0), 0);
   const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Subcon Price'])||0), 0);
   const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Paid Amount'])||0), 0);
@@ -1992,7 +1884,6 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10}, callback: v => v + 'M' }, beginAtZero:true } } }
   });
 
-  /* Monthly trends */
   const monthMap = {};
   data.forEach(r=>{
     if(!r.Date) return;
@@ -2014,7 +1905,6 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
   });
 
-  /* Team performance */
   const teamMap = {};
   data.forEach(r=>{
     if(!r.Team) return;
@@ -2040,7 +1930,6 @@ function renderCharts(){
         y:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } } } }
   });
 
-  /* Payment progress */
   destroy('payment');
   const ctx6 = document.getElementById('chartPayment');
   if(ctx6) charts.payment = new Chart(ctx6, {
@@ -2064,7 +1953,7 @@ function renderAll(){
 }
 
 /* =========================================================
- /* =========================================================
+/* =========================================================
    PDF EXTRACTION
    ========================================================= */
 async function extractPdfStructure(file, onProgress){
@@ -2117,7 +2006,7 @@ function normalizeDate(str){
 }
 
 function parseSMRFromStructure(pages){
-  const result = { number:null, date:"", project:null, budget:null, siteId:null, items:[], warning:"", structure: pages, debugLog: [] };
+  const result = { number:null, date:"", project:null, budget:null, siteId:null, items:[], warning:"", debugLog: [] };
   const allText = pagesToText(pages);
   result.number = (allText.match(/\b(BN\d{3,6})\b/i) || [])[1] || null;
   const siteM = allText.match(/\bSite\s*[#:]*\s*(\d{3,6})\b/i) || allText.match(/\bSite[-\s]?ID[:\s]*(\d{3,6})\b/i);
@@ -2384,6 +2273,7 @@ async function savePDFImport(){
     blank.SiteID = siteId || '';
     blank["Transport & Crane"] = String(TRANSPORT_COST);
     blank["Total Cost"] = String(TRANSPORT_COST);
+    blank["Show on Map"] = "Yes";
     blank.smr = { number, items };
     blank.consumption = [];
     blank.photos = [];
@@ -2556,7 +2446,8 @@ function renderDrawerBody(){
              ['FLM Feedback', site["FLM Feedback"]],['FLM Reason', site["FLM Rejection Reason"]],
              ['Nokia Comment', site["Nokia Comments"]],['Nokia Reason', site["Nokia Rejection Reason"]],
              ['Saif Tool', site["Saif Tool"]],
-             ['Status', site.States],['Status Reason', site["Status Rejection Reason"]],
+             ['Status', site.States],['Sub Status', site["Sub Status"]],['Status Reason', site["Status Rejection Reason"]],
+             ['Show on Map', site["Show on Map"]],
              ['Date', site.Date],
              ['LAT / Long', `${site.LAT||'-'} / ${site.Long||'-'}`]]
             .map(([k,v])=>`<div class="kv"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v||'—')}</div></div>`).join('')}
@@ -2734,7 +2625,7 @@ async function loadActivity(){
 }
 
 /* =========================================================
-   MAP — النسخة الجديدة (Multi-select + Colors by Status)
+   MAP
    ========================================================= */
 function openMap(){
   document.getElementById('mapModal').classList.add('show');
@@ -2748,99 +2639,76 @@ function openMap(){
     }).addTo(leafletInstance);
 
     mapMarkers = {};
-
-    // دالة تحديد اللون حسب Status
-    const getColor = (r)=>{
-      const s = (r.States||'').toLowerCase();
-      if(s === 'accepted') return '#10b981';       // أخضر
-      if(s === 'in progress') return '#f59e0b';    // أصفر
-      if(s === 'rejected') return '#ef4444';       // أحمر
-      return '#6b7280';                             // رمادي
-    };
-
-    const getBorderColor = (r)=>{
-      const s = (r.States||'').toLowerCase();
-      if(s === 'accepted') return '#059669';
-      if(s === 'in progress') return '#d97706';
-      if(s === 'rejected') return '#dc2626';
-      return '#4b5563';
-    };
-
-    // تجميع السايتات حسب الإحداثيات
-       const groups = new Map();
-    data.forEach(r => {
-      if(!r.LAT || !r.Long) return;
-      // فلترة حسب Show on Map
-      if((r['Show on Map'] || 'Yes').toLowerCase() === 'no') return;
-      const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
-      if(isNaN(lat) || isNaN(lng)) return;
-      const key = lat.toFixed(4) + ',' + lng.toFixed(4);
-      if(!groups.has(key)) groups.set(key, []);
-      groups.get(key).push({r, lat, lng});
-    });
-
-    groups.forEach(group => {
-      const first = group[0];
-      const r = first.r;
-      const color = getColor(r);
-
-      if(group.length === 1){
-        const marker = L.circleMarker([first.lat, first.lng], {
-          radius: 9,
-          fillColor: color,
-          color: '#fff',
-          weight: 2.5,
-          opacity: 1,
-          fillOpacity: 0.95
-        }).addTo(leafletInstance);
-
-        marker.siteId = r._id;
-        mapMarkers[r._id] = marker;
-
-        marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
-          permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
-        });
-        marker.bindPopup(buildPopupHtml(r), { maxWidth: 300 });
-
-        // انقر → حدد/ألغِ التحديد
-        marker.on('click', (e)=>{
-          L.DomEvent.stopPropagation(e);
-          toggleMapSelection(r._id, marker, color);
-        });
-      } else {
-        const marker = L.circleMarker([first.lat, first.lng], {
-          radius: 10 + group.length * 2,
-          fillColor: '#8b5cf6',
-          color: '#fff',
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.9
-        }).addTo(leafletInstance);
-        marker.bindTooltip(`<b>${group.length} sites</b>`, {
-          permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
-        });
-
-        // Popup يعرض كل السايتات في الموقع
-        const popupHtml = group.map(g => {
-          const c = getColor(g.r);
-          return `<div style="padding:6px 0;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px;">
-            <span style="width:10px;height:10px;border-radius:50%;background:${c};display:inline-block;"></span>
-            <b>Site ${escapeHtml(g.r.SiteID)}</b> · ${escapeHtml(g.r.States||'—')}
-          </div>`;
-        }).join('');
-        marker.bindPopup(`<div style="min-width:200px;">${popupHtml}</div>`);
-      }
-    });
-
-    // ملاءمة العرض
-    const allPoints = Array.from(groups.values()).flat().map(g => [g.lat, g.lng]);
-    if(allPoints.length){
-      leafletInstance.fitBounds(allPoints, { padding: [40, 40], maxZoom: 12 });
-    }
-
-    // إخفاء toolbar في البداية
-    document.getElementById('mapToolbar').style.display = 'none';
+    redrawMapMarkers();
   }, 100);
+}
+
+function redrawMapMarkers(){
+  if(!leafletInstance) return;
+  const filter = document.getElementById('mapVisibilityFilter')?.value || 'yes';
+
+  Object.values(mapMarkers).forEach(m => leafletInstance.removeLayer(m));
+  mapMarkers = {};
+
+  const getColor = (r)=>{
+    const s = (r.States||'').toLowerCase();
+    if(s === 'accepted') return '#10b981';
+    if(s === 'in progress') return '#f59e0b';
+    if(s === 'rejected') return '#ef4444';
+    return '#6b7280';
+  };
+
+  let count = 0;
+  const groups = new Map();
+
+  data.forEach(r => {
+    if(!r.LAT || !r.Long) return;
+    const showVal = (r['Show on Map'] || 'Yes').toLowerCase();
+    if(filter === 'yes' && showVal !== 'yes') return;
+    if(filter === 'no' && showVal !== 'no') return;
+
+    const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
+    if(isNaN(lat) || isNaN(lng)) return;
+    const key = lat.toFixed(4) + ',' + lng.toFixed(4);
+    if(!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({r, lat, lng});
+  });
+
+  groups.forEach(group => {
+    const first = group[0];
+    const r = first.r;
+    const color = getColor(r);
+
+    if(group.length === 1){
+      const marker = L.circleMarker([first.lat, first.lng], {
+        radius: 9, fillColor: color, color: '#fff',
+        weight: 2.5, opacity: 1, fillOpacity: 0.95
+      }).addTo(leafletInstance);
+      marker.siteId = r._id;
+      mapMarkers[r._id] = marker;
+      marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
+        permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
+      });
+      marker.bindPopup(buildPopupHtml(r), { maxWidth: 300 });
+      marker.on('click', (e)=>{
+        L.DomEvent.stopPropagation(e);
+        toggleMapSelection(r._id, marker, color);
+      });
+      count++;
+    } else {
+      const marker = L.circleMarker([first.lat, first.lng], {
+        radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff',
+        weight: 2, opacity: 1, fillOpacity: 0.9
+      }).addTo(leafletInstance);
+      marker.bindTooltip(`<b>${group.length} sites</b>`, {
+        permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
+      });
+      count += group.length;
+    }
+  });
+
+  const countEl = document.getElementById('mapSiteCount');
+  if(countEl) countEl.textContent = count + ' sites shown';
 }
 
 function buildPopupHtml(r){
@@ -2911,7 +2779,6 @@ function copySelectedCoords(){
   navigator.clipboard.writeText(text).then(()=>{
     toast({type:'success', title:`✅ Copied ${lines.length} sites`, message:'Lat/Long copied to clipboard'});
   }).catch(()=>{
-    // Fallback
     const ta = document.createElement('textarea');
     ta.value = text;
     document.body.appendChild(ta);
@@ -2950,73 +2817,7 @@ function closeMap(){
   mapSelectedSites.clear();
   mapMarkers = {};
 }
-function redrawMapMarkers(){
-  if(!leafletInstance) return;
-  const filter = document.getElementById('mapVisibilityFilter')?.value || 'yes';
-  
-  Object.values(mapMarkers).forEach(m => leafletInstance.removeLayer(m));
-  mapMarkers = {};
-  
-  const getColor = (r)=>{
-    const s = (r.States||'').toLowerCase();
-    if(s === 'accepted') return '#10b981';
-    if(s === 'in progress') return '#f59e0b';
-    if(s === 'rejected') return '#ef4444';
-    return '#6b7280';
-  };
-  
-  let count = 0;
-  
-  const groups = new Map();
-  data.forEach(r => {
-    if(!r.LAT || !r.Long) return;
-    const showVal = (r['Show on Map'] || 'Yes').toLowerCase();
-    if(filter === 'yes' && showVal !== 'yes') return;
-    if(filter === 'no' && showVal !== 'no') return;
-    
-    const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
-    if(isNaN(lat) || isNaN(lng)) return;
-    const key = lat.toFixed(4) + ',' + lng.toFixed(4);
-    if(!groups.has(key)) groups.set(key, []);
-    groups.get(key).push({r, lat, lng});
-  });
-  
-  groups.forEach(group => {
-    const first = group[0];
-    const r = first.r;
-    const color = getColor(r);
-    
-    if(group.length === 1){
-      const marker = L.circleMarker([first.lat, first.lng], {
-        radius: 9, fillColor: color, color: '#fff',
-        weight: 2.5, opacity: 1, fillOpacity: 0.95
-      }).addTo(leafletInstance);
-      marker.siteId = r._id;
-      mapMarkers[r._id] = marker;
-      marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
-        permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
-      });
-      marker.bindPopup(buildPopupHtml(r), { maxWidth: 300 });
-      marker.on('click', (e)=>{
-        L.DomEvent.stopPropagation(e);
-        toggleMapSelection(r._id, marker, color);
-      });
-      count++;
-    } else {
-      const marker = L.circleMarker([first.lat, first.lng], {
-        radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff',
-        weight: 2, opacity: 1, fillOpacity: 0.9
-      }).addTo(leafletInstance);
-      marker.bindTooltip(`<b>${group.length} sites</b>`, {
-        permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
-      });
-      count += group.length;
-    }
-  });
-  
-  const countEl = document.getElementById('mapSiteCount');
-  if(countEl) countEl.textContent = count + ' sites shown';
-}
+
 /* =========================================================
    COMMAND PALETTE
    ========================================================= */
@@ -3177,38 +2978,7 @@ function openSettings(){
 /* =========================================================
 /* =========================================================
    EVENT BINDINGS
-   
-   
    ========================================================= */
-  /* ---- Transport Cost Settings ---- */
-(function initTransportSetting(){
-  const input = document.getElementById('transportCostInput');
-  const display = document.getElementById('transportCostDisplay');
-  const btn = document.getElementById('saveTransportBtn');
-  if(!input || !btn) return;
-  
-  input.value = TRANSPORT_COST;
-  display.textContent = TRANSPORT_COST.toLocaleString();
-  
-  btn.onclick = ()=>{
-    const val = parseFloat(input.value);
-    if(isNaN(val) || val < 0){
-      toast({type:'error', title:'Invalid value'});
-      return;
-    }
-    TRANSPORT_COST = val;
-    localStorage.setItem('mfc_transport_cost', String(val));
-    display.textContent = val.toLocaleString();
-    // تحديث كل السايتات
-    data.forEach((r, i) => {
-      r['Transport & Crane'] = String(val);
-      const subcon = parseFloat(r['Subcon Price']) || 0;
-      r['Total Cost'] = String(subcon + val);
-    });
-    renderAll();
-    toast({type:'success', title:'Transport Cost updated', message: val.toLocaleString() + ' IQD'});
-  };
-})();
 
 /* ---- Search ---- */
 document.getElementById('searchInput').addEventListener('input', ()=>{
@@ -3253,6 +3023,7 @@ document.getElementById('addRowBtn').onclick = async ()=>{
   COLUMNS.forEach(c=> blank[c] = '');
   blank["Transport & Crane"] = String(TRANSPORT_COST);
   blank["Total Cost"] = String(TRANSPORT_COST);
+  blank["Show on Map"] = "Yes";
   blank.smr = { number:"", items: [] };
   blank.consumption = [];
   blank.photos = [];
@@ -3305,20 +3076,13 @@ document.getElementById('mapModal').addEventListener('click', e=>{
 
 /* ---- Map Visibility Filter ---- */
 document.getElementById('mapVisibilityFilter').addEventListener('change', ()=>{
-  if(leafletInstance){
-    leafletInstance.eachLayer(layer => {
-      if(layer instanceof L.CircleMarker){
-        leafletInstance.removeLayer(layer);
-      }
-    });
-    redrawMapMarkers();
-  }
+  redrawMapMarkers();
 });
 
 /* ---- Map Toolbar Buttons ---- */
 document.getElementById('mapCopyCoords').onclick = copySelectedCoords;
 document.getElementById('mapCopyLinks').onclick = copySelectedLinks;
-document.getElementById('mapClearSel').onclick = ()=>{ ... };
+document.getElementById('mapClearSel').onclick = ()=>{
   mapSelectedSites.forEach(id => {
     const marker = mapMarkers[id];
     if(marker){
@@ -3365,6 +3129,35 @@ document.getElementById('logoutBtn').onclick = ()=>{
   }
 };
 
+/* ---- Transport Cost Settings ---- */
+(function initTransportSetting(){
+  const input = document.getElementById('transportCostInput');
+  const display = document.getElementById('transportCostDisplay');
+  const btn = document.getElementById('saveTransportBtn');
+  if(!input || !btn) return;
+
+  input.value = TRANSPORT_COST;
+  display.textContent = TRANSPORT_COST.toLocaleString();
+
+  btn.onclick = ()=>{
+    const val = parseFloat(input.value);
+    if(isNaN(val) || val < 0){
+      toast({type:'error', title:'Invalid value'});
+      return;
+    }
+    TRANSPORT_COST = val;
+    localStorage.setItem('mfc_transport_cost', String(val));
+    display.textContent = val.toLocaleString();
+    data.forEach((r, i) => {
+      r['Transport & Crane'] = String(val);
+      const subcon = parseFloat(r['Subcon Price']) || 0;
+      r['Total Cost'] = String(subcon + val);
+    });
+    renderAll();
+    toast({type:'success', title:'Transport Cost updated', message: val.toLocaleString() + ' IQD'});
+  };
+})();
+
 /* ---- Theme Options ---- */
 document.querySelectorAll('.theme-opt').forEach(btn=>{
   btn.onclick = ()=>{
@@ -3407,10 +3200,10 @@ document.getElementById('exportXlsxBtn').onclick = ()=>{
   const rows = getFilteredSorted().map(x=>{
     const clean = {};
     COLUMNS.forEach(c=> clean[c] = x.r[c] || '');
-    // ضمان القيم المحسوبة
     if(!clean['Transport & Crane']) clean['Transport & Crane'] = TRANSPORT_COST;
     const subcon = parseFloat(clean['Subcon Price']) || 0;
-    clean['Total Cost'] = subcon + TRANSPORT_COST;
+    const transport = parseFloat(clean['Transport & Crane']) || TRANSPORT_COST;
+    clean['Total Cost'] = subcon + transport;
     clean['Balance'] = (parseFloat(clean['Subcon Price']) || 0) - (parseFloat(clean['Paid Amount']) || 0);
     return clean;
   });
@@ -3427,7 +3220,6 @@ document.getElementById('exportReportBtn').onclick = async ()=>{
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('l', 'mm', 'a4');
 
-    // Header
     doc.setFillColor(10, 26, 48);
     doc.rect(0, 0, 297, 50, 'F');
     doc.setTextColor(255, 255, 255);
@@ -3440,7 +3232,6 @@ document.getElementById('exportReportBtn').onclick = async ()=>{
     doc.setFontSize(10);
     doc.text('Generated: ' + new Date().toLocaleString() + '  |  ' + data.length + ' sites total', 15, 44);
 
-    // Summary
     doc.setTextColor(30, 30, 30);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -3449,7 +3240,7 @@ document.getElementById('exportReportBtn').onclick = async ()=>{
     const totalNokia = data.reduce((s,r) => s + (parseFloat(r['Nokia Price'])||0), 0);
     const totalSubcon = data.reduce((s,r) => s + (parseFloat(r['Subcon Price'])||0), 0);
     const totalPaid = data.reduce((s,r) => s + (parseFloat(r['Paid Amount'])||0), 0);
-    const totalTransport = data.length * TRANSPORT_COST;
+    const totalTransport = data.reduce((s,r) => s + (parseFloat(r['Transport & Crane'])||TRANSPORT_COST), 0);
     const totalCost = totalSubcon + totalTransport;
 
     doc.setFontSize(10);
@@ -3472,7 +3263,6 @@ document.getElementById('exportReportBtn').onclick = async ()=>{
       y += 7;
     });
 
-    // Sites Table
     doc.addPage();
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -3482,6 +3272,7 @@ document.getElementById('exportReportBtn').onclick = async ()=>{
       const r = x.r;
       const subcon = parseFloat(r['Subcon Price']) || 0;
       const paid = parseFloat(r['Paid Amount']) || 0;
+      const transport = parseFloat(r['Transport & Crane']) || TRANSPORT_COST;
       return [
         r.SiteID || '',
         r.Gov || '',
@@ -3489,8 +3280,8 @@ document.getElementById('exportReportBtn').onclick = async ()=>{
         r.States || '',
         r['Main Scope'] || '',
         subcon.toLocaleString(),
-        TRANSPORT_COST.toLocaleString(),
-        (subcon + TRANSPORT_COST).toLocaleString(),
+        transport.toLocaleString(),
+        (subcon + transport).toLocaleString(),
         paid.toLocaleString(),
         (subcon - paid).toLocaleString()
       ];
@@ -3624,21 +3415,18 @@ async function initApp(){
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('appRoot').style.display = 'flex';
 
-  /* Theme */
   const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
 
-  /* Pinned columns */
   try{
     const pinned = JSON.parse(localStorage.getItem(PINNED_KEY) || '[]');
     pinnedColumns = new Set(pinned);
   }catch(e){}
 
-  /* Load data + subscribe */
   await supabaseLoad();
   subscribeRealtime();
 
-  console.log('%c✅ MFC Site Tracker v9 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
+  console.log('%c✅ MFC Site Tracker v10 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
   console.log('%c📊 ' + data.length + ' sites loaded', 'color:#3b82f6;font-size:12px');
   console.log('%c⌨️  Shortcuts: Ctrl+K (palette), Ctrl+N (new), Ctrl+F (search), Ctrl+E (excel), Ctrl+P (pdf)', 'color:#6b7280;font-size:11px');
 }
@@ -3666,6 +3454,6 @@ if(localStorage.getItem(LOGIN_KEY) === '1') initApp();
    ========================================================= */
 </script>
 </body>
-</html>الإغلاق
-
+</html>
+   ========================================================= */
  
