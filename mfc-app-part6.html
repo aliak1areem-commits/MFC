@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MFC | PDF Import Pro</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  if(window.pdfjsLib){
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+</script>
+
+<style>
+:root{
+  --brand-50:#eef2ff;--brand-100:#e0e7ff;--brand-500:#6366f1;--brand-600:#4f46e5;--brand-700:#4338ca;
+  --success-50:#ecfdf5;--success-500:#10b981;--success-600:#059669;--success-700:#047857;
+  --warning-50:#fffbeb;--warning-500:#f59e0b;--warning-600:#d97706;
+  --danger-50:#fef2f2;--danger-500:#ef4444;--danger-600:#dc2626;
+  --info-50:#eff6ff;--info-500:#3b82f6;--info-600:#2563eb;
+  --bg-base:#f8fafc;--bg-surface:#fff;--bg-subtle:#f1f5f9;--bg-elevated:#fff;
+  --bg-overlay:rgba(15,23,42,.55);--bg-glass:rgba(255,255,255,.85);
+  --text-primary:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;
+  --border-subtle:#e2e8f0;--border-default:#cbd5e1;--border-strong:#94a3b8;
+  --shadow-sm:0 1px 3px rgba(15,23,42,.06);
+  --shadow-md:0 4px 6px -1px rgba(15,23,42,.07);
+  --shadow-lg:0 10px 15px -3px rgba(15,23,42,.08);
+  --shadow-xl:0 20px 25px -5px rgba(15,23,42,.10);
+  --shadow-2xl:0 25px 50px -12px rgba(15,23,42,.25);
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --mono:'JetBrains Mono',monospace;
+  --grad-brand:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#06b6d4 100%);
+  --grad-hero:linear-gradient(135deg,#0f172a 0%,#1e293b 40%,#312e81 100%);
+  --sidebar-w:260px;--topbar-h:68px;
+}
+[data-theme="dark"]{
+  --bg-base:#0a0e1a;--bg-surface:#111827;--bg-subtle:#161e2e;--bg-elevated:#1a2233;
+  --bg-overlay:rgba(0,0,0,.75);--bg-glass:rgba(17,24,39,.85);
+  --text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;
+  --border-subtle:#1f2937;--border-default:#334155;--border-strong:#475569;
+  --brand-50:rgba(99,102,241,.1);--brand-100:rgba(99,102,241,.15);
+}
+[data-theme="midnight"]{
+  --bg-base:#0f1729;--bg-surface:#1a2540;--bg-subtle:#152036;--bg-elevated:#1f2b4d;
+  --text-primary:#dbe4f0;--text-secondary:#8fa3c2;--text-tertiary:#6b7fa0;
+  --border-subtle:#2a3a5c;--border-default:#3d5280;--brand-500:#4f93ff;
+}
+[data-theme="sepia"]{
+  --bg-base:#f5efdc;--bg-surface:#fdfaf0;--bg-subtle:#f0e8d0;
+  --text-primary:#3a2e1f;--text-secondary:#7a6b52;
+  --border-subtle:#e0d5b8;--border-default:#c4b592;--brand-500:#a0661d;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg-base);color:var(--text-primary);font-family:'Inter','Cairo',sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+[dir="rtl"] body{font-family:'Cairo',sans-serif;}
+button{cursor:pointer;border:none;background:none;color:inherit;font:inherit;}
+input,select,textarea{font:inherit;color:inherit;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:9999px;}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounceIn{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(99,102,241,.4)}50%{box-shadow:0 0 40px rgba(99,102,241,.7)}}
+
+.app{min-height:100vh;display:grid;grid-template-columns:var(--sidebar-w) 1fr;
+  grid-template-rows:var(--topbar-h) 1fr;grid-template-areas:"sidebar topbar" "sidebar main";}
+.sidebar{grid-area:sidebar;background:var(--grad-hero);color:#fff;display:flex;
+  flex-direction:column;z-index:150;overflow:hidden;border-inline-end:1px solid rgba(255,255,255,.06);}
+.sidebar-brand{display:flex;align-items:center;gap:12px;padding:20px 16px;
+  border-bottom:1px solid rgba(255,255,255,.06);min-height:var(--topbar-h);}
+.sidebar-logo{width:40px;height:40px;border-radius:10px;background:var(--grad-brand);
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+  font-weight:800;font-size:13px;flex:none;animation:glow 3s ease-in-out infinite;}
+.sidebar-brand-text .kicker{font-size:9.5px;letter-spacing:2px;color:#94a3b8;font-weight:700;text-transform:uppercase;}
+.sidebar-brand-text h1{font-size:15px;font-weight:800;margin-top:2px;}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto;}
+.nav-section{margin-bottom:20px;}
+.nav-section-title{font-size:10px;color:#64748b;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;
+  border-radius:10px;color:#cbd5e1;font-size:13.5px;font-weight:500;
+  cursor:pointer;transition:all .15s;margin-bottom:2px;position:relative;}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+.nav-item.active{background:rgba(99,102,241,.18);color:#fff;font-weight:600;}
+.nav-item.active::before{content:"";position:absolute;inset-inline-start:0;
+  top:20%;bottom:20%;width:3px;background:#818cf8;border-radius:0 9999px 9999px 0;}
+.nav-icon{width:20px;flex:none;text-align:center;font-size:16px;}
+
+.topbar{grid-area:topbar;background:var(--bg-glass);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;
+  gap:12px;padding:0 24px;position:sticky;top:0;z-index:100;}
+.topbar-btn{width:38px;height:38px;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;color:var(--text-secondary);
+  transition:all .15s;flex:none;}
+.topbar-btn:hover{background:var(--bg-subtle);color:var(--text-primary);}
+.topbar-actions{margin-inline-start:auto;display:flex;gap:8px;}
+
+.main{grid-area:main;padding:24px;overflow-y:auto;overflow-x:hidden;}
+.page-header{margin-bottom:24px;}
+.page-title{font-size:24px;font-weight:800;letter-spacing:-.5px;}
+.page-subtitle{font-size:14px;color:var(--text-secondary);margin-top:4px;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:9px 16px;border-radius:10px;font-weight:600;font-size:13px;
+  transition:all .15s;white-space:nowrap;border:1.5px solid transparent;}
+.btn:active{transform:translateY(1px);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-primary{background:var(--brand-600);color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.3);}
+.btn-primary:hover:not(:disabled){background:var(--brand-700);}
+.btn-outline{background:var(--bg-surface);color:var(--text-primary);border-color:var(--border-default);}
+.btn-outline:hover:not(:disabled){border-color:var(--brand-500);color:var(--brand-600);background:var(--brand-50);}
+.btn-ghost{background:transparent;color:var(--text-secondary);}
+.btn-ghost:hover:not(:disabled){background:var(--bg-subtle);color:var(--text-primary);}
+.btn-danger{background:var(--danger-500);color:#fff;}
+.btn-sm{padding:6px 12px;font-size:12.5px;}
+.btn-lg{padding:12px 20px;font-size:14px;}
+
+/* UPLOAD ZONE */
+.upload-card{background:var(--bg-surface);border:1px solid var(--border-subtle);
+  border-radius:20px;padding:40px 32px;margin-bottom:24px;box-shadow:var(--shadow-sm);}
+.drop-zone{
+  border:2.5px dashed var(--border-default);border-radius:16px;
+  padding:60px 24px;text-align:center;cursor:pointer;
+  transition:all .25s var(--ease);background:var(--bg-subtle);
+}
+.drop-zone:hover,.drop-zone.drag{
+  border-color:var(--brand-500);background:var(--brand-50);
+  transform:scale(1.005);
+}
+[data-theme="dark"] .drop-zone:hover,
+[data-theme="dark"] .drop-zone.drag,
+[data-theme="midnight"] .drop-zone:hover,
+[data-theme="midnight"] .drop-zone.drag{background:rgba(99,102,241,.08);}
+.drop-zone .icon{
+  font-size:56px;margin-bottom:16px;display:block;
+  animation:glow 3s ease-in-out infinite;
+}
+.drop-zone .txt{font-weight:800;font-size:18px;margin-bottom:8px;color:var(--text-primary);}
+.drop-zone .hint{font-size:13px;color:var(--text-secondary);margin-bottom:4px;}
+.drop-zone .formats{font-size:11.5px;color:var(--text-tertiary);font-family:var(--mono);}
+
+/* FILES LIST */
+.files-list{display:flex;flex-direction:column;gap:10px;margin-top:20px;}
+.file-item{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;
+  background:var(--bg-subtle);border-radius:12px;
+  border:1px solid var(--border-subtle);transition:all .15s;
+}
+.file-item:hover{border-color:var(--brand-500);}
+.file-item.processing{background:var(--brand-50);border-color:var(--brand-500);}
+.file-item.done{background:var(--success-50);border-color:rgba(16,185,129,.3);}
+.file-item.error{background:var(--danger-50);border-color:rgba(239,68,68,.3);}
+.file-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--brand-100);color:var(--brand-700);font-size:18px;flex:none;
+}
+.file-item.done .file-icon{background:var(--success-100);color:var(--success-700);}
+.file-item.error .file-icon{background:var(--danger-100);color:var(--danger-700);}
+.file-info{flex:1;min-width:0;}
+.file-name{font-weight:700;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-meta{font-size:11.5px;color:var(--text-tertiary);margin-top:2px;}
+.file-progress{
+  width:100%;height:4px;background:var(--border-subtle);
+  border-radius:2px;margin-top:8px;overflow:hidden;
+}
+.file-progress-fill{
+  height:100%;width:0;background:var(--grad-brand);
+  border-radius:2px;transition:width .3s;
+}
+.file-status{
+  font-size:11.5px;font-weight:700;padding:4px 10px;
+  border-radius:9999px;flex:none;
+}
+.file-status.pending{background:var(--warning-50);color:var(--warning-700);}
+.file-status.processing{background:var(--brand-50);color:var(--brand-700);}
+.file-status.done{background:var(--success-50);color:var(--success-700);}
+.file-status.error{background:var(--danger-50);color:var(--danger-700);}
+
+/* PREVIEW MODAL */
+.preview-modal{
+  position:fixed;inset:0;background:var(--bg-overlay);backdrop-filter:blur(6px);
+  z-index:900;display:none;align-items:center;justify-content:center;padding:24px;
+}
+.preview-modal.show{display:flex;}
+.preview-card{
+  background:var(--bg-elevated);border-radius:20px;width:100%;
+  max-width:1200px;max-height:90vh;display:flex;flex-direction:column;
+  box-shadow:var(--shadow-2xl);animation:bounceIn .3s cubic-bezier(.34,1.56,.64,1);
+  overflow:hidden;
+}
+.preview-header{padding:20px 26px;border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.preview-title{font-size:18px;font-weight:800;flex:1;min-width:200px;}
+.preview-subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px;}
+.preview-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.preview-body{flex:1;overflow-y:auto;padding:24px 26px;}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:14px;margin-bottom:24px;}
+.form-field label{display:block;font-size:11.5px;font-weight:700;
+  color:var(--text-tertiary);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:6px;}
+.form-field input,.form-field select{
+  width:100%;padding:10px 14px;border-radius:10px;
+  border:1.5px solid var(--border-subtle);background:var(--bg-subtle);
+  font-size:13.5px;color:var(--text-primary);transition:all .15s;
+}
+.form-field input:focus,.form-field select:focus{
+  outline:none;border-color:var(--brand-500);background:var(--bg-surface);
+  box-shadow:0 0 0 4px rgba(99,102,241,.1);
+}
+.form-field input.mono{font-family:var(--mono);}
+
+/* ITEMS TABLE */
+.items-section{margin-top:20px;}
+.items-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.items-title{font-size:12px;font-weight:800;color:var(--text-tertiary);
+  text-transform:uppercase;letter-spacing:.8px;flex:1;}
+.items-table{width:100%;border-collapse:separate;border-spacing:0;
+  border:1px solid var(--border-subtle);border-radius:12px;
+  overflow:hidden;font-size:12.5px;}
+.items-table thead{background:var(--bg-subtle);}
+.items-table th{padding:10px 12px;text-align:start;font-weight:700;
+  font-size:10.5px;color:var(--text-tertiary);text-transform:uppercase;
+  letter-spacing:.5px;border-bottom:1px solid var(--border-subtle);}
+.items-table td{padding:6px 8px;border-bottom:1px solid var(--border-subtle);}
+.items-table tr:last-child td{border-bottom:none;}
+.items-table input{width:100%;padding:7px 8px;border:1px solid var(--border-subtle);
+  border-radius:6px;font-size:12px;background:var(--bg-surface);
+  color:var(--text-primary);}
+.items-table input:focus{outline:none;border-color:var(--brand-500);}
+.items-table input[type="number"]{text-align:center;}
+.row-del{padding:6px 10px;color:var(--danger-500);border-radius:6px;
+  font-size:14px;transition:all .15s;}
+.row-del:hover{background:var(--danger-50);}
+
+.items-summary{
+  margin-top:14px;text-align:end;font-weight:800;
+  font-size:14px;color:var(--text-secondary);
+}
+.items-summary strong{font-family:var(--mono);color:var(--brand-600);
+  font-size:16px;}
+
+/* ALERTS */
+.alert{padding:14px 18px;border-radius:12px;font-size:13px;
+  line-height:1.6;border-inline-start:4px solid;margin-bottom:16px;}
+.alert-info{background:var(--info-50);color:var(--info-600);border-inline-start-color:var(--info-500);}
+.alert-warning{background:var(--warning-50);color:var(--warning-600);border-inline-start-color:var(--warning-500);}
+.alert-success{background:var(--success-50);color:var(--success-700);border-inline-start-color:var(--success-500);}
+.alert-danger{background:var(--danger-50);color:var(--danger-700);border-inline-start-color:var(--danger-500);}
+
+/* DEBUG BOX */
+.debug-box{
+  background:#0a0a0a;color:#e5e7eb;
+  padding:16px;border-radius:12px;font-family:var(--mono);
+  font-size:11.5px;line-height:1.6;max-height:400px;overflow-y:auto;
+  white-space:pre-wrap;word-break:break-all;
+}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;inset-inline-end:24px;z-index:1000;
+  display:flex;flex-direction:column;gap:12px;max-width:400px;pointer-events:none;}
+.toast{background:var(--bg-elevated);border:1px solid var(--border-subtle);
+  border-radius:10px;box-shadow:var(--shadow-xl);padding:16px;
+  display:flex;gap:12px;border-inline-start:4px solid var(--brand-500);
+  pointer-events:auto;animation:bounceIn .25s cubic-bezier(.34,1.56,.64,1);
+  min-width:300px;}
+.toast.success{border-inline-start-color:var(--success-500);}
+.toast.error{border-inline-start-color:var(--danger-500);}
+.toast.warning{border-inline-start-color:var(--warning-500);}
+.toast.removing{animation:fadeOut .15s forwards;}
+.toast-icon{width:24px;height:24px;border-radius:6px;flex:none;
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  background:var(--bg-subtle);}
+.toast.success .toast-icon{background:var(--success-50);color:var(--success-600);}
+.toast.error .toast-icon{background:var(--danger-50);color:var(--danger-600);}
+.toast-body{flex:1;}
+.toast-title{font-size:13.5px;font-weight:700;}
+.toast-msg{font-size:12.5px;color:var(--text-secondary);}
+
+/* SPINNER */
+.spinner{width:20px;height:20px;border:2.5px solid var(--border-subtle);
+  border-top-color:var(--brand-500);border-radius:50%;
+  animation:spin .8s linear infinite;display:inline-block;}
+
+/* EMPTY */
+.empty-box{text-align:center;padding:40px 20px;color:var(--text-tertiary);}
+.empty-box .icon{font-size:48px;opacity:.4;margin-bottom:12px;}
+
+@media (max-width:768px){
+  .app{grid-template-columns:1fr;grid-template-areas:"topbar" "main";}
+  .sidebar{position:fixed;top:0;bottom:0;inset-inline-start:0;width:var(--sidebar-w);
+    transform:translateX(-100%);transition:transform .25s;z-index:200;}
+  [dir="rtl"] .sidebar{transform:translateX(100%);}
+  .sidebar.open{transform:translateX(0) !important;}
+  .main{padding:16px;}
+  .preview-card{max-height:95vh;}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">MFC</div>
+      <div class="sidebar-brand-text">
+        <div class="kicker">MFC Company</div>
+        <h1>PDF Import</h1>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Import</div>
+        <div class="nav-item active"><span class="nav-icon">📄</span><span>Upload PDF</span></div>
+        <div class="nav-item" id="debugLink"><span class="nav-icon">🐛</span><span>Debug Panel</span></div>
+      </div>
+    </nav>
+  </aside>
+
+  <header class="topbar">
+    <button class="topbar-btn" id="mobileMenu" style="display:none;">☰</button>
+    <div style="flex:1;"></div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" id="themeToggle"></button>
+      <button class="topbar-btn" id="rtlToggle">🌐</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-header">
+      <h1 class="page-title">📄 PDF Import Pro</h1>
+      <p class="page-subtitle">Upload SMR PDFs. Items extracted automatically with smart table detection.</p>
+    </div>
+
+    <!-- UPLOAD CARD -->
+    <div class="upload-card">
+      <div class="drop-zone" id="dropZone">
+        <span class="icon">📄</span>
+        <div class="txt">Drop PDF files here or click to choose</div>
+        <div class="hint">Supports text-based and scanned PDFs (OCR auto-enabled)</div>
+        <div class="formats">PDF · Up to 50MB per file · Multiple files supported</div>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf" multiple hidden>
+      <div class="files-list" id="filesList"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="preview-modal" id="previewModal">
+  <div class="preview-card">
+    <div class="preview-header">
+      <div style="flex:1;min-width:200px;">
+        <div class="preview-title" id="previewTitle">Review Extracted Data</div>
+        <div class="preview-subtitle" id="previewSubtitle"></div>
+      </div>
+      <div class="preview-actions">
+        <button class="btn btn-outline btn-sm" id="debugTextBtn">🐛 Debug Text</button>
+        <button class="btn btn-outline btn-sm" id="addItemBtn">+ Add Item</button>
+        <button class="btn btn-outline btn-sm" id="cancelBtn">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="saveBtn">💾 Save & Upload</button>
+      </div>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* =========================================================
+   CONFIG
+   ========================================================= */
+const CONFIG = {
+  supabaseUrl: "https://bagbnoupsnsltflgwpic.supabase.co",
+  supabaseKey: "sb_publishable_jyov6Yn5ulwm3fj3lIs9yw_IDZVhYMd",
+  storageBucket: 'smr-files'
+};
+
+const STORAGE = {
+  theme: 'mfc_theme_v3',
+  rtl: 'mfc_rtl_v3'
+};
+
+let db = null;
+try {
+  if (typeof supabase !== 'undefined' && supabase.createClient) {
+    db = supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+    console.log('%c✅ Supabase ready', 'color:#10b981;font-weight:bold');
+  }
+} catch(e){ console.error('Supabase init failed:', e); }
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const State = {
+  files: [],
+  activeFile: null,
+  sites: [],
+  parsedData: null
+};
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $ = (s, c=document)=> c.querySelector(s);
+const $$ = (s, c=document)=> Array.from(c.querySelectorAll(s));
+
+function escapeHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function toast({type='info', title='', message='', duration=3500} = {}){
+  const container = $('#toastContainer');
+  const icons = { success:'✓', error:'!', warning:'⚠', info:'i' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `
+    <div class="toast-icon">${icons[type] || 'i'}</div>
+    <div class="toast-body">
+      <div class="toast-title">${escapeHtml(title)}</div>
+      ${message ? `<div class="toast-msg">${escapeHtml(message)}</div>` : ''}
+    </div>
+  `;
+  container.appendChild(el);
+  if (duration > 0) setTimeout(()=>{
+    el.classList.add('removing');
+    setTimeout(()=> el.remove(), 200);
+  }, duration);
+}
+
+function formatBytes(b){
+  if (b < 1024) return b + ' B';
+  if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1024 / 1024).toFixed(2) + ' MB';
+}
+
+/* =========================================================
+   THEME / RTL
+   ========================================================= */
+function initTheme(){
+  const saved = localStorage.getItem(STORAGE.theme) || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon();
+}
+function toggleTheme(){
+  const themes = ['light','dark','midnight','sepia'];
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = themes[(themes.indexOf(cur)+1) % themes.length];
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem(STORAGE.theme, next);
+  updateThemeIcon();
+}
+function updateThemeIcon(){
+  const btn = $('#themeToggle');
+  const cur = document.documentElement.getAttribute('data-theme');
+  btn.textContent = (cur === 'dark' || cur === 'midnight') ? '☀️' : '🌙';
+}
+function initRTL(){
+  const saved = localStorage.getItem(STORAGE.rtl) === '1';
+  document.documentElement.setAttribute('dir', saved ? 'rtl' : 'ltr');
+}
+function toggleRTL(){
+  const rtl = document.documentElement.getAttribute('dir') !== 'rtl';
+  document.documentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+  localStorage.setItem(STORAGE.rtl, rtl ? '1' : '0');
+}
+
+/* =========================================================
+   PDF EXTRACTION
+   ========================================================= */
+async function extractPdfStructure(file, onProgress){
+  const arrayBuffer = await file.arrayBuffer();
+  const pages = [];
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      const rows = groupByY(content.items);
+      pages.push({ pageNum: p, rows });
+      if (onProgress) onProgress(p / pdf.numPages, `Reading page ${p}/${pdf.numPages}`);
+    }
+  } catch(e){
+    console.warn('pdf.js failed:', e);
+  }
+  return pages;
+}
+
+function groupByY(items){
+  const valid = items.filter(it => it.str && it.str.trim());
+  valid.sort((a, b) => b.transform[5] - a.transform[5]);
+  const TOLERANCE = 4;
+  const rows = [];
+  let currentRow = null;
+
+  valid.forEach(item => {
+    const y = item.transform[5];
+    const x = item.transform[4];
+    const str = item.str.trim();
+    if (!currentRow || Math.abs(currentRow.y - y) > TOLERANCE) {
+      currentRow = { y, cells: [{ x, str }] };
+      rows.push(currentRow);
+    } else {
+      currentRow.cells.push({ x, str });
+      currentRow.y = (currentRow.y * (currentRow.cells.length - 1) + y) / currentRow.cells.length;
+    }
+  });
+
+  rows.forEach(r => r.cells.sort((a, b) => a.x - b.x));
+  return rows;
+}
+
+function pagesToText(pages){
+  return pages.map(p => p.rows.map(r => r.cells.map(c => c.str).join('\t')).join('\n')).join('\n\n');
+}
+
+async function runOCR(file, onProgress){
+  try {
+    if (typeof Tesseract === 'undefined') throw new Error('Tesseract not loaded');
+    const { data: { text } } = await Tesseract.recognize(file, 'eng+ara', {
+      logger: (m) => {
+        if (m.status === 'recognizing text' && onProgress) {
+          onProgress(m.progress, `OCR: ${Math.round(m.progress * 100)}%`);
+        }
+      }
+    });
+    return text;
+  } catch(e){
+    console.warn('OCR failed:', e);
+    return '';
+  }
+}
+
+/* =========================================================
+   SMART PARSER — Multiple Strategies
+   ========================================================= */
+function parseSMR(pages, ocrText = ''){
+  const result = {
+    number: null, date: '', project: null, budget: null,
+    siteId: null, items: [], warning: null, debug: {}
+  };
+
+  const allText = pagesToText(pages) || ocrText;
+  result.debug.rawText = allText;
+  result.debug.textLength = allText.length;
+
+  // ============ Header extraction ============
+  result.number = (allText.match(/\b(BN\d{3,6})\b/i) || [])[1] || null;
+  const siteM = allText.match(/\bSite\s*[#:]*\s*(\d{3,6})\b/i)
+    || allText.match(/\bSite[-\s]?ID[:\s]*(\d{3,6})\b/i);
+  result.siteId = siteM ? siteM[1] : null;
+  const projM = allText.match(/\b(FTK|Ziyara|MFC|FTTX|RF)\b/i);
+  result.project = projM ? projM[1].toUpperCase() : null;
+  const budgetM = allText.match(/(RF\s*CAPEX\s*\d+|CAPEX\s*\d+|OPEX\s*\d+)/i);
+  result.budget = budgetM ? budgetM[1].replace(/\s+/g, ' ').toUpperCase() : null;
+  const dateM = allText.match(/\b(\d{1,2}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{2,4})\b/i);
+  if (dateM) {
+    const d = new Date(dateM[1].replace(/\s+/g, '-'));
+    if (!isNaN(d)) result.date = d.toISOString().slice(0, 10);
+  }
+
+  // ============ STRATEGY 1: Structured table detection ============
+  const strategy1Items = extractFromStructure(pages, result);
+  result.debug.strategy1Count = strategy1Items.length;
+
+  // ============ STRATEGY 2: Text-based fallback ============
+  const strategy2Items = extractFromText(allText, result);
+  result.debug.strategy2Count = strategy2Items.length;
+
+  // ============ Choose best strategy ============
+  if (strategy1Items.length >= strategy2Items.length && strategy1Items.length > 0) {
+    result.items = strategy1Items;
+    result.debug.usedStrategy = 'structure';
+  } else if (strategy2Items.length > 0) {
+    result.items = strategy2Items;
+    result.debug.usedStrategy = 'text';
+  } else {
+    result.items = [];
+    result.debug.usedStrategy = 'none';
+    result.warning = 'No items auto-detected. Click "Debug Text" to see the extracted content, then add items manually.';
+  }
+
+  return result;
+}
+
+/* --- Strategy 1: Structure-based (existing but improved) --- */
+function extractFromStructure(pages, result){
+  const items = [];
+  let headerInfo = null;
+
+  // Flexible header detection — 6 patterns
+  for (const p of pages) {
+    for (let ri = 0; ri < p.rows.length; ri++) {
+      const row = p.rows[ri];
+      const texts = row.cells.map(c => c.str.toLowerCase().trim());
+
+      const hasIndex = texts.some(t => /^(index|no\.?|#|s\.?no\.?|serial|sr\.?)$/i.test(t));
+      const hasQty = texts.some(t => /^(qty|qnty|quantity|accepted\s*qty|q\'ty)$/i.test(t));
+
+      if (hasIndex && hasQty) {
+        const map = {};
+        texts.forEach((t, i) => {
+          if (/^(index|no\.?|#|s\.?no\.?|serial|sr\.?)$/i.test(t)) map.indexIdx = i;
+          else if (/product|item|code|material|part/i.test(t)) map.codeIdx = i;
+          else if (/description|desc|details/i.test(t)) map.descIdx = i;
+          else if (/^(qty|qnty|quantity|accepted\s*qty)$/i.test(t)) map.qtyIdx = i;
+          else if (/unit|uom/i.test(t)) map.unitIdx = i;
+        });
+        headerInfo = { row, map, y: row.y };
+        result.debug.headerFound = true;
+        break;
+      }
+    }
+    if (headerInfo) break;
+  }
+
+  if (!headerInfo) {
+    result.debug.headerFound = false;
+    return items;
+  }
+
+  const isNumber = (s) => /^\d{1,6}(\.\d{1,4})?$/.test(String(s).replace(/,/g, ''));
+
+  pages.forEach(p => {
+    p.rows.forEach(row => {
+      if (row.y >= headerInfo.y || row === headerInfo.row) return;
+      const cells = row.cells;
+      if (cells.length < 3) return;
+
+      const firstCell = String(cells[0]?.str || '').replace(/,/g, '').trim();
+      if (!/^\d{1,5}$/.test(firstCell)) return;
+
+      const codeCell = cells[headerInfo.map.codeIdx ?? 1];
+      if (!codeCell) return;
+      const code = codeCell.str.trim();
+      if (code.length < 2) return;
+
+      let qty = null;
+      if (headerInfo.map.qtyIdx !== undefined && cells[headerInfo.map.qtyIdx]) {
+        const q = String(cells[headerInfo.map.qtyIdx].str).replace(/,/g, '').trim();
+        if (isNumber(q)) qty = parseFloat(q);
+      }
+      if (qty === null) {
+        for (const c of cells) {
+          const q = String(c.str).replace(/,/g, '').trim();
+          if (/^\d{1,6}(\.\d{1,4})?$/.test(q)) {
+            const n = parseFloat(q);
+            if (n > 0 && n < 100000) { qty = n; break; }
+          }
+        }
+      }
+      if (qty === null || qty <= 0) return;
+
+      let desc = '';
+      const codeIdx = headerInfo.map.codeIdx ?? 1;
+      const qtyIdx = headerInfo.map.qtyIdx;
+      if (qtyIdx !== undefined && qtyIdx > codeIdx + 1) {
+        desc = cells.slice(codeIdx + 1, qtyIdx).map(c => c.str).join(' ').trim();
+      } else if (headerInfo.map.descIdx !== undefined && cells[headerInfo.map.descIdx]) {
+        desc = cells[headerInfo.map.descIdx].str;
+      }
+
+      let unit = 'pcs';
+      if (headerInfo.map.unitIdx !== undefined && cells[headerInfo.map.unitIdx]) {
+        unit = cells[headerInfo.map.unitIdx].str.toLowerCase();
+      }
+
+      const key = code.toLowerCase();
+      if (!items.some(it => it.code.toLowerCase() === key)) {
+        items.push({ code, desc, qty, unit, price: 0 });
+      }
+    });
+  });
+
+  return items;
+}
+
+/* --- Strategy 2: Text regex fallback --- */
+function extractFromText(text, result){
+  const items = [];
+  if (!text || text.length < 20) return items;
+
+  const lines = text.split(/\n/).map(l => l.trim()).filter(Boolean);
+  const seen = new Set();
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^(index|no\.?|#|product|item|description|qty|quantity|unit|price|total|page)/i.test(line)) continue;
+    if (line.length < 5) continue;
+
+    let match = null;
+    let code = '', desc = '', qty = 0, unit = 'pcs';
+
+    // Pattern 1: "1  RF-ANT-001  Antenna 2.6GHz  4  pcs"
+    let m1 = line.match(/^\d{1,4}[\s\t]+([A-Z0-9][\w\-\.\/]{2,})[\s\t]+(.+?)[\s\t]+(\d+(?:\.\d+)?)[\s\t]*([a-zA-Z]{1,5})?$/i);
+    if (m1) {
+      code = m1[1]; desc = m1[2].trim();
+      qty = parseFloat(m1[3]); unit = m1[4] || 'pcs';
+      match = true;
+    }
+
+    // Pattern 2: "RF-ANT-001  Antenna 2.6GHz  4"
+    if (!match) {
+      let m2 = line.match(/^([A-Z0-9][\w\-\.\/]{3,})[\s\t]+(.+?)[\s\t]+(\d+(?:\.\d+)?)[\s\t]*([a-zA-Z]{1,5})?$/i);
+      if (m2 && /[A-Z]/.test(m2[1]) && /\d/.test(m2[1])) {
+        code = m2[1]; desc = m2[2].trim();
+        qty = parseFloat(m2[3]); unit = m2[4] || 'pcs';
+        match = true;
+      }
+    }
+
+    // Pattern 3: "1  CODE  Description"  (qty on next line)
+    if (!match && i + 1 < lines.length) {
+      let m3 = line.match(/^(\d{1,4})[\s\t]+([A-Z0-9][\w\-\.\/]{2,})[\s\t]+(.+)$/i);
+      if (m3) {
+        const next = lines[i + 1];
+        const qtyM = next.match(/^(\d+(?:\.\d+)?)/);
+        if (qtyM) {
+          code = m3[2]; desc = m3[3].trim();
+          qty = parseFloat(qtyM[1]);
+          match = true;
+          i++;
+        }
+      }
+    }
+
+    if (match && code && qty > 0 && qty < 100000) {
+      const key = code.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        items.push({ code, desc, qty, unit, price: 0 });
+      }
+    }
+  }
+
+  return items;
+}
+
+/* =========================================================
+   FILES UI
+   ========================================================= */
+function renderFilesList(){
+  const list = $('#filesList');
+  if (!State.files.length) {
+    list.innerHTML = '';
+    return;
+  }
+  list.innerHTML = State.files.map((f, i) => `
+    <div class="file-item ${f.status}" data-idx="${i}">
+      <div class="file-icon">📄</div>
+      <div class="file-info">
+        <div class="file-name">${escapeHtml(f.name)}</div>
+        <div class="file-meta">${formatBytes(f.size)} · ${f.pages || '—'} pages · ${f.itemsCount || 0} items</div>
+        ${f.status === 'processing' ? `
+          <div class="file-progress"><div class="file-progress-fill" style="width:${f.progress}%"></div></div>
+        ` : ''}
+      </div>
+      <div class="file-status ${f.status}">
+        ${f.status === 'pending' ? 'Pending' :
+          f.status === 'processing' ? `${f.progress}%` :
+          f.status === 'done' ? '✓ Ready' :
+          '✕ Error'}
+      </div>
+    </div>
+  `).join('');
+
+  $$('.file-item').forEach(el => {
+    el.onclick = () => {
+      const idx = parseInt(el.dataset.idx, 10);
+      const file = State.files[idx];
+      if (file.status === 'done' || file.status === 'error') {
+        openPreview(file);
+      }
+    };
+  });
+}
+
+async function handleFile(file){
+  const fileEntry = {
+    file,
+    name: file.name,
+    size: file.size,
+    status: 'processing',
+    progress: 0,
+    pages: null,
+    itemsCount: 0,
+    parsed: null
+  };
+  State.files.push(fileEntry);
+  renderFilesList();
+
+  try {
+    // Step 1: Extract PDF structure
+    const pages = await extractPdfStructure(file, (p, msg) => {
+      fileEntry.progress = Math.round(p * 50);
+      renderFilesList();
+    });
+    fileEntry.pages = pages.length;
+
+    // Step 2: Check if text-based or scanned
+    const allText = pagesToText(pages);
+    const textLength = allText.replace(/\s/g, '').length;
+    let ocrText = '';
+
+    if (textLength < 50) {
+      // Scanned PDF — run OCR
+      toast({type:'info', title:'Scanned PDF detected', message:'Running OCR...', duration:2000});
+      ocrText = await runOCR(file, (p, msg) => {
+        fileEntry.progress = 50 + Math.round(p * 40);
+        renderFilesList();
+      });
+    } else {
+      fileEntry.progress = 90;
+      renderFilesList();
+    }
+
+    // Step 3: Parse
+    const parsed = parseSMR(pages, ocrText);
+    fileEntry.parsed = parsed;
+    fileEntry.itemsCount = parsed.items.length;
+    fileEntry.status = 'done';
+    fileEntry.progress = 100;
+
+    console.log('%c📄 Extracted: ' + parsed.items.length + ' items via ' + parsed.debug.usedStrategy,
+      'color:#6366f1;font-weight:bold');
+    console.log('Debug:', parsed.debug);
+
+    renderFilesList();
+
+    if (parsed.items.length > 0) {
+      toast({type:'success', title:'✅ Extraction complete', message:`${parsed.items.length} items found`});
+      // Auto-open preview
+      setTimeout(() => openPreview(fileEntry), 400);
+    } else {
+      toast({type:'warning', title:'⚠️ No items detected', message:'Click the file to review or add items manually'});
+    }
+
+  } catch(e){
+    console.error('File processing failed:', e);
+    fileEntry.status = 'error';
+    fileEntry.error = e.message;
+    renderFilesList();
+    toast({type:'error', title:'Extraction failed', message:e.message});
+  }
+}
+
+/* =========================================================
+   PREVIEW MODAL
+   ========================================================= */
+function openPreview(fileEntry){
+  State.activeFile = fileEntry;
+  const parsed = fileEntry.parsed || {};
+
+  $('#previewTitle').textContent = fileEntry.name;
+  $('#previewSubtitle').textContent =
+    `${fileEntry.pages || 0} pages · ${parsed.items?.length || 0} items · Strategy: ${parsed.debug?.usedStrategy || 'n/a'}`;
+
+  const body = $('#previewBody');
+  body.innerHTML = `
+    ${parsed.warning ? `
+      <div class="alert alert-warning">
+        <strong>⚠️ ${escapeHtml(parsed.warning)}</strong>
+      </div>
+    ` : `
+      <div class="alert alert-success">
+        <strong>✅ Extraction complete.</strong> Review the data before saving.
+      </div>
+    `}
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label>SMR Number</label>
+        <input class="mono" id="smrNumber" value="${escapeHtml(parsed.number || '')}">
+      </div>
+      <div class="form-field">
+        <label>SMR Date</label>
+        <input type="date" id="smrDate" value="${escapeHtml(parsed.date || '')}">
+      </div>
+      <div class="form-field">
+        <label>Project</label>
+        <input id="project" value="${escapeHtml(parsed.project || '')}">
+      </div>
+      <div class="form-field">
+        <label>Budget Code</label>
+        <input class="mono" id="budget" value="${escapeHtml(parsed.budget || '')}">
+      </div>
+      <div class="form-field">
+        <label>Site ID</label>
+        <input class="mono" id="siteId" value="${escapeHtml(parsed.siteId || '')}">
+      </div>
+      <div class="form-field">
+        <label>Link to Existing Site</label>
+        <select id="targetSite">
+          <option value="">— Create new site —</option>
+          ${State.sites.slice(0, 200).map(s => `
+            <option value="${s.id}">${escapeHtml(s.site_id || '—')} · ${escapeHtml(s.gov || '')}</option>
+          `).join('')}
+        </select>
+      </div>
+    </div>
+
+    <div class="items-section">
+      <div class="items-header">
+        <div class="items-title">Extracted Items (<span id="itemsCount">${parsed.items?.length || 0}</span>)</div>
+        <button class="btn btn-outline btn-sm" id="addItemInline">+ Add Item</button>
+      </div>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width:28%;">Code</th>
+            <th style="width:38%;">Description</th>
+            <th style="width:10%;text-align:center;">Qty</th>
+            <th style="width:10%;text-align:center;">Unit</th>
+            <th style="width:12%;text-align:end;">Price</th>
+            <th style="width:2%;"></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+      <div class="items-summary">
+        Total: <strong id="itemsTotal">0</strong>
+      </div>
+    </div>
+  `;
+
+  renderItemsTable(parsed.items || []);
+  $('#previewModal').classList.add('show');
+
+  $('#addItemInline').onclick = () => {
+    const current = collectItems();
+    current.push({ code: '', desc: '', qty: 1, unit: 'pcs', price: 0 });
+    renderItemsTable(current);
+  };
+}
+
+function renderItemsTable(items){
+  const body = $('#itemsBody');
+  body.innerHTML = items.map((it, i) => `
+    <tr>
+      <td><input class="mono" data-field="code" value="${escapeHtml(it.code || '')}"></td>
+      <td><input data-field="desc" value="${escapeHtml(it.desc || '')}"></td>
+      <td><input type="number" data-field="qty" value="${it.qty || 0}" step="0.01"></td>
+      <td><input data-field="unit" value="${escapeHtml(it.unit || 'pcs')}"></td>
+      <td><input type="number" data-field="price" value="${it.price || 0}" step="0.01" style="text-align:end;"></td>
+      <td><button class="row-del" data-i="${i}">✕</button></td>
+    </tr>
+  `).join('');
+
+  body.querySelectorAll('.row-del').forEach(btn => {
+    btn.onclick = () => {
+      const i = parseInt(btn.dataset.i, 10);
+      const current = collectItems();
+      current.splice(i, 1);
+      renderItemsTable(current);
+    };
+  });
+
+  body.querySelectorAll('input').forEach(inp => {
+    inp.oninput = updateItemsTotal;
+  });
+
+  $('#itemsCount').textContent = items.length;
+  updateItemsTotal();
+}
+
+function collectItems(){
+  const items = [];
+  $$('#itemsBody tr').forEach(tr => {
+    const get = (f) => tr.querySelector(`[data-field="${f}"]`)?.value || '';
+    const code = get('code').trim();
+    const qty = parseFloat(get('qty')) || 0;
+    if (!code && !qty) return;
+    items.push({
+      code,
+      desc: get('desc').trim(),
+      qty,
+      unit: get('unit').trim(),
+      price: parseFloat(get('price')) || 0
+    });
+  });
+  return items;
+}
+
+function updateItemsTotal(){
+  const items = collectItems();
+  const total = items.reduce((s, i) => s + i.qty * i.price, 0);
+  $('#itemsTotal').textContent = total.toLocaleString();
+  $('#itemsCount').textContent = items.length;
+}
+
+/* =========================================================
+   SAVE TO SUPABASE
+   ========================================================= */
+async function saveToSupabase(){
+  if (!State.activeFile) return;
+  const fileEntry = State.activeFile;
+  const items = collectItems();
+
+  const smrNumber = $('#smrNumber').value.trim();
+  const smrDate = $('#smrDate').value;
+  const project = $('#project').value.trim();
+  const budget = $('#budget').value.trim();
+  const siteId = $('#siteId').value.trim();
+  const targetSiteId = $('#targetSite').value;
+  const total = items.reduce((s, i) => s + i.qty * i.price, 0);
+
+  const saveBtn = $('#saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+
+  try {
+    // 1. Upload PDF to Storage
+    const fileName = `smr/${siteId || 'unknown'}_${Date.now()}_${fileEntry.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    console.log('Uploading PDF:', fileName);
+
+    const { error: uploadErr } = await db.storage
+      .from(CONFIG.storageBucket)
+      .upload(fileName, fileEntry.file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: 'application/pdf'
+      });
+    if (uploadErr) throw uploadErr;
+
+    const { data: urlData } = db.storage.from(CONFIG.storageBucket).getPublicUrl(fileName);
+    const publicUrl = urlData.publicUrl;
+
+    // 2. Save metadata
+    const smrItems = items;
+
+    if (targetSiteId) {
+      // Update existing site
+      const { error } = await db.from('sites').update({
+        smr_number: smrNumber,
+        smr_value: total,
+        smr_items: smrItems,
+        smr_file: fileEntry.name,
+        smr_drive_url: publicUrl
+      }).eq('id', parseInt(targetSiteId, 10));
+      if (error) throw error;
+      toast({type:'success', title:'✅ Saved to existing site'});
+    } else {
+      // Create new site
+      const { error } = await db.from('sites').insert([{
+        site_id: siteId || ('SMR-' + Date.now().toString().slice(-6)),
+        smr_number: smrNumber,
+        smr_value: total,
+        smr_items: smrItems,
+        smr_file: fileEntry.name,
+        smr_drive_url: publicUrl,
+        date_field: smrDate || null,
+        main_scope: project || null,
+        budget_code: budget || null
+      }]);
+      if (error) throw error;
+      toast({type:'success', title:'✅ New site created with SMR'});
+    }
+
+    closePreview();
+    fileEntry.saved = true;
+    renderFilesList();
+
+  } catch(e){
+    console.error('Save failed:', e);
+    toast({type:'error', title:'Save failed', message:e.message});
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '💾 Save & Upload';
+  }
+}
+
+function closePreview(){
+  $('#previewModal').classList.remove('show');
+  State.activeFile = null;
+}
+
+/* =========================================================
+   DEBUG
+   ========================================================= */
+function showDebugText(){
+  if (!State.activeFile) return;
+  const parsed = State.activeFile.parsed || {};
+  const text = parsed.debug?.rawText || '(no text extracted)';
+  const debugInfo = JSON.stringify({
+    textLength: parsed.debug?.textLength,
+    headerFound: parsed.debug?.headerFound,
+    strategy1Count: parsed.debug?.strategy1Count,
+    strategy2Count: parsed.debug?.strategy2Count,
+    usedStrategy: parsed.debug?.usedStrategy
+  }, null, 2);
+
+  $('#previewBody').innerHTML = `
+    <div class="alert alert-info">
+      <strong>Debug Info:</strong>
+      <pre style="margin-top:8px;font-family:var(--mono);font-size:11.5px;">${escapeHtml(debugInfo)}</pre>
+    </div>
+    <div class="debug-box">${escapeHtml(text)}</div>
+    <div style="margin-top:16px;display:flex;gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="window.copyDebugText()">📋 Copy Text</button>
+      <button class="btn btn-primary btn-sm" onclick="window.backToPreview()">← Back to Preview</button>
+    </div>
+  `;
+}
+
+window.copyDebugText = () => {
+  const parsed = State.activeFile?.parsed;
+  if (parsed?.debug?.rawText) {
+    navigator.clipboard.writeText(parsed.debug.rawText);
+    toast({type:'success', title:'Copied to clipboard'});
+  }
+};
+window.backToPreview = () => {
+  if (State.activeFile) openPreview(State.activeFile);
+};
+
+/* =========================================================
+   LOAD SITES
+   ========================================================= */
+async function loadSites(){
+  if (!db) return;
+  try {
+    const { data } = await db.from('sites').select('id, site_id, gov').order('site_id');
+    State.sites = data || [];
+  } catch(e){ console.warn('Sites load failed:', e); }
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function bindEvents(){
+  const dz = $('#dropZone');
+  const fi = $('#fileInput');
+
+  dz.onclick = () => fi.click();
+  dz.ondragover = (e) => { e.preventDefault(); dz.classList.add('drag'); };
+  dz.ondragleave = () => dz.classList.remove('drag');
+  dz.ondrop = (e) => {
+    e.preventDefault();
+    dz.classList.remove('drag');
+    handleFiles(e.dataTransfer.files);
+  };
+
+  fi.onchange = (e) => {
+    handleFiles(e.target.files);
+    e.target.value = '';
+  };
+
+  $('#themeToggle').onclick = toggleTheme;
+  $('#rtlToggle').onclick = toggleRTL;
+
+  $('#debugTextBtn').onclick = showDebugText;
+  $('#addItemBtn').onclick = () => {
+    const current = collectItems();
+    current.push({ code: '', desc: '', qty: 1, unit: 'pcs', price: 0 });
+    renderItemsTable(current);
+  };
+  $('#cancelBtn').onclick = closePreview;
+  $('#saveBtn').onclick = saveToSupabase;
+
+  $('#previewModal').onclick = (e) => {
+    if (e.target.id === 'previewModal') closePreview();
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePreview();
+    if ((e.metaKey || e.ctrlKey) && e.key === '/') { e.preventDefault(); toggleTheme(); }
+  });
+}
+
+async function handleFiles(files){
+  const arr = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+  if (!arr.length) {
+    toast({type:'warning', title:'No PDF files', message:'Please select PDF files only'});
+    return;
+  }
+  for (const f of arr) {
+    await handleFile(f);
+  }
+}
+
+async function init(){
+  console.log('%c🚀 MFC PDF Import Pro', 'color:#6366f1;font-weight:bold;font-size:14px');
+  initTheme();
+  initRTL();
+  bindEvents();
+  await loadSites();
+  console.log('%c✅ Ready — Phase 6 Complete', 'color:#10b981;font-weight:bold');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
