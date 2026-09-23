@@ -1395,7 +1395,36 @@ async function pullFromSheet(silent){
     const res = await fetch(url + (url.includes("?") ? "&" : "?") + "action=read&t=" + Date.now());
     const json = await res.json();
     if(!json.rows) throw new Error("Unexpected response");
+
     const incoming = mapImportedRows(json.rows);
+
+    /* 🛡️ GUARD 1: Sheet فاضي — لا تستبدل */
+    if(incoming.length === 0){
+      console.warn('[pullFromSheet] Sheet is empty — keeping local data');
+      if(data.length > 0){
+        setLiveStatus('Sheet empty — pushing local...', false);
+        setTimeout(()=> pushToSheet(true), 1000);
+      } else {
+        setLiveStatus('Sheet empty — no local data', false);
+      }
+      return;
+    }
+
+    /* 🛡️ GUARD 2: Sheet فيه أقل من نصف البيانات المحلية */
+    if(data.length > 5 && incoming.length < data.length * 0.5){
+      const ok = confirm(
+        `⚠️ تحذير\n\n` +
+        `Sheet يحتوي ${incoming.length} صف.\n` +
+        `البيانات المحلية ${data.length} صف.\n\n` +
+        `هل تريد استبدال البيانات المحلية ببيانات الـ Sheet؟\n` +
+        `(Cancel = رفع البيانات المحلية بدلاً من ذلك)`
+      );
+      if(!ok){
+        pushToSheet(true);
+        return;
+      }
+    }
+
     const merged = incoming.map(newRow => {
       const existing = data.find(d => d.SiteID && newRow.SiteID && d.SiteID === newRow.SiteID);
       if(existing){
@@ -1413,27 +1442,70 @@ async function pullFromSheet(silent){
       }
       return ensureSiteFields(newRow);
     });
+
     data = merged;
+    window.__lastPushCount = data.length;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     renderAll();
     setLiveStatus("Live · Connected", true);
   }catch(err){
     setLiveStatus("Offline · retry", false);
+    console.error("Sheet pull failed:", err);
   }
 }
-function pushToSheet(){
+function pushToSheet(force){
   const url = getSheetUrl();
   if(!url) return;
+
+  /* 🛡️ GUARD: لا ترفع بيانات فارغة أبداً */
+  if(!data.length){
+    console.warn('[pushToSheet] Skipped: no local data');
+    setLiveStatus('Skipped (empty)', false);
+    return;
+  }
+
+  if(!window.__lastPushCount) window.__lastPushCount = data.length;
+
+  /* 🛡️ GUARD: تأكيد قبل انخفاض كبير */
+  if(!force && window.__lastPushCount > 5 && data.length < window.__lastPushCount * 0.7){
+    const ok = confirm(
+      `⚠️ تحذير مهم\n\n` +
+      `عدد المواقع انخفض من ${window.__lastPushCount} إلى ${data.length}.\n\n` +
+      `الاستمرار سيحذف ${window.__lastPushCount - data.length} موقع من Google Sheet.\n\n` +
+      `هل أنت متأكد؟`
+    );
+    if(!ok){
+      setLiveStatus('Save cancelled', false);
+      return;
+    }
+  }
+
   clearTimeout(pushTimer);
   pushTimer = setTimeout(async ()=>{
     if(isPushing) return;
     isPushing = true;
     setLiveStatus("Saving...", false);
     try{
-      await fetch(url, { method:"POST", body: JSON.stringify(rowsToSheetPayload()) });
+      const payload = rowsToSheetPayload();
+      const res = await fetch(url, { method:"POST", body: JSON.stringify(payload) });
+      const json = await res.json();
+
+      if(!json.ok){
+        toast({
+          type:'error',
+          title:'⛔ Save blocked',
+          message: json.error || 'Server rejected the write',
+          duration: 10000
+        });
+        setLiveStatus('Save blocked', false);
+        return;
+      }
+
+      window.__lastPushCount = data.length;
       setLiveStatus("Live · Connected", true);
     }catch(err){
       setLiveStatus("Save failed", false);
+      console.error('[pushToSheet]', err);
     }finally{ isPushing = false; }
   }, 900);
 }
@@ -3484,8 +3556,19 @@ function initApp(){
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('appRoot').style.display = 'flex';
   loadData();
+
+  if(!data.length){
+    console.warn('[initApp] Local data is empty');
+    setLiveStatus('No local data', false);
+  } else {
+    window.__lastPushCount = data.length;
+    console.log('[initApp] Loaded ' + data.length + ' rows from localStorage');
+  }
+
   renderAll();
   setLiveStatus('Live · Connected', true);
+
+  /* Pull from sheet — آمن مع التعديلات الجديدة */
   pullFromSheet(true);
   startPolling();
 }
