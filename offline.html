@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MFC — Offline</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  background:linear-gradient(135deg,#0f172a 0%,#1e293b 40%,#312e81 100%);
+  color:#f1f5f9;
+  font-family:'Inter',sans-serif;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;min-height:100vh;
+}
+.box{
+  max-width:480px;text-align:center;
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:24px;padding:48px 40px;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+}
+.icon{
+  width:96px;height:96px;border-radius:24px;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;font-size:44px;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(99,102,241,.7);}
+  50%{transform:scale(1.05);box-shadow:0 0 0 20px rgba(99,102,241,0);}
+}
+h1{font-size:26px;font-weight:800;margin-bottom:12px;letter-spacing:-.5px;}
+p{color:#94a3b8;font-size:15px;line-height:1.6;margin-bottom:32px;}
+.status{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 16px;border-radius:9999px;
+  background:rgba(239,68,68,.15);
+  border:1px solid rgba(239,68,68,.3);
+  color:#fca5a5;font-size:13px;font-weight:600;
+  margin-bottom:24px;
+}
+.status::before{
+  content:"";width:8px;height:8px;border-radius:50%;
+  background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.3);
+  animation:pulse 1.5s infinite;
+}
+button{
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:#fff;border:none;padding:14px 32px;
+  border-radius:12px;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 8px 24px rgba(99,102,241,.4);
+}
+button:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(99,102,241,.5);}
+button:active{transform:translateY(0);}
+.logo{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:#64748b;
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:16px;font-weight:700;
+}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">MFC Company</div>
+    <div class="icon">📡</div>
+    <div class="status">Offline</div>
+    <h1>You're Offline</h1>
+    <p>Don't worry — your data is cached locally. Reconnect to sync your latest changes.</p>
+    <button onclick="window.location.reload()">🔄 Try Again</button>
+  </div>
+  <script>
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>
