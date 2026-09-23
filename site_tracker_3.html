@@ -809,6 +809,17 @@ td select{
         </div>
       </div>
       <div class="d-section">
+        <div class="d-section-title">💰 Transport & Crane Cost</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+          <div style="flex:1;">
+            <div style="font-size:13.5px;font-weight:600;">Current Value (IQD)</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:2px;" id="transportCostDisplay">150,000</div>
+          </div>
+          <input type="number" id="transportCostInput" value="150000" style="width:140px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-subtle);color:var(--text);font-family:var(--font-mono);">
+          <button class="btn btn-primary btn-sm" id="saveTransportBtn">Save</button>
+        </div>
+      </div>
+      <div class="d-section">
         <div class="d-section-title">Appearance</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
           <button class="btn btn-outline btn-sm theme-opt" data-theme-opt="light">Light</button>
@@ -850,6 +861,16 @@ td select{
     <div class="modal-head" style="background:var(--navy-900);color:#fff;border:none;">
       <h3 style="color:#fff;">🗺️ Site Map</h3>
       <p style="color:#8fa3c2;">Click sites to select · Copy Lat/Long · Colors by status</p>
+    </div>
+    <div style="padding:10px 20px;background:var(--bg-subtle);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <label style="font-size:12.5px;font-weight:600;color:var(--text-dim);">Map Filter:</label>
+      <select id="mapVisibilityFilter" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);font-size:12.5px;cursor:pointer;">
+        <option value="yes">Show on Map = Yes</option>
+        <option value="all">All Sites</option>
+        <option value="no">Show on Map = No</option>
+      </select>
+      <div style="flex:1;"></div>
+      <span id="mapSiteCount" style="font-size:12px;color:var(--text-dim);font-family:var(--font-mono);"></span>
     </div>
     <div id="leafletMap" style="height:70vh;width:100%;"></div>
     <div id="mapToolbar" class="map-toolbar" style="display:none;">
@@ -894,18 +915,86 @@ const DENSITY_KEY = "mfc_density";
 const PINNED_KEY  = "mfc_pinned_columns";
 const VALID_USER  = "MFC";
 const VALID_PASS  = "MFC@1234";
-const TRANSPORT_COST = 150000;
-
+let TRANSPORT_COST = parseFloat(localStorage.getItem('mfc_transport_cost')) || 150000;
 /* Supabase client */
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+  function redrawMapMarkers(){
+  if(!leafletInstance) return;
+  const filter = document.getElementById('mapVisibilityFilter')?.value || 'yes';
+  
+  // احذف كل الـ markers القديمة
+  Object.values(mapMarkers).forEach(m => leafletInstance.removeLayer(m));
+  mapMarkers = {};
+  
+  const getColor = (r)=>{
+    const s = (r.States||'').toLowerCase();
+    if(s === 'accepted') return '#10b981';
+    if(s === 'in progress') return '#f59e0b';
+    if(s === 'rejected') return '#ef4444';
+    return '#6b7280';
+  };
+  
+  let count = 0;
+  
+  const groups = new Map();
+  data.forEach(r => {
+    if(!r.LAT || !r.Long) return;
+    const showVal = (r['Show on Map'] || 'Yes').toLowerCase();
+    if(filter === 'yes' && showVal !== 'yes') return;
+    if(filter === 'no' && showVal !== 'no') return;
+    
+    const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
+    if(isNaN(lat) || isNaN(lng)) return;
+    const key = lat.toFixed(4) + ',' + lng.toFixed(4);
+    if(!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({r, lat, lng});
+  });
+  
+  groups.forEach(group => {
+    const first = group[0];
+    const r = first.r;
+    const color = getColor(r);
+    
+    if(group.length === 1){
+      const marker = L.circleMarker([first.lat, first.lng], {
+        radius: 9, fillColor: color, color: '#fff',
+        weight: 2.5, opacity: 1, fillOpacity: 0.95
+      }).addTo(leafletInstance);
+      marker.siteId = r._id;
+      mapMarkers[r._id] = marker;
+      marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
+        permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
+      });
+      marker.bindPopup(buildPopupHtml(r), { maxWidth: 300 });
+      marker.on('click', (e)=>{
+        L.DomEvent.stopPropagation(e);
+        toggleMapSelection(r._id, marker, color);
+      });
+      count++;
+    } else {
+      const marker = L.circleMarker([first.lat, first.lng], {
+        radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff',
+        weight: 2, opacity: 1, fillOpacity: 0.9
+      }).addTo(leafletInstance);
+      marker.bindTooltip(`<b>${group.length} sites</b>`, {
+        permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
+      });
+      count += group.length;
+    }
+  });
+  
+  const countEl = document.getElementById('mapSiteCount');
+  if(countEl) countEl.textContent = count + ' sites shown';
+}
 
 /* =========================================================
    COLUMNS — النسخة الجديدة
    ========================================================= */
 const COLUMNS = [
-  "SiteID","Gov",
+  "SiteID","Gov","Show on Map",
   "Photo Report","Photo Report Reason",
+    "States","Sub Status","Status Rejection Reason",
   "FLM Feedback","FLM Rejection Reason",
   "Saif Tool","Team",
   "Nokia Comments","Nokia Rejection Reason",
@@ -948,14 +1037,14 @@ const HIDDEN_BY_DEFAULT = [
 
 /* DB mapping */
 const DB_MAP = {
-  "SiteID":"site_id","Gov":"gov",
+   "SiteID":"site_id","Gov":"gov","Show on Map":"show_on_map",
   "Photo Report":"photo_report","Photo Report Reason":"photo_report_reason",
   "FLM Feedback":"flm_feedback","FLM Rejection Reason":"flm_rejection_reason",
   "Saif Tool":"saif_tool","Team":"team",
   "Nokia Comments":"nokia_comments","Nokia Rejection Reason":"nokia_rejection_reason",
   "Extra Scope":"extra_scope","Main Scope":"main_scope","FTK Status":"ftk_status",
   "Details of request":"details_of_request","Date":"date_field",
-  "States":"states","Status Rejection Reason":"status_rejection_reason",
+   "States":"states","Sub Status":"sub_status","Status Rejection Reason":"status_rejection_reason",
   "PO":"po","PO2":"po2","Pending Payment":"pending_payment",
   "Nokia Price":"nokia_price","Subcon Price":"subcon_price",
   "Paid Amount":"paid_amount","Balance":"balance",
@@ -978,8 +1067,10 @@ const DROPDOWN_OPTIONS = {
   "Nokia Comments": ["Pending", "In Progress", "Accepted", "Rejected"],
   "Main Scope": ["FTK", "TDD", "MM", "4th Sector"],
   "States": ["In Progress", "Accepted", "Rejected"],
+  "Sub Status": ["Done", "Pending"],
   "Payment Status": ["Paid", "Unpaid", "In Progress"],
-  "FTK Status": ["Done", "Not Done"]
+  "FTK Status": ["Done", "Not Done"],
+  "Show on Map": ["Yes", "No"]
 };
 
 /* الأعمدة التي تحتاج سبب عند اختيار قيمة معينة */
@@ -1008,7 +1099,8 @@ const REASON_REQUIRED = {
 
 /* الأعمدة الشرطية (تظهر فقط في حالة معينة) */
 const CONDITIONAL_COLS = {
-  "FTK Status": { dependsOn: "Main Scope", value: "FTK" }
+  "FTK Status": { dependsOn: "Main Scope", value: "FTK" },
+  "Sub Status": { dependsOn: "States", value: "In Progress" }
 };
 
 /* =========================================================
@@ -1331,9 +1423,15 @@ function createDropdown(col, currentVal, rowIdx){
       }, 100);
     }
 
-    // إذا تغيّر States → أعِد حساب Total Cost
+       // إذا تغيّر States → أعِد حساب Total Cost + حدّث Sub Status
     if(col === 'States'){
       recalcTotalCost(rowIdx);
+      // إذا In Progress → أظهر Sub Status / إذا Accepted → أخفِ Sub Status
+      renderHead();
+      renderBody();
+      if(newVal === 'In Progress'){
+        setTimeout(()=> toast({type:'info', title:'Sub Status', message:'اختر Done أو Pending من العمود التالي'}), 300);
+      }
     }
 
     // إذا تغيّر Main Scope → حدّث العرض (FTK Status يظهر/يختفي)
@@ -1461,10 +1559,17 @@ function renderHead(){
   thChk.onclick = (e) => e.stopPropagation();
   headRow.appendChild(thChk);
 
-  COLUMNS.forEach((col)=>{
+    COLUMNS.forEach((col)=>{
     // تخطي الأعمدة المخفية افتراضياً إذا لم تكن هناك بيانات
     const hasData = data.some(r => r[col]);
     if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
+
+    // احترام CONDITIONAL_COLS — إذا كان العمود شرطي ولم يتحقق → لا تعرضه
+    if(CONDITIONAL_COLS[col]){
+      const rule = CONDITIONAL_COLS[col];
+      const hasMatch = data.some(r => r[rule.dependsOn] === rule.value);
+      if(!hasMatch) return;
+    }
 
     const th = document.createElement('th');
     th.className = NUM_COLS.includes(col) ? 'num' : '';
@@ -1653,10 +1758,16 @@ function renderBody(){
     tdChk.appendChild(chk);
     tr.appendChild(tdChk);
 
-    COLUMNS.forEach((col)=>{
+        COLUMNS.forEach((col)=>{
       // تخطي الأعمدة المخفية افتراضياً إذا لم يكن لها بيانات
       const hasData = data.some(x => x[col]);
       if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
+
+      // احترام CONDITIONAL_COLS
+      if(CONDITIONAL_COLS[col]){
+        const rule = CONDITIONAL_COLS[col];
+        if(r[rule.dependsOn] !== rule.value) return;
+      }
 
       const td = document.createElement('td');
       let val = r[col] || '';
@@ -2656,9 +2767,11 @@ function openMap(){
     };
 
     // تجميع السايتات حسب الإحداثيات
-    const groups = new Map();
+       const groups = new Map();
     data.forEach(r => {
       if(!r.LAT || !r.Long) return;
+      // فلترة حسب Show on Map
+      if((r['Show on Map'] || 'Yes').toLowerCase() === 'no') return;
       const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
       if(isNaN(lat) || isNaN(lng)) return;
       const key = lat.toFixed(4) + ',' + lng.toFixed(4);
@@ -2837,7 +2950,73 @@ function closeMap(){
   mapSelectedSites.clear();
   mapMarkers = {};
 }
-
+function redrawMapMarkers(){
+  if(!leafletInstance) return;
+  const filter = document.getElementById('mapVisibilityFilter')?.value || 'yes';
+  
+  Object.values(mapMarkers).forEach(m => leafletInstance.removeLayer(m));
+  mapMarkers = {};
+  
+  const getColor = (r)=>{
+    const s = (r.States||'').toLowerCase();
+    if(s === 'accepted') return '#10b981';
+    if(s === 'in progress') return '#f59e0b';
+    if(s === 'rejected') return '#ef4444';
+    return '#6b7280';
+  };
+  
+  let count = 0;
+  
+  const groups = new Map();
+  data.forEach(r => {
+    if(!r.LAT || !r.Long) return;
+    const showVal = (r['Show on Map'] || 'Yes').toLowerCase();
+    if(filter === 'yes' && showVal !== 'yes') return;
+    if(filter === 'no' && showVal !== 'no') return;
+    
+    const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
+    if(isNaN(lat) || isNaN(lng)) return;
+    const key = lat.toFixed(4) + ',' + lng.toFixed(4);
+    if(!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({r, lat, lng});
+  });
+  
+  groups.forEach(group => {
+    const first = group[0];
+    const r = first.r;
+    const color = getColor(r);
+    
+    if(group.length === 1){
+      const marker = L.circleMarker([first.lat, first.lng], {
+        radius: 9, fillColor: color, color: '#fff',
+        weight: 2.5, opacity: 1, fillOpacity: 0.95
+      }).addTo(leafletInstance);
+      marker.siteId = r._id;
+      mapMarkers[r._id] = marker;
+      marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
+        permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
+      });
+      marker.bindPopup(buildPopupHtml(r), { maxWidth: 300 });
+      marker.on('click', (e)=>{
+        L.DomEvent.stopPropagation(e);
+        toggleMapSelection(r._id, marker, color);
+      });
+      count++;
+    } else {
+      const marker = L.circleMarker([first.lat, first.lng], {
+        radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff',
+        weight: 2, opacity: 1, fillOpacity: 0.9
+      }).addTo(leafletInstance);
+      marker.bindTooltip(`<b>${group.length} sites</b>`, {
+        permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
+      });
+      count += group.length;
+    }
+  });
+  
+  const countEl = document.getElementById('mapSiteCount');
+  if(countEl) countEl.textContent = count + ' sites shown';
+}
 /* =========================================================
    COMMAND PALETTE
    ========================================================= */
@@ -2998,7 +3177,38 @@ function openSettings(){
 /* =========================================================
 /* =========================================================
    EVENT BINDINGS
+   
+   
    ========================================================= */
+  /* ---- Transport Cost Settings ---- */
+(function initTransportSetting(){
+  const input = document.getElementById('transportCostInput');
+  const display = document.getElementById('transportCostDisplay');
+  const btn = document.getElementById('saveTransportBtn');
+  if(!input || !btn) return;
+  
+  input.value = TRANSPORT_COST;
+  display.textContent = TRANSPORT_COST.toLocaleString();
+  
+  btn.onclick = ()=>{
+    const val = parseFloat(input.value);
+    if(isNaN(val) || val < 0){
+      toast({type:'error', title:'Invalid value'});
+      return;
+    }
+    TRANSPORT_COST = val;
+    localStorage.setItem('mfc_transport_cost', String(val));
+    display.textContent = val.toLocaleString();
+    // تحديث كل السايتات
+    data.forEach((r, i) => {
+      r['Transport & Crane'] = String(val);
+      const subcon = parseFloat(r['Subcon Price']) || 0;
+      r['Total Cost'] = String(subcon + val);
+    });
+    renderAll();
+    toast({type:'success', title:'Transport Cost updated', message: val.toLocaleString() + ' IQD'});
+  };
+})();
 
 /* ---- Search ---- */
 document.getElementById('searchInput').addEventListener('input', ()=>{
@@ -3093,10 +3303,22 @@ document.getElementById('mapModal').addEventListener('click', e=>{
   if(e.target.id === 'mapModal') closeMap();
 });
 
+/* ---- Map Visibility Filter ---- */
+document.getElementById('mapVisibilityFilter').addEventListener('change', ()=>{
+  if(leafletInstance){
+    leafletInstance.eachLayer(layer => {
+      if(layer instanceof L.CircleMarker){
+        leafletInstance.removeLayer(layer);
+      }
+    });
+    redrawMapMarkers();
+  }
+});
+
 /* ---- Map Toolbar Buttons ---- */
 document.getElementById('mapCopyCoords').onclick = copySelectedCoords;
 document.getElementById('mapCopyLinks').onclick = copySelectedLinks;
-document.getElementById('mapClearSel').onclick = ()=>{
+document.getElementById('mapClearSel').onclick = ()=>{ ... };
   mapSelectedSites.forEach(id => {
     const marker = mapMarkers[id];
     if(marker){
