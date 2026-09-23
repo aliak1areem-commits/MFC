@@ -1113,11 +1113,10 @@ function dbRowToSite(row){
     }
   });
 
-  if(!site["Transport & Crane"]) site["Transport & Crane"] = String(TRANSPORT_COST);
+    // لا تعطيه قيمة افتراضية — اتركه فارغاً إذا لم يوجد
   const subcon = parseFloat(site["Subcon Price"]) || 0;
-  const transport = parseFloat(site["Transport & Crane"]) || TRANSPORT_COST;
+  const transport = parseFloat(site["Transport & Crane"]) || 0;
   site["Total Cost"] = String(subcon + transport);
-
   if(!site["Show on Map"]) site["Show on Map"] = "Yes";
 
   site._id = row.id;
@@ -1145,9 +1144,15 @@ function siteToDbRow(site){
   COLUMNS.forEach(col => {
     const dbCol = DB_MAP[col];
     if(!dbCol) return;
-    if(NUM_COLS.includes(col)){
-      const n = parseFloat(String(site[col]||'').replace(/,/g,''));
-      row[dbCol] = isNaN(n) ? 0 : n;
+        if(NUM_COLS.includes(col)){
+      // إذا كان الحقل فارغاً → احفظ 0
+      const rawVal = String(site[col]||'').trim();
+      if(rawVal === ''){
+        row[dbCol] = 0;
+      } else {
+        const n = parseFloat(rawVal.replace(/,/g,''));
+        row[dbCol] = isNaN(n) ? 0 : n;
+      }
     } else {
       row[dbCol] = site[col] || "";
     }
@@ -1283,7 +1288,7 @@ function computeBalance(row){
 function recalcTotalCost(idx){
   const row = data[idx];
   const subcon = parseFloat(row['Subcon Price']) || 0;
-  const transport = parseFloat(row['Transport & Crane']) || TRANSPORT_COST;
+  const transport = parseFloat(row['Transport & Crane']) || 0;
   row['Total Cost'] = String(subcon + transport);
 }
 
@@ -1400,7 +1405,7 @@ function renderStats(){
   const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Price'])||0), 0);
   const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Subcon Price'])||0), 0);
   const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Paid Amount'])||0), 0);
-  const totalTransport = data.reduce((s,r)=> s + (parseFloat(r['Transport & Crane'])||TRANSPORT_COST), 0);
+    const totalTransport = data.reduce((s,r)=> s + (parseFloat(r['Transport & Crane'])||0), 0);
   const totalCost   = data.reduce((s,r)=> s + (parseFloat(r['Total Cost'])||0), 0);
   const totalBalance = totalSubcon - totalPaid;
 
@@ -1677,9 +1682,9 @@ function renderBody(){
       let val = r[col] || '';
       td.setAttribute('data-label', col);
 
-      if(col === 'Total Cost'){
+            if(col === 'Total Cost'){
         const subcon = parseFloat(r['Subcon Price']) || 0;
-        const transport = parseFloat(r['Transport & Crane']) || TRANSPORT_COST;
+        const transport = parseFloat(r['Transport & Crane']) || 0;
         td.className = 'num calc';
         td.textContent = (subcon + transport).toLocaleString();
         tr.appendChild(td);
@@ -1694,10 +1699,11 @@ function renderBody(){
         return;
       }
 
-      if(col === 'Transport & Crane'){
+           if(col === 'Transport & Crane'){
         td.className = 'num';
         td.style.cursor = 'text';
-        td.textContent = (parseFloat(r[col]) || TRANSPORT_COST).toLocaleString();
+        const transportVal = parseFloat(r[col]);
+        td.textContent = isNaN(transportVal) ? '' : transportVal.toLocaleString();
         td.contentEditable = 'true';
         tr.appendChild(td);
         return;
@@ -2270,8 +2276,8 @@ async function savePDFImport(){
     const blank = {};
     COLUMNS.forEach(c=> blank[c] = '');
     blank.SiteID = siteId || '';
-    blank["Transport & Crane"] = String(TRANSPORT_COST);
-    blank["Total Cost"] = String(TRANSPORT_COST);
+        blank["Transport & Crane"] = "";
+    blank["Total Cost"] = "0";
     blank["Show on Map"] = "Yes";
     blank.smr = { number, items };
     blank.consumption = [];
@@ -3020,8 +3026,8 @@ document.getElementById('dataTable').className = 'dt density-' + savedDensity;
 document.getElementById('addRowBtn').onclick = async ()=>{
   const blank = {};
   COLUMNS.forEach(c=> blank[c] = '');
-  blank["Transport & Crane"] = String(TRANSPORT_COST);
-  blank["Total Cost"] = String(TRANSPORT_COST);
+  blank["Transport & Crane"] = "";       // ← فارغ
+  blank["Total Cost"] = "0";
   blank["Show on Map"] = "Yes";
   blank.smr = { number:"", items: [] };
   blank.consumption = [];
@@ -3144,16 +3150,24 @@ document.getElementById('logoutBtn').onclick = ()=>{
       toast({type:'error', title:'Invalid value'});
       return;
     }
-    TRANSPORT_COST = val;
-    localStorage.setItem('mfc_transport_cost', String(val));
+    // اسأل: هل تريد تطبيقها على كل السايتات؟
+    if(confirm('تطبيق هذه القيمة على كل السايتات؟\n\nاضغط Cancel لاستخدامها فقط كقيمة افتراضية للسايتات الجديدة.')){
+      TRANSPORT_COST = val;
+      localStorage.setItem('mfc_transport_cost', String(val));
+      data.forEach((r, i) => {
+        r['Transport & Crane'] = String(val);
+        const subcon = parseFloat(r['Subcon Price']) || 0;
+        r['Total Cost'] = String(subcon + val);
+      });
+      renderAll();
+      toast({type:'success', title:'Applied to all sites', message: val.toLocaleString() + ' IQD'});
+    } else {
+      // فقط خزّن كقيمة افتراضية
+      TRANSPORT_COST = val;
+      localStorage.setItem('mfc_transport_cost', String(val));
+      toast({type:'info', title:'Default value updated', message:'سيُطبق على السايتات الجديدة فقط'});
+    }
     display.textContent = val.toLocaleString();
-    data.forEach((r, i) => {
-      r['Transport & Crane'] = String(val);
-      const subcon = parseFloat(r['Subcon Price']) || 0;
-      r['Total Cost'] = String(subcon + val);
-    });
-    renderAll();
-    toast({type:'success', title:'Transport Cost updated', message: val.toLocaleString() + ' IQD'});
   };
 })();
 
