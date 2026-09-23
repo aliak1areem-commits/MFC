@@ -596,6 +596,33 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   .container{padding:0;}
   table.dt tbody td{max-width:none;padding:6px;}
 }
+  /* ==== Map Site Labels ==== */
+.site-label {
+  background: rgba(255,255,255,0.95) !important;
+  border: 1px solid rgba(37,99,235,.3) !important;
+  border-radius: 6px !important;
+  padding: 2px 8px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #1d4ed8 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15) !important;
+  white-space: nowrap !important;
+}
+.site-label::before {
+  border-top-color: rgba(37,99,235,.3) !important;
+}
+
+[data-theme="dark"] .site-label,
+[data-theme="midnight"] .site-label {
+  background: rgba(17,24,39,0.95) !important;
+  border-color: rgba(96,165,250,.4) !important;
+  color: #60a5fa !important;
+}
+[data-theme="dark"] .site-label::before,
+[data-theme="midnight"] .site-label::before {
+  border-top-color: rgba(96,165,250,.4) !important;
+}
 </style>
 </head>
 <body>
@@ -3448,6 +3475,7 @@ document.getElementById('mapBtn').onclick = ()=>{
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18, attribution: '© OpenStreetMap'
     }).addTo(leafletInstance);
+
     const getColor = (r)=>{
       const s = (r.States||'').toLowerCase();
       if(s === 'done') return '#10b981';
@@ -3455,25 +3483,108 @@ document.getElementById('mapBtn').onclick = ()=>{
       if(s.includes('hold')) return '#ef4444';
       return '#6b7280';
     };
+
+    /* Group markers by location to avoid overlap */
+    const locationGroups = new Map();
     data.forEach(r => {
       if(!r.LAT || !r.Long) return;
       const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
       if(isNaN(lat) || isNaN(lng)) return;
-      const marker = L.circleMarker([lat, lng], {
-        radius: 7, fillColor: getColor(r), color: '#fff',
-        weight: 2, opacity: 1, fillOpacity: 0.9
-      }).addTo(leafletInstance);
-      marker.bindPopup(`
-        <div style="font-family:Inter,sans-serif;font-size:13px;min-width:180px;">
-          <b style="font-size:14px;">Site ${escapeHtml(r.SiteID)}</b><br>
-          <span style="color:#6b7280;">${escapeHtml(r.Gov||'')} · ${escapeHtml(r.Team||'')}</span><br>
-          <span style="color:#6b7280;">${escapeHtml(r.States||'—')}</span><br>
-          <b style="color:#2563eb;">${(parseFloat(r['Amount to subcon'])||0).toLocaleString()} IQD</b><br>
-          <button onclick="window.__openSiteFromMap('${r.SiteID}')" style="margin-top:6px;padding:4px 10px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;">Open Details</button>
-        </div>
-      `);
+      const key = lat.toFixed(4) + ',' + lng.toFixed(4);
+      if(!locationGroups.has(key)) locationGroups.set(key, []);
+      locationGroups.get(key).push({r, lat, lng});
     });
+
+    /* Render each location */
+    locationGroups.forEach(group => {
+      const first = group[0];
+
+      /* If single site — show marker + label */
+      if(group.length === 1){
+        const r = first.r;
+        const marker = L.circleMarker([first.lat, first.lng], {
+          radius: 7,
+          fillColor: getColor(r),
+          color: '#fff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        }).addTo(leafletInstance);
+
+        /* Label with Site ID (permanent tooltip) */
+        marker.bindTooltip(
+          `<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`,
+          {
+            permanent: true,
+            direction: 'top',
+            offset: [0, -8],
+            className: 'site-label',
+            opacity: 1
+          }
+        );
+
+        /* Popup with full details */
+        marker.bindPopup(`
+          <div style="font-family:Inter,sans-serif;font-size:13px;min-width:180px;">
+            <b style="font-size:14px;">Site ${escapeHtml(r.SiteID)}</b><br>
+            <span style="color:#6b7280;">${escapeHtml(r.Gov||'')} · ${escapeHtml(r.Team||'')}</span><br>
+            <span style="color:#6b7280;">${escapeHtml(r.States||'—')}</span><br>
+            <b style="color:#2563eb;">${(parseFloat(r['Amount to subcon'])||0).toLocaleString()} IQD</b><br>
+            <button onclick="window.__openSiteFromMap('${escapeHtml(r.SiteID)}')" style="margin-top:6px;padding:4px 10px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;">Open Details</button>
+          </div>
+        `);
+      }
+      /* If multiple sites at same spot — show cluster */
+      else {
+        const ids = group.map(g => g.r.SiteID).join(', ');
+        const marker = L.circleMarker([first.lat, first.lng], {
+          radius: 10 + group.length * 2,
+          fillColor: '#8b5cf6',
+          color: '#fff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        }).addTo(leafletInstance);
+
+        marker.bindTooltip(
+          `<b style="font-size:11px;">${group.length} sites</b>`,
+          {
+            permanent: true,
+            direction: 'top',
+            offset: [0, -12],
+            className: 'site-label',
+            opacity: 1
+          }
+        );
+
+        marker.bindPopup(`
+          <div style="font-family:Inter,sans-serif;font-size:13px;min-width:180px;">
+            <b style="font-size:14px;">${group.length} Sites</b><br>
+            <div style="color:#6b7280;font-size:11.5px;margin-top:4px;">${escapeHtml(ids)}</div>
+            <button onclick="window.__openMultiFromMap('${escapeHtml(ids)}')" style="margin-top:6px;padding:4px 10px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;">Open Details</button>
+          </div>
+        `);
+      }
+    });
+
+    /* Fit bounds to all markers */
+    const allPoints = Array.from(locationGroups.values())
+      .flat()
+      .map(g => [g.lat, g.lng]);
+    if(allPoints.length){
+      leafletInstance.fitBounds(allPoints, { padding: [40, 40], maxZoom: 12 });
+    }
   }, 100);
+};
+
+/* Helper: open site from cluster */
+window.__openMultiFromMap = (ids)=>{
+  const firstId = ids.split(',')[0].trim();
+  const idx = data.findIndex(r => r.SiteID === firstId);
+  if(idx >= 0){
+    document.getElementById('mapModal').classList.remove('show');
+    openSiteDrawer(idx);
+  }
 };
 window.__openSiteFromMap = (siteId)=>{
   const idx = data.findIndex(r => r.SiteID === siteId);
