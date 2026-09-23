@@ -1751,24 +1751,34 @@ function parseSMRFromStructure(pages){
   const dateM = allText.match(/\b(\d{1,2}[-\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\s]\d{2,4})\b/i);
   result.date = normalizeDate(dateM ? dateM[1] : "");
 
+  // ============ DEBUG: اطبع النص في console ============
+  console.log('=== PDF TEXT ===');
+  console.log(allText);
+  console.log('=== END PDF TEXT ===');
+
+  // ============ استخراج مرن: ابحث عن أي صف يحتوي Index + Qty ============
   let headerInfo = null;
   for(const p of pages){
     for(let ri = 0; ri < p.rows.length; ri++){
       const row = p.rows[ri];
       const texts = row.cells.map(c => c.str.toLowerCase().trim());
-      const hasIndex   = texts.some(t => /^index$/i.test(t));
-      const hasProduct = texts.some(t => /product|item/i.test(t));
-      const hasQty     = texts.some(t => /^qty$|^quantity$|accepted\s*qty/i.test(t));
-      const hasSerial  = texts.some(t => /serial/i.test(t));
-      if(hasIndex && hasQty && (hasProduct || hasSerial)){
+      
+      // شرط أكثر تسامحاً: ابحث عن "index" + "qty" فقط
+      const hasIndex = texts.some(t => /index|^no\.?$|^#$/i.test(t));
+      const hasQty   = texts.some(t => /qty|quantity|accepted/i.test(t));
+      
+      if(hasIndex && hasQty){
         const map = {};
         texts.forEach((t, i)=>{
-          if(/^index$/i.test(t)) map.indexIdx = i;
-          else if(/product\s*number|^product$/i.test(t)) map.codeIdx = i;
-          else if(/item\s*description|^description$/i.test(t)) map.descIdx = i;
-          else if(/^qty$|^quantity$/i.test(t)) map.qtyIdx = i;
+          if(/index|^no\.?$|^#$/i.test(t)) map.indexIdx = i;
+          else if(/product|item|code|material/i.test(t)) map.codeIdx = i;
+          else if(/description|desc/i.test(t)) map.descIdx = i;
+          else if(/qty|quantity|accepted/i.test(t)) map.qtyIdx = i;
+          else if(/unit|uom/i.test(t)) map.unitIdx = i;
         });
         headerInfo = { page: p, row: row, map: map, y: row.y };
+        console.log('✅ Header found at page', p.pageNum, 'row', ri);
+        console.log('   Map:', map);
         result.debugLog.push('✅ Header found');
         break;
       }
@@ -1779,39 +1789,55 @@ function parseSMRFromStructure(pages){
   if(headerInfo){
     const headerY = headerInfo.y;
     const map = headerInfo.map;
-    const isNumber = (s) => /^\d{1,6}(\.\d{1,4})?$/.test(s.replace(/,/g,''));
+    const isNumber = (s) => /^\d{1,6}(\.\d{1,4})?$/.test(String(s).replace(/,/g,''));
 
     pages.forEach(p => {
       p.rows.forEach(row => {
         if(row.y >= headerY || row === headerInfo.row) return;
         const cells = row.cells;
-        if(cells.length < 4) return;
+        if(cells.length < 2) return;
+        
         const firstCell = cells[0]?.str.replace(/,/g,'').trim() || '';
-        if(!/^\d{1,4}$/.test(firstCell)) return;
+        if(!/^\d{1,5}$/.test(firstCell)) return;
+        
         const codeCell = cells[map.codeIdx ?? 1];
         if(!codeCell) return;
         const code = codeCell.str.trim();
-        if(code.length < 2) return;
+        if(code.length < 1) return;
 
         let qty = null;
         if(map.qtyIdx !== undefined && cells[map.qtyIdx]){
           const q = cells[map.qtyIdx].str.replace(/,/g,'').trim();
           if(isNumber(q)) qty = parseFloat(q);
         }
+        // إذا لم يجد qty بالعمود المحدد، ابحث عن أي رقم في الصف
+        if(qty === null){
+          for(const c of cells){
+            const q = c.str.replace(/,/g,'').trim();
+            if(/^\d{1,6}(\.\d{1,4})?$/.test(q)){
+              const n = parseFloat(q);
+              if(n > 0 && n < 100000){ qty = n; break; }
+            }
+          }
+        }
         if(qty === null || qty <= 0) return;
 
         let desc = '';
         const codeIdx = map.codeIdx ?? 1;
         const qtyIdx = map.qtyIdx;
-        if(qtyIdx > codeIdx + 1){
+        if(qtyIdx !== undefined && qtyIdx > codeIdx + 1){
           desc = cells.slice(codeIdx+1, qtyIdx).map(c=>c.str).join(' ').trim();
         } else if(map.descIdx !== undefined && cells[map.descIdx]){
           desc = cells[map.descIdx].str;
         }
 
         let unit = 'pcs';
-        const unitCell = cells.find(c => /^(pcs?|pc|m|mtr|meter|kit|set|roll|box|unit)$/i.test(c.str.trim()));
-        if(unitCell) unit = unitCell.str.toLowerCase();
+        if(map.unitIdx !== undefined && cells[map.unitIdx]){
+          unit = cells[map.unitIdx].str.toLowerCase();
+        } else {
+          const unitCell = cells.find(c => /^(pcs?|pc|m|mtr|meter|kit|set|roll|box|unit)$/i.test(c.str.trim()));
+          if(unitCell) unit = unitCell.str.toLowerCase();
+        }
 
         const key = code.toLowerCase();
         if(result.items.some(it => it.code.toLowerCase() === key)) return;
@@ -1822,12 +1848,31 @@ function parseSMRFromStructure(pages){
     result.debugLog.push('Extracted ' + result.items.length + ' items');
   }
 
+  // ============ Fallback: استخراج من النص ============
   if(!result.items.length){
-    result.warning = "No items auto-detected.";
+    console.log('[Fallback] Trying text-based extraction...');
+    const lines = allText.split(/\n/).map(l => l.trim()).filter(Boolean);
+    const seen = new Set();
+    for(const line of lines){
+      // نمط: "1  CODE  Description  5  pcs"
+      const m = line.match(/^\d{1,4}[\s\t]+([A-Z0-9][\w\-\.\/]{2,})[\s\t]+(.+?)[\s\t]+(\d+(?:\.\d+)?)[\s\t]*([a-zA-Z]{1,5})?$/i);
+      if(m){
+        const code = m[1], desc = m[2].trim(), qty = parseFloat(m[3]), unit = m[4] || 'pcs';
+        const key = code.toLowerCase();
+        if(!seen.has(key) && qty > 0 && qty < 100000){
+          seen.add(key);
+          result.items.push({ code, desc, qty, unit, price: 0 });
+        }
+      }
+    }
+    console.log('[Fallback] Found', result.items.length, 'items');
+  }
+
+  if(!result.items.length){
+    result.warning = "No items auto-detected. Press 'Debug Text' to see the extracted text.";
   }
   return result;
 }
-
 /* =========================================================
    PDF IMPORT MODAL
    ========================================================= */
