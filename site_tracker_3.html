@@ -1846,9 +1846,6 @@ function updateSelectedCount(){
   if(el) el.textContent = selectedSites.size > 0 ? `· ${selectedSites.size} selected` : '';
 }
 
-/* =========================================================
-   RENDER CHARTS
-   ========================================================= */
 function renderCharts(){
   const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#6b7280';
   const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#e5e7eb';
