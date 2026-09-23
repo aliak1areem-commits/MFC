@@ -928,24 +928,10 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none;" multiple>
 
 <script>
-/* =========================================================
-   GLOBAL ERROR HANDLER (يظهر أي خطأ في الـ console بوضوح)
-   ========================================================= */
-window.addEventListener('error', (e) => {
-  console.error('❌ Global error:', e.message, 'at', e.filename, e.lineno);
-});
-window.addEventListener('unhandledrejection', (e) => {
-  console.error('❌ Unhandled promise rejection:', e.reason);
-});
-
-/* =========================================================
+  /* =========================================================
    CONFIG
    ========================================================= */
 const SUPABASE_URL = "https://bagbnoupsnsltflgwpic.supabase.co";
-
-/* ⚠️ استبدل هذا المفتاح بمفتاح anon الحقيقي من:
-   Supabase Dashboard → Project Settings → API → anon public
-   يجب أن يبدأ بـ eyJhbGciOiJIUzI1NiIs... وطوله ~200 حرف */
 const SUPABASE_KEY = "sb_publishable_jyov6Yn5ulwm3fj3lIs9yw_IDZVhYMd";
 
 const STORAGE_KEY = "mfc_site_tracker_data_v8";
@@ -956,31 +942,9 @@ const PINNED_KEY  = "mfc_pinned_columns";
 const VALID_USER  = "MFC";
 const VALID_PASS  = "MFC@1234";
 
-/* =========================================================
-   SUPABASE CLIENT (محمي من الأخطاء)
-   ========================================================= */
-let db = null;
-let supabaseReady = false;
-
-(function initSupabase(){
-  try {
-    if (typeof supabase === 'undefined') {
-      console.error('❌ Supabase library not loaded from CDN');
-      return;
-    }
-    if (typeof supabase.createClient !== 'function') {
-      console.error('❌ supabase.createClient is not a function');
-      return;
-    }
-    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    supabaseReady = true;
-    console.log('✅ Supabase client initialized');
-  } catch (e) {
-    console.error('❌ Supabase init failed:', e);
-    db = null;
-    supabaseReady = false;
-  }
-})();
+/* Supabase client */
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* =========================================================
    COLUMNS
@@ -999,6 +963,7 @@ const CALC_COLS  = ["Balance"];
 const WIDE_COLS  = ["Team","Nokia Comments","Extra Scope","Snags 1","Snags 2","Field Engineer","Subcontractor","SMR Drive URL"];
 const BADGE_COLS = ["FLM Feedback","Saif Tool","States","Payment Status"];
 
+/* DB mapping */
 const DB_MAP = {
   "SiteID":"site_id","Gov":"gov","Photo Report":"photo_report","FLM Feedback":"flm_feedback",
   "Saif Tool":"saif_tool","Team":"team","Nokia Comments":"nokia_comments","Extra Scope":"extra_scope",
@@ -1075,6 +1040,10 @@ function setLiveStatus(text, ok=true){
     const dot = el.parentElement.querySelector('.live-dot');
     if(dot) dot.style.background = ok ? '#10b981' : '#f59e0b';
   }
+  const badge = document.getElementById('syncBadge');
+  const badgeText = document.getElementById('syncBadgeText');
+  if(badge) badge.className = 'sync-badge ' + (ok ? 'connected' : 'syncing');
+  if(badgeText) badgeText.textContent = text;
   const settingsEl = document.getElementById('settingsSyncStatus');
   if(settingsEl) settingsEl.textContent = text;
 }
@@ -1140,14 +1109,9 @@ function siteToDbRow(site){
 }
 
 /* =========================================================
-   SUPABASE: CRUD (محمي)
+   SUPABASE: CRUD
    ========================================================= */
 async function supabaseLoad(){
-  if(!db){
-    setLiveStatus("Supabase غير متاح", false);
-    toast({type:'warning', title:'Offline mode', message:'تعذر الاتصال بـ Supabase. تحقق من المفتاح.'});
-    return;
-  }
   setLiveStatus("Loading...", false);
   try{
     const { data: rows, error } = await db
@@ -1163,13 +1127,12 @@ async function supabaseLoad(){
     setLiveStatus("Live · Realtime", true);
   }catch(err){
     console.error('[Supabase] Load failed:', err);
-    setLiveStatus("Error: " + err.message, false);
-    toast({type:'error', title:'Load failed', message: err.message, duration: 8000});
+    setLiveStatus("Error loading", false);
+    toast({type:'error', title:'Load failed', message: err.message});
   }
 }
 
 async function supabaseInsert(site){
-  if(!db) throw new Error('Supabase not available');
   const row = siteToDbRow(site);
   const { data: inserted, error } = await db
     .from('sites')
@@ -1182,7 +1145,6 @@ async function supabaseInsert(site){
 }
 
 async function supabaseUpdate(site){
-  if(!db) throw new Error('Supabase not available');
   if(!site._id) return supabaseInsert(site);
   const row = siteToDbRow(site);
   const { error } = await db
@@ -1194,14 +1156,12 @@ async function supabaseUpdate(site){
 }
 
 async function supabaseDelete(id){
-  if(!db) throw new Error('Supabase not available');
   const { error } = await db.from('sites').delete().eq('id', id);
   if(error) throw error;
   return true;
 }
 
 async function supabaseLogActivity(action, siteId, field, oldVal, newVal){
-  if(!db) return;
   try{
     await db.from('activity_log').insert([{
       user_name: 'MFC',
@@ -1218,7 +1178,6 @@ async function supabaseLogActivity(action, siteId, field, oldVal, newVal){
    SUPABASE: REALTIME
    ========================================================= */
 function subscribeRealtime(){
-  if(!db) return;
   if(realtimeChannel){
     try{ db.removeChannel(realtimeChannel); }catch(e){}
   }
@@ -1608,6 +1567,7 @@ function renderCharts(){
   const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#e5e7eb';
   const destroy = (key)=>{ if(charts[key]){ try{charts[key].destroy();}catch(e){} delete charts[key]; } };
 
+  /* Status doughnut */
   const states = {};
   data.forEach(r=>{ const k = (r.States || 'Unknown').toString(); states[k] = (states[k]||0)+1; });
   const statusLabels = Object.keys(states);
@@ -1623,6 +1583,7 @@ function renderCharts(){
       plugins:{ legend:{ position:'right', labels:{ boxWidth:10, boxHeight:10, padding:10, color:textColor, font:{size:11} } } } }
   });
 
+  /* Gov bar */
   const govCounts = {};
   data.forEach(r=>{ if(r.Gov) govCounts[r.Gov] = (govCounts[r.Gov]||0)+1; });
   const govLabels = Object.keys(govCounts).slice(0,8);
@@ -1637,6 +1598,7 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
   });
 
+  /* Finance bar */
   const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Amount to subcon'])||0), 0);
   const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Amount Paid'])||0), 0);
   const totalSMR    = data.reduce((s,r)=> s + (parseFloat(r['SMR Value'])||0), 0);
@@ -1653,6 +1615,7 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10}, callback: v => v + 'M' }, beginAtZero:true } } }
   });
 
+  /* Monthly trends */
   const monthMap = {};
   data.forEach(r=>{
     if(!r.Date) return;
@@ -1674,6 +1637,7 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
   });
 
+  /* Team performance */
   const teamMap = {};
   data.forEach(r=>{
     if(!r.Team) return;
@@ -1699,6 +1663,7 @@ function renderCharts(){
         y:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } } } }
   });
 
+  /* Payment progress */
   destroy('payment');
   const ctx6 = document.getElementById('chartPayment');
   if(ctx6) charts.payment = new Chart(ctx6, {
@@ -2051,8 +2016,7 @@ async function savePDFImport(){
 
     console.log('[PDF] Uploading to Supabase:', fileName);
 
-    if(!db) throw new Error('Supabase not available');
-
+    // 1) ارفع الملف إلى Storage
     const { error: uploadErr } = await db.storage
       .from('smr-files')
       .upload(fileName, file, {
@@ -2063,6 +2027,7 @@ async function savePDFImport(){
 
     if(uploadErr) throw uploadErr;
 
+    // 2) احصل على الرابط العام
     const { data: urlData } = db.storage
       .from('smr-files')
       .getPublicUrl(fileName);
@@ -2070,6 +2035,7 @@ async function savePDFImport(){
     const publicUrl = urlData.publicUrl;
     console.log('[PDF] Public URL:', publicUrl);
 
+    // 3) احفظ المعلومات في قاعدة البيانات
     site.smr.fileUrl = publicUrl;
     site.smr.storagePath = fileName;
     site["SMR File"] = file.name;
@@ -2103,15 +2069,9 @@ async function savePDFImport(){
     btn.textContent = 'Save & Upload';
   }
 }
-
 /* =========================================================
    PDF VIEWER
    ========================================================= */
-function closePDFViewer(){
-  document.getElementById('pdfViewerModal').classList.remove('show');
-  document.getElementById('pdfViewerFrame').src = '';
-}
-
 function openPDFViewer(siteIdx){
   const site = data[siteIdx];
   if(!site) return;
@@ -2142,7 +2102,6 @@ function openPDFViewer(siteIdx){
 
   document.getElementById('pdfViewerModal').classList.add('show');
 }
-
 /* =========================================================
    SITE DRAWER
    ========================================================= */
@@ -2340,10 +2299,6 @@ function fmtDate(d){
    ========================================================= */
 async function loadActivity(){
   const list = document.getElementById('activityList');
-  if(!db){
-    list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--amber-600);">Supabase غير متاح.</div>';
-    return;
-  }
   list.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;">Loading...</div>';
   try{
     const { data: rows, error } = await db
@@ -2419,6 +2374,7 @@ function openMap(){
           <span style="color:#6b7280;">${escapeHtml(r.States||'—')}</span>
         </div>`);
       } else {
+        const ids = group.map(g => g.r.SiteID).join(', ');
         const marker = L.circleMarker([first.lat, first.lng], {
           radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff',
           weight: 2, opacity: 1, fillOpacity: 0.9
@@ -2593,310 +2549,232 @@ function openSettings(){
 }
 
 /* =========================================================
-   EVENT BINDINGS (محمية داخل DOMContentLoaded)
+   EVENT BINDINGS
    ========================================================= */
-function bindAllEvents(){
+document.getElementById('searchInput').addEventListener('input', ()=>{
+  clearTimeout(window.__searchT);
+  window.__searchT = setTimeout(renderBody, 200);
+});
 
-  document.getElementById('searchInput').addEventListener('input', ()=>{
-    clearTimeout(window.__searchT);
-    window.__searchT = setTimeout(renderBody, 200);
-  });
+document.getElementById('filterBtn').onclick = (e)=>{
+  e.stopPropagation();
+  document.getElementById('filterMenu').classList.toggle('show');
+};
+document.getElementById('filterMenu').onclick = e => e.stopPropagation();
+document.addEventListener('click', ()=>{
+  document.getElementById('filterMenu').classList.remove('show');
+  document.getElementById('kebabList').classList.remove('show');
+});
 
-  document.getElementById('filterBtn').onclick = (e)=>{
-    e.stopPropagation();
-    document.getElementById('filterMenu').classList.toggle('show');
+document.getElementById('kebabBtn').onclick = (e)=>{
+  e.stopPropagation();
+  document.getElementById('kebabList').classList.toggle('show');
+};
+document.getElementById('kebabList').onclick = e => e.stopPropagation();
+
+document.querySelectorAll('.density-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.density-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('dataTable').className = 'dt density-' + btn.dataset.density;
+    localStorage.setItem(DENSITY_KEY, btn.dataset.density);
   };
-  document.getElementById('filterMenu').onclick = e => e.stopPropagation();
-  document.addEventListener('click', ()=>{
-    document.getElementById('filterMenu').classList.remove('show');
-    document.getElementById('kebabList').classList.remove('show');
-  });
+});
+const savedDensity = localStorage.getItem(DENSITY_KEY) || 'normal';
+document.querySelectorAll('.density-btn').forEach(b=>{ b.classList.toggle('active', b.dataset.density === savedDensity); });
+document.getElementById('dataTable').className = 'dt density-' + savedDensity;
 
-  document.getElementById('kebabBtn').onclick = (e)=>{
-    e.stopPropagation();
-    document.getElementById('kebabList').classList.toggle('show');
-  };
-  document.getElementById('kebabList').onclick = e => e.stopPropagation();
+document.getElementById('addRowBtn').onclick = async ()=>{
+  const blank = {};
+  COLUMNS.forEach(c=> blank[c] = '');
+  blank.smr = { number:"", items: [] };
+  blank.consumption = [];
+  blank.photos = [];
+  blank.notes = "";
+  try{
+    await supabaseInsert(blank);
+    data.push(blank);
+    renderAll();
+    switchView('sites');
+    toast({type:'info', title:'New site added', message:'Fill in the details'});
+  }catch(e){
+    toast({type:'error', title:'Insert failed', message: e.message});
+  }
+};
 
-  document.querySelectorAll('.density-btn').forEach(btn=>{
-    btn.onclick = ()=>{
-      document.querySelectorAll('.density-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('dataTable').className = 'dt density-' + btn.dataset.density;
-      localStorage.setItem(DENSITY_KEY, btn.dataset.density);
-    };
-  });
-  const savedDensity = localStorage.getItem(DENSITY_KEY) || 'normal';
-  document.querySelectorAll('.density-btn').forEach(b=>{ b.classList.toggle('active', b.dataset.density === savedDensity); });
-  document.getElementById('dataTable').className = 'dt density-' + savedDensity;
+document.getElementById('importPDFQuickBtn').onclick = openPDFImportModal;
+document.getElementById('pdfImportCancel').onclick = closePDFImportModal;
+document.getElementById('pdfImportSave').onclick = savePDFImport;
+document.getElementById('ex_addItem').onclick = ()=>{
+  renderExtractedItems(collectExtractedItems().concat([{ code:'', desc:'', qty:1, unit:'pcs', price:0 }]));
+};
+document.getElementById('pdfDropZone').onclick = ()=> document.getElementById('pdfFileInput').click();
+document.getElementById('pdfFileInput').onchange = (e)=>{
+  const f = e.target.files[0];
+  if(f) handlePDFFile(f);
+  e.target.value = '';
+};
 
-  document.getElementById('addRowBtn').onclick = async ()=>{
-    const blank = {};
-    COLUMNS.forEach(c=> blank[c] = '');
-    blank.smr = { number:"", items: [] };
-    blank.consumption = [];
-    blank.photos = [];
-    blank.notes = "";
-    try{
-      if(db){
-        await supabaseInsert(blank);
-        await supabaseLogActivity('add', blank.SiteID, '', '', '');
-      }
-      data.push(blank);
-      renderAll();
-      switchView('sites');
-      toast({type:'info', title:'New site added', message:'Fill in the details'});
-    }catch(e){
-      toast({type:'error', title:'Insert failed', message: e.message});
-    }
-  };
+document.getElementById('drawerClose').onclick = closeDrawer;
+document.getElementById('drawerBackdrop').onclick = closeDrawer;
+document.getElementById('pdfViewerClose').onclick = closePDFViewer;
+document.getElementById('pdfViewerModal').addEventListener('click', e=>{
+  if(e.target.id === 'pdfViewerModal') closePDFViewer();
+});
+document.getElementById('mapClose').onclick = closeMap;
+document.getElementById('mapBtn').onclick = openMap;
+document.getElementById('bnMap').onclick = openMap;
+document.getElementById('bnAddSite').onclick = ()=> document.getElementById('addRowBtn').click();
+document.getElementById('refreshActivity').onclick = loadActivity;
 
-  document.getElementById('importPDFQuickBtn').onclick = openPDFImportModal;
-  document.getElementById('pdfImportCancel').onclick = closePDFImportModal;
-  document.getElementById('pdfImportSave').onclick = savePDFImport;
-  document.getElementById('ex_addItem').onclick = ()=>{
-    renderExtractedItems(collectExtractedItems().concat([{ code:'', desc:'', qty:1, unit:'pcs', price:0 }]));
-  };
-  document.getElementById('pdfDropZone').onclick = ()=> document.getElementById('pdfFileInput').click();
-  document.getElementById('pdfFileInput').onchange = (e)=>{
-    const f = e.target.files[0];
-    if(f) handlePDFFile(f);
-    e.target.value = '';
-  };
+document.querySelectorAll('.view-tab').forEach(t=>{
+  t.onclick = ()=> switchView(t.dataset.view);
+});
+document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
+  t.onclick = ()=> switchView(t.dataset.view);
+});
 
-  document.getElementById('drawerClose').onclick = closeDrawer;
-  document.getElementById('drawerBackdrop').onclick = closeDrawer;
-  document.getElementById('pdfViewerClose').onclick = closePDFViewer;
-  document.getElementById('pdfViewerModal').addEventListener('click', e=>{
-    if(e.target.id === 'pdfViewerModal') closePDFViewer();
-  });
-  document.getElementById('mapClose').onclick = closeMap;
-  document.getElementById('mapBtn').onclick = openMap;
-  document.getElementById('bnMap').onclick = openMap;
-  document.getElementById('bnAddSite').onclick = ()=> document.getElementById('addRowBtn').click();
-  document.getElementById('refreshActivity').onclick = loadActivity;
+document.getElementById('settingsBtn').onclick = openSettings;
+document.getElementById('settingsClose').onclick = ()=> document.getElementById('settingsModal').classList.remove('show');
+document.getElementById('syncNowBtn').onclick = async ()=>{
+  await supabaseLoad();
+  toast({type:'success', title:'Synced'});
+};
+document.getElementById('logoutBtn').onclick = ()=>{
+  if(confirm('Log out?')){
+    localStorage.removeItem(LOGIN_KEY);
+    location.reload();
+  }
+};
 
-  document.querySelectorAll('.view-tab').forEach(t=>{
-    t.onclick = ()=> switchView(t.dataset.view);
-  });
-  document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
-    t.onclick = ()=> switchView(t.dataset.view);
-  });
-
-  document.getElementById('settingsBtn').onclick = openSettings;
-  document.getElementById('settingsClose').onclick = ()=> document.getElementById('settingsModal').classList.remove('show');
-  document.getElementById('syncNowBtn').onclick = async ()=>{
-    await supabaseLoad();
-    toast({type:'success', title:'Synced'});
-  };
-  document.getElementById('logoutBtn').onclick = ()=>{
-    if(confirm('Log out?')){
-      localStorage.removeItem(LOGIN_KEY);
-      location.reload();
-    }
-  };
-
-  document.querySelectorAll('.theme-opt').forEach(btn=>{
-    btn.onclick = ()=>{
-      const t = btn.dataset.themeOpt;
-      document.documentElement.setAttribute('data-theme', t);
-      localStorage.setItem(THEME_KEY, t);
-      setTimeout(renderCharts, 100);
-    };
-  });
-
-  document.getElementById('themeBtn').onclick = ()=>{
-    const themes = ['light','dark','midnight','sepia'];
-    const cur = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = themes[(themes.indexOf(cur) + 1) % themes.length];
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem(THEME_KEY, next);
+document.querySelectorAll('.theme-opt').forEach(btn=>{
+  btn.onclick = ()=>{
+    const t = btn.dataset.themeOpt;
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem(THEME_KEY, t);
     setTimeout(renderCharts, 100);
   };
+});
 
-  document.getElementById('exportCsvBtn').onclick = ()=>{
-    document.getElementById('kebabList').classList.remove('show');
-    const rows = getFilteredSorted().map(x=>x.r);
-    const csvRows = [COLUMNS.join(',')];
-    rows.forEach(r=>{
-      csvRows.push(COLUMNS.map(c=>{
-        let v = (r[c]||'').toString().replace(/"/g,'""');
-        if(v.includes(',')||v.includes('"')||v.includes('\n')) v = `"${v}"`;
-        return v;
-      }).join(','));
+document.getElementById('themeBtn').onclick = ()=>{
+  const themes = ['light','dark','midnight','sepia'];
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = themes[(themes.indexOf(cur) + 1) % themes.length];
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem(THEME_KEY, next);
+  setTimeout(renderCharts, 100);
+};
+
+/* =========================================================
+   EXPORT
+   ========================================================= */
+document.getElementById('exportCsvBtn').onclick = ()=>{
+  document.getElementById('kebabList').classList.remove('show');
+  const rows = getFilteredSorted().map(x=>x.r);
+  const csvRows = [COLUMNS.join(',')];
+  rows.forEach(r=>{
+    csvRows.push(COLUMNS.map(c=>{
+      let v = (r[c]||'').toString().replace(/"/g,'""');
+      if(v.includes(',')||v.includes('"')||v.includes('\n')) v = `"${v}"`;
+      return v;
+    }).join(','));
+  });
+  downloadFile('mfc_site_tracker.csv', 'text/csv;charset=utf-8;', '\uFEFF'+csvRows.join('\n'));
+  toast({type:'success', title:'CSV exported'});
+};
+
+document.getElementById('exportXlsxBtn').onclick = ()=>{
+  document.getElementById('kebabList').classList.remove('show');
+  const rows = getFilteredSorted().map(x=>{
+    const clean = {};
+    COLUMNS.forEach(c=> clean[c] = x.r[c] || '');
+    return clean;
+  });
+  const ws = XLSX.utils.json_to_sheet(rows, {header: COLUMNS});
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Site Tracker');
+  XLSX.writeFile(wb, 'mfc_site_tracker.xlsx');
+  toast({type:'success', title:'Excel exported'});
+};
+
+document.getElementById('exportReportBtn').onclick = async ()=>{
+  document.getElementById('kebabList').classList.remove('show');
+  try{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    doc.setFillColor(10, 26, 48);
+    doc.rect(0, 0, 210, 60, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(28);
+    doc.text('MFC Company', 15, 25);
+    doc.setFontSize(18);
+    doc.text('RAN Site Tracker Report', 15, 38);
+    doc.setFontSize(11);
+    doc.text('Generated: ' + new Date().toLocaleString(), 15, 50);
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(16);
+    doc.text('Summary', 15, 80);
+
+    const total = data.length;
+    const totalSubcon = data.reduce((s,r) => s + (parseFloat(r['Amount to subcon'])||0), 0);
+    const totalPaid = data.reduce((s,r) => s + (parseFloat(r['Amount Paid'])||0), 0);
+    doc.setFontSize(11);
+    let y = 90;
+    [['Total Sites', total], ['Subcon', totalSubcon.toLocaleString() + ' IQD'],
+     ['Paid', totalPaid.toLocaleString() + ' IQD'],
+     ['Balance', (totalSubcon - totalPaid).toLocaleString() + ' IQD']].forEach(([k,v])=>{
+      doc.setFont('helvetica', 'bold');
+      doc.text(k + ':', 15, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(String(v), 80, y);
+      y += 8;
     });
-    downloadFile('mfc_site_tracker.csv', 'text/csv;charset=utf-8;', '\uFEFF'+csvRows.join('\n'));
-    toast({type:'success', title:'CSV exported'});
-  };
-
-  document.getElementById('exportXlsxBtn').onclick = ()=>{
-    document.getElementById('kebabList').classList.remove('show');
+    doc.addPage();
+    doc.setFontSize(14);
+    doc.text('Sites Detail', 15, 20);
     const rows = getFilteredSorted().map(x=>{
-      const clean = {};
-      COLUMNS.forEach(c=> clean[c] = x.r[c] || '');
-      return clean;
+      const r = x.r;
+      return [r.SiteID||'', r.Gov||'', r.Team||'', r.States||'',
+        (parseFloat(r['Amount to subcon'])||0).toLocaleString(),
+        (parseFloat(r['Amount Paid'])||0).toLocaleString()];
     });
-    const ws = XLSX.utils.json_to_sheet(rows, {header: COLUMNS});
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Site Tracker');
-    XLSX.writeFile(wb, 'mfc_site_tracker.xlsx');
-    toast({type:'success', title:'Excel exported'});
-  };
-
-  document.getElementById('exportReportBtn').onclick = async ()=>{
-    document.getElementById('kebabList').classList.remove('show');
-    try{
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('p', 'mm', 'a4');
-      doc.setFillColor(10, 26, 48);
-      doc.rect(0, 0, 210, 60, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(28);
-      doc.text('MFC Company', 15, 25);
-      doc.setFontSize(18);
-      doc.text('RAN Site Tracker Report', 15, 38);
-      doc.setFontSize(11);
-      doc.text('Generated: ' + new Date().toLocaleString(), 15, 50);
-      doc.setTextColor(30, 30, 30);
-      doc.setFontSize(16);
-      doc.text('Summary', 15, 80);
-
-      const total = data.length;
-      const totalSubcon = data.reduce((s,r) => s + (parseFloat(r['Amount to subcon'])||0), 0);
-      const totalPaid = data.reduce((s,r) => s + (parseFloat(r['Amount Paid'])||0), 0);
-      doc.setFontSize(11);
-      let y = 90;
-      [['Total Sites', total], ['Subcon', totalSubcon.toLocaleString() + ' IQD'],
-       ['Paid', totalPaid.toLocaleString() + ' IQD'],
-       ['Balance', (totalSubcon - totalPaid).toLocaleString() + ' IQD']].forEach(([k,v])=>{
-        doc.setFont('helvetica', 'bold');
-        doc.text(k + ':', 15, y);
-        doc.setFont('helvetica', 'normal');
-        doc.text(String(v), 80, y);
-        y += 8;
-      });
-      doc.addPage();
-      doc.setFontSize(14);
-      doc.text('Sites Detail', 15, 20);
-      const rows = getFilteredSorted().map(x=>{
-        const r = x.r;
-        return [r.SiteID||'', r.Gov||'', r.Team||'', r.States||'',
-          (parseFloat(r['Amount to subcon'])||0).toLocaleString(),
-          (parseFloat(r['Amount Paid'])||0).toLocaleString()];
-      });
-      doc.autoTable({
-        startY: 28,
-        head: [['SiteID','Gov','Team','Status','Subcon','Paid']],
-        body: rows,
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: [10, 26, 48], textColor: [255,255,255] }
-      });
-      doc.save('MFC_Report_' + new Date().toISOString().slice(0,10) + '.pdf');
-      toast({type:'success', title:'Report generated'});
-    }catch(err){
-      toast({type:'error', title:'Report failed', message: err.message});
-    }
-  };
-
-  document.getElementById('backupBtn').onclick = ()=>{
-    document.getElementById('kebabList').classList.remove('show');
-    const json = JSON.stringify(data, null, 2);
-    downloadFile('mfc_backup_' + new Date().toISOString().slice(0,10) + '.json', 'application/json', json);
-    toast({type:'success', title:'Backup downloaded'});
-  };
-
-  document.getElementById('emailReportBtn').onclick = ()=>{
-    document.getElementById('kebabList').classList.remove('show');
-    document.getElementById('emailModal').classList.add('show');
-  };
-  document.getElementById('emailCancel').onclick = ()=> document.getElementById('emailModal').classList.remove('show');
-  document.getElementById('emailSend').onclick = ()=>{
-    toast({type:'warning', title:'Email not configured', message:'Use Export PDF instead'});
-    document.getElementById('emailModal').classList.remove('show');
-  };
-
-  document.getElementById('resetBtn').onclick = ()=>{
-    if(confirm('Reload from Supabase? Local cache will be cleared.')){
-      localStorage.clear();
-      location.reload();
-    }
-  };
-
-  document.getElementById('shortcutsClose').onclick = ()=> document.getElementById('shortcutsModal').classList.remove('show');
-  document.getElementById('cmdkInput').addEventListener('input', e => renderCmdk(e.target.value));
-  document.getElementById('cmdkInput').addEventListener('keydown', e=>{
-    const items = document.querySelectorAll('#cmdkResults .cmdk-item');
-    if(e.key === 'ArrowDown'){
-      e.preventDefault();
-      cmdkActive = Math.min(cmdkActive + 1, items.length - 1);
-      items.forEach(x=>x.classList.remove('active'));
-      items[cmdkActive]?.classList.add('active');
-      items[cmdkActive]?.scrollIntoView({block:'nearest'});
-    } else if(e.key === 'ArrowUp'){
-      e.preventDefault();
-      cmdkActive = Math.max(cmdkActive - 1, 0);
-      items.forEach(x=>x.classList.remove('active'));
-      items[cmdkActive]?.classList.add('active');
-      items[cmdkActive]?.scrollIntoView({block:'nearest'});
-    } else if(e.key === 'Enter'){
-      e.preventDefault();
-      cmdkItems[cmdkActive]?.action();
-    }
-  });
-  document.getElementById('cmdkBackdrop').addEventListener('click', e=>{
-    if(e.target.id === 'cmdkBackdrop') closeCmdk();
-  });
-
-  document.getElementById('chatFab').onclick = openChat;
-  document.getElementById('chatClose').onclick = closeChat;
-  document.getElementById('chatSend').onclick = ()=>{
-    const input = document.getElementById('chatInput');
-    const q = input.value.trim();
-    if(!q) return;
-    addChatMsg(escapeHtml(q), 'user');
-    input.value = '';
-    setTimeout(()=> addChatMsg(answerQuestion(q), 'bot'), 300);
-  };
-  document.getElementById('chatInput').addEventListener('keydown', e=>{
-    if(e.key === 'Enter') document.getElementById('chatSend').click();
-  });
-
-  /* Clock */
-  function updateClock(){
-    const el = document.getElementById('heroClock');
-    if(el) el.textContent = new Date().toLocaleTimeString('en-GB', {hour12:false});
+    doc.autoTable({
+      startY: 28,
+      head: [['SiteID','Gov','Team','Status','Subcon','Paid']],
+      body: rows,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [10, 26, 48], textColor: [255,255,255] }
+    });
+    doc.save('MFC_Report_' + new Date().toISOString().slice(0,10) + '.pdf');
+    toast({type:'success', title:'Report generated'});
+  }catch(err){
+    toast({type:'error', title:'Report failed', message: err.message});
   }
-  setInterval(updateClock, 1000);
-  updateClock();
+};
 
-  /* Keyboard shortcuts */
-  document.addEventListener('keydown', e=>{
-    if((e.metaKey || e.ctrlKey) && e.key === 'k'){ e.preventDefault(); openCmdk(); return; }
-    if((e.metaKey || e.ctrlKey) && e.key === 'n'){ e.preventDefault(); document.getElementById('addRowBtn').click(); return; }
-    if((e.metaKey || e.ctrlKey) && e.key === 'f'){ e.preventDefault(); document.getElementById('searchInput').focus(); return; }
-    if((e.metaKey || e.ctrlKey) && e.key === 'e'){ e.preventDefault(); document.getElementById('exportXlsxBtn').click(); return; }
-    if((e.metaKey || e.ctrlKey) && e.key === 'p'){ e.preventDefault(); document.getElementById('exportReportBtn').click(); return; }
-    if(e.key === '?' && !e.metaKey && !e.ctrlKey){
-      e.preventDefault();
-      document.getElementById('shortcutsModal').classList.add('show');
-      return;
-    }
-    if(e.key === 'g'){ lastKeyPress = 'g'; setTimeout(()=>{ lastKeyPress = null; }, 800); return; }
-    if(lastKeyPress === 'g' && e.key === 'd'){ switchView('dashboard'); lastKeyPress = null; return; }
-    if(lastKeyPress === 'g' && e.key === 'm'){ openMap(); lastKeyPress = null; return; }
-    if(e.key === 'Escape'){
-      if(document.getElementById('cmdkBackdrop').classList.contains('show')) closeCmdk();
-      else {
-        closePDFViewer();
-        closeDrawer();
-        closeMap();
-        document.getElementById('shortcutsModal').classList.remove('show');
-        document.getElementById('emailModal').classList.remove('show');
-        document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
-      }
-    }
-  });
-}
+document.getElementById('backupBtn').onclick = ()=>{
+  document.getElementById('kebabList').classList.remove('show');
+  const json = JSON.stringify(data, null, 2);
+  downloadFile('mfc_backup_' + new Date().toISOString().slice(0,10) + '.json', 'application/json', json);
+  toast({type:'success', title:'Backup downloaded'});
+};
+
+document.getElementById('emailReportBtn').onclick = ()=>{
+  document.getElementById('kebabList').classList.remove('show');
+  document.getElementById('emailModal').classList.add('show');
+};
+document.getElementById('emailCancel').onclick = ()=> document.getElementById('emailModal').classList.remove('show');
+document.getElementById('emailSend').onclick = ()=>{
+  toast({type:'warning', title:'Email not configured', message:'Use Export PDF instead'});
+  document.getElementById('emailModal').classList.remove('show');
+};
+
+document.getElementById('resetBtn').onclick = ()=>{
+  if(confirm('Reload from Supabase? Local cache will be cleared.')){
+    localStorage.clear();
+    location.reload();
+  }
+};
 
 function downloadFile(filename, mime, content){
   const blob = new Blob([content], {type:mime});
@@ -2908,81 +2786,120 @@ function downloadFile(filename, mime, content){
 }
 
 /* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+document.addEventListener('keydown', e=>{
+  if((e.metaKey || e.ctrlKey) && e.key === 'k'){ e.preventDefault(); openCmdk(); return; }
+  if((e.metaKey || e.ctrlKey) && e.key === 'n'){ e.preventDefault(); document.getElementById('addRowBtn').click(); return; }
+  if((e.metaKey || e.ctrlKey) && e.key === 'f'){ e.preventDefault(); document.getElementById('searchInput').focus(); return; }
+  if((e.metaKey || e.ctrlKey) && e.key === 'e'){ e.preventDefault(); document.getElementById('exportXlsxBtn').click(); return; }
+  if((e.metaKey || e.ctrlKey) && e.key === 'p'){ e.preventDefault(); document.getElementById('exportReportBtn').click(); return; }
+  if(e.key === '?' && !e.metaKey && !e.ctrlKey){
+    e.preventDefault();
+    document.getElementById('shortcutsModal').classList.add('show');
+    return;
+  }
+  if(e.key === 'g'){ lastKeyPress = 'g'; setTimeout(()=>{ lastKeyPress = null; }, 800); return; }
+  if(lastKeyPress === 'g' && e.key === 'd'){ switchView('dashboard'); lastKeyPress = null; return; }
+  if(lastKeyPress === 'g' && e.key === 'm'){ openMap(); lastKeyPress = null; return; }
+  if(e.key === 'Escape'){
+    if(document.getElementById('cmdkBackdrop').classList.contains('show')) closeCmdk();
+    else {
+      closePDFViewer();
+      closeDrawer();
+      closeMap();
+      document.getElementById('shortcutsModal').classList.remove('show');
+      document.getElementById('emailModal').classList.remove('show');
+      document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
+    }
+  }
+});
+
+document.getElementById('shortcutsClose').onclick = ()=> document.getElementById('shortcutsModal').classList.remove('show');
+document.getElementById('cmdkInput').addEventListener('input', e => renderCmdk(e.target.value));
+document.getElementById('cmdkInput').addEventListener('keydown', e=>{
+  const items = document.querySelectorAll('#cmdkResults .cmdk-item');
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    cmdkActive = Math.min(cmdkActive + 1, items.length - 1);
+    items.forEach(x=>x.classList.remove('active'));
+    items[cmdkActive]?.classList.add('active');
+    items[cmdkActive]?.scrollIntoView({block:'nearest'});
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    cmdkActive = Math.max(cmdkActive - 1, 0);
+    items.forEach(x=>x.classList.remove('active'));
+    items[cmdkActive]?.classList.add('active');
+    items[cmdkActive]?.scrollIntoView({block:'nearest'});
+  } else if(e.key === 'Enter'){
+    e.preventDefault();
+    cmdkItems[cmdkActive]?.action();
+  }
+});
+document.getElementById('cmdkBackdrop').addEventListener('click', e=>{
+  if(e.target.id === 'cmdkBackdrop') closeCmdk();
+});
+
+/* Chat */
+document.getElementById('chatFab').onclick = openChat;
+document.getElementById('chatClose').onclick = closeChat;
+document.getElementById('chatSend').onclick = ()=>{
+  const input = document.getElementById('chatInput');
+  const q = input.value.trim();
+  if(!q) return;
+  addChatMsg(escapeHtml(q), 'user');
+  input.value = '';
+  setTimeout(()=> addChatMsg(answerQuestion(q), 'bot'), 300);
+};
+document.getElementById('chatInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') document.getElementById('chatSend').click();
+});
+
+/* Clock */
+function updateClock(){
+  const el = document.getElementById('heroClock');
+  if(el) el.textContent = new Date().toLocaleTimeString('en-GB', {hour12:false});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* =========================================================
    INIT
    ========================================================= */
 async function initApp(){
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('appRoot').style.display = 'flex';
 
+  /* Theme */
   const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
 
+  /* Pinned columns */
   try{
     const pinned = JSON.parse(localStorage.getItem(PINNED_KEY) || '[]');
     pinnedColumns = new Set(pinned);
   }catch(e){}
 
-  /* إذا Supabase غير متاح، نعرض رسالة واضحة لكن نكمل */
-  if(!db){
-    setLiveStatus("Offline — تحقق من المفتاح", false);
-    toast({
-      type:'error',
-      title:'⚠️ Supabase غير متصل',
-      message:'المفاتيح غير صحيحة أو المكتبة لم تُحمّل. راجع Console.',
-      duration: 10000
-    });
-  }
-
+  /* Load data + subscribe */
   await supabaseLoad();
-  if(db) subscribeRealtime();
+  subscribeRealtime();
 }
 
-/* =========================================================
-   BOOT — كل شيء داخل DOMContentLoaded
-   ========================================================= */
-document.addEventListener('DOMContentLoaded', () => {
-
-  console.log('🚀 App booting...');
-  console.log('   supabase global:', typeof supabase);
-  console.log('   db client:', db ? 'OK' : 'NULL');
-
-  /* Login form */
-  const loginForm = document.getElementById('loginForm');
-  loginForm.addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const u = document.getElementById('loginUser').value.trim();
-    const p = document.getElementById('loginPass').value;
-    console.log('🔐 Login attempt:', u);
-    if(u === VALID_USER && p === VALID_PASS){
-      localStorage.setItem(LOGIN_KEY, '1');
-      document.getElementById('loginError').classList.remove('show');
-      bindAllEventsOnce();
-      initApp();
-    } else {
-      document.getElementById('loginError').classList.add('show');
-    }
-  });
-
-  /* Auto-login */
-  if(localStorage.getItem(LOGIN_KEY) === '1'){
-    bindAllEventsOnce();
+/* Login */
+document.getElementById('loginForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if(u === VALID_USER && p === VALID_PASS){
+    localStorage.setItem(LOGIN_KEY, '1');
+    document.getElementById('loginError').classList.remove('show');
     initApp();
+  } else {
+    document.getElementById('loginError').classList.add('show');
   }
 });
 
-/* نضمن ربط الأحداث مرة واحدة فقط */
-let eventsBound = false;
-function bindAllEventsOnce(){
-  if(eventsBound) return;
-  eventsBound = true;
-  try {
-    bindAllEvents();
-    console.log('✅ All events bound');
-  } catch(e){
-    console.error('❌ Failed to bind events:', e);
-    toast({type:'error', title:'UI init error', message: e.message});
-  }
-}
+if(localStorage.getItem(LOGIN_KEY) === '1') initApp();
 </script>
 </body>
 </html>
