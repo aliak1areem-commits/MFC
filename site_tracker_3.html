@@ -517,6 +517,98 @@ td select{
   .gantt-label{width:100px;}
   .map-toolbar{left:16px;right:16px;transform:none;}
 }
+  /* =========================================================
+   STATUS COLOR CODING — تلوين الحالات
+   ========================================================= */
+
+/* تلوين خلية الحالة حسب القيمة */
+td.status-cell{
+  text-align: center;
+  font-weight: 700;
+  border-radius: 6px;
+  transition: all .2s;
+}
+
+/* Accepted → أخضر */
+td.status-accepted{
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: var(--emerald-700) !important;
+  border-left: 3px solid var(--emerald-500) !important;
+}
+
+/* In Progress → أصفر */
+td.status-progress{
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: var(--amber-700) !important;
+  border-left: 3px solid var(--amber-500) !important;
+}
+
+/* Rejected → أحمر */
+td.status-rejected{
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: var(--red-700) !important;
+  border-left: 3px solid var(--red-500) !important;
+}
+
+/* Pending → رمادي */
+td.status-pending{
+  background: rgba(107, 114, 128, 0.12) !important;
+  color: var(--gray-500) !important;
+  border-left: 3px solid var(--gray-400) !important;
+}
+
+/* Done → أخضر غامق */
+td.status-done{
+  background: rgba(5, 150, 105, 0.15) !important;
+  color: var(--emerald-700) !important;
+  border-left: 3px solid var(--emerald-600) !important;
+}
+
+/* Not Done → أحمر باهت */
+td.status-notdone{
+  background: rgba(220, 38, 38, 0.10) !important;
+  color: var(--red-700) !important;
+  border-left: 3px solid var(--red-600) !important;
+}
+
+/* Shared → أخضر */
+td.status-shared{
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: var(--emerald-700) !important;
+  border-left: 3px solid var(--emerald-500) !important;
+}
+
+/* Not Shared → أحمر */
+td.status-notshared{
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: var(--red-700) !important;
+  border-left: 3px solid var(--red-500) !important;
+}
+
+/* Paid → أخضر */
+td.status-paid{
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: var(--emerald-700) !important;
+  border-left: 3px solid var(--emerald-500) !important;
+}
+
+/* Unpaid → رمادي */
+td.status-unpaid{
+  background: rgba(107, 114, 128, 0.12) !important;
+  color: var(--gray-500) !important;
+  border-left: 3px solid var(--gray-400) !important;
+}
+
+/* شريط جانبي على الصف كامل حسب الحالة */
+tr.row-accepted td:first-child{
+  box-shadow: inset 4px 0 0 var(--emerald-500);
+}
+tr.row-progress td:first-child{
+  box-shadow: inset 4px 0 0 var(--amber-500);
+}
+tr.row-rejected td:first-child{
+  box-shadow: inset 4px 0 0 var(--red-500);
+}
 </style>
 </head>
 <body>
@@ -1674,6 +1766,12 @@ function renderBody(){
     tdChk.appendChild(chk);
     tr.appendChild(tdChk);
 
+       // حدد كلاس الصف حسب States
+    const statusLower = (r.States || '').toLowerCase();
+    if(statusLower === 'accepted') tr.classList.add('row-accepted');
+    else if(statusLower === 'in progress') tr.classList.add('row-progress');
+    else if(statusLower === 'rejected') tr.classList.add('row-rejected');
+
     COLUMNS.forEach((col)=>{
       const hasData = data.some(x => x[col]);
       if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
@@ -1686,6 +1784,34 @@ function renderBody(){
       const td = document.createElement('td');
       let val = r[col] || '';
       td.setAttribute('data-label', col);
+
+      // ============ تطبيق ألوان الحالة ============
+      const v = String(val || '').toLowerCase().trim();
+      const isStatusColumn = (
+        col === 'States' || 
+        col === 'FLM Feedback' || 
+        col === 'Saif Tool' || 
+        col === 'Nokia Comments' || 
+        col === 'Photo Report' || 
+        col === 'Sub Status' || 
+        col === 'FTK Status' || 
+        col === 'Payment Status'
+      );
+
+      if(isStatusColumn && v){
+        td.classList.add('status-cell');
+        if(v === 'accepted') td.classList.add('status-accepted');
+        else if(v === 'in progress') td.classList.add('status-progress');
+        else if(v === 'rejected') td.classList.add('status-rejected');
+        else if(v === 'pending') td.classList.add('status-pending');
+        else if(v === 'done') td.classList.add('status-done');
+        else if(v === 'not done') td.classList.add('status-notdone');
+        else if(v === 'shared') td.classList.add('status-shared');
+        else if(v === 'not shared') td.classList.add('status-notshared');
+        else if(v === 'paid') td.classList.add('status-paid');
+        else if(v === 'unpaid') td.classList.add('status-unpaid');
+      }
+      // ============ نهاية الألوان ============
 
       if(col === 'Total Cost'){
         const subcon = parseFloat(r['Subcon Price']) || 0;
