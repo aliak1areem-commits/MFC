@@ -2006,48 +2006,104 @@ async function savePDFImport(){
 
   const btn = document.getElementById('pdfImportSave');
   btn.disabled = true;
-  btn.textContent = '⏳ Saving...';
+  btn.textContent = '⏳ Uploading...';
 
   try{
-    if(site._id) await supabaseUpdate(site);
-    else await supabaseInsert(site);
+    const file = pendingPDF.file;
+    const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const fileName = `site_${site.SiteID || 'unknown'}_${Date.now()}_${cleanName}`;
+
+    console.log('[PDF] Uploading to Supabase:', fileName);
+
+    // 1) ارفع الملف إلى Storage
+    const { error: uploadErr } = await db.storage
+      .from('smr-files')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: 'application/pdf'
+      });
+
+    if(uploadErr) throw uploadErr;
+
+    // 2) احصل على الرابط العام
+    const { data: urlData } = db.storage
+      .from('smr-files')
+      .getPublicUrl(fileName);
+
+    const publicUrl = urlData.publicUrl;
+    console.log('[PDF] Public URL:', publicUrl);
+
+    // 3) احفظ المعلومات في قاعدة البيانات
+    site.smr.fileUrl = publicUrl;
+    site.smr.storagePath = fileName;
+    site["SMR File"] = file.name;
+    site["SMR Drive URL"] = publicUrl;
+    site.smr.uploadedAt = new Date().toISOString();
+
+    if(site._id){
+      await supabaseUpdate(site);
+    } else {
+      await supabaseInsert(site);
+    }
+
+    btn.textContent = '✅ Uploaded';
     renderAll();
-    toast({type:'success', title:'✅ Saved', message: number});
+    toast({
+      type:'success',
+      title:'✅ تم رفع PDF',
+      message: file.name + ' (' + (file.size/1024/1024).toFixed(2) + ' MB)'
+    });
+
     setTimeout(closePDFImportModal, 800);
+
   }catch(err){
-    toast({type:'error', title:'Save failed', message: err.message});
+    console.error('[PDF upload failed]', err);
+    toast({
+      type:'error',
+      title:'❌ فشل الرفع',
+      message: err.message
+    });
     btn.disabled = false;
     btn.textContent = 'Save & Upload';
   }
 }
-
 /* =========================================================
    PDF VIEWER
    ========================================================= */
 function openPDFViewer(siteIdx){
   const site = data[siteIdx];
   if(!site) return;
+  
+  // أولوية: Supabase → Drive القديم
   let url = null;
-  if(site.drivePrevUrl) url = site.drivePrevUrl;
+  if(site.smr?.fileUrl) url = site.smr.fileUrl;
+  else if(site.drivePrevUrl) url = site.drivePrevUrl;
   else if(site.driveFileId) url = 'https://drive.google.com/file/d/' + site.driveFileId + '/preview';
-  if(!url){ toast({type:'warning', title:'No PDF available'}); return; }
-  document.getElementById('pdfViewerTitle').textContent = `${site.smr?.number || site.SiteID} — ${site.smr?.fileName || 'SMR'}`;
-  document.getElementById('pdfViewerFrame').src = url;
+  
+  if(!url){ 
+    toast({type:'warning', title:'No PDF available'}); 
+    return; 
+  }
+  
+  const title = `${site.smr?.number || site.SiteID || ''} — ${site.smr?.fileName || 'SMR.pdf'}`;
+  document.getElementById('pdfViewerTitle').textContent = title;
+  
+  // استخدم Google Docs Viewer للـ PDF
+  const viewerUrl = 'https://docs.google.com/viewer?embedded=true&url=' + encodeURIComponent(url);
+  document.getElementById('pdfViewerFrame').src = viewerUrl;
+  
+  // زر التحميل
   document.getElementById('pdfViewerDownload').onclick = ()=>{
     const a = document.createElement('a');
-    a.href = site.driveDownloadUrl || url;
+    a.href = url;
     a.download = site.smr?.fileName || 'SMR.pdf';
     a.target = '_blank';
     a.click();
   };
+  
   document.getElementById('pdfViewerModal').classList.add('show');
 }
-
-function closePDFViewer(){
-  document.getElementById('pdfViewerFrame').src = 'about:blank';
-  document.getElementById('pdfViewerModal').classList.remove('show');
-}
-
 /* =========================================================
    SITE DRAWER
    ========================================================= */
