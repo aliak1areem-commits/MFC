@@ -251,9 +251,17 @@ table.dt thead th:hover{color:var(--text);background:var(--gray-100);}
 table.dt thead th .arrow{font-size:9px;margin-left:5px;color:var(--primary);}
 table.dt thead th .pin{margin-left:6px;font-size:10px;opacity:.5;}
 table.dt thead th .pin.active{opacity:1;color:var(--primary);}
-table.dt tbody td{padding:11px 14px;border-bottom:1px solid var(--border);
-  color:var(--text);vertical-align:middle;max-width:260px;
-  overflow:hidden;text-overflow:ellipsis;background:var(--bg-card);}
+table.dt tbody td{
+  padding:11px 14px;
+  border-bottom:1px solid var(--border);
+  color:var(--text);
+  vertical-align:middle;
+  max-width:280px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  background:var(--bg-card);
+}
 table.dt.density-compact tbody td{padding:6px 10px;font-size:12.5px;}
 table.dt.density-comfortable tbody td{padding:16px 14px;}
 table.dt tbody tr:nth-child(even) td{background:var(--bg-subtle);}
@@ -516,6 +524,62 @@ td select{
   table.dt tbody td::before{content:attr(data-label);font-weight:700;font-size:11px;color:var(--text-dim);text-transform:uppercase;text-align:left;flex:none;}
   .gantt-label{width:100px;}
   .map-toolbar{left:16px;right:16px;transform:none;}
+}
+  /* =========================================================
+   تحسين عرض الأعمدة الطويلة
+   ========================================================= */
+
+/* عرض كامل للخلايا الطويلة */
+table.dt tbody td{
+  padding: 11px 14px !important;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* خلايا Details تأخذ مساحة أكبر */
+table.dt tbody td[data-label="Details of request"],
+table.dt tbody td[data-label="Nokia Comments"],
+table.dt tbody td[data-label="Extra Scope"],
+table.dt tbody td[data-label="Photo Report Reason"],
+table.dt tbody td[data-label="FLM Rejection Reason"],
+table.dt tbody td[data-label="Nokia Rejection Reason"],
+table.dt tbody td[data-label="Status Rejection Reason"],
+table.dt tbody td[data-label="Snags 1"],
+table.dt tbody td[data-label="Snags 2"],
+table.dt tbody td[data-label="Snags 3"]{
+  min-width: 200px;
+  max-width: 320px;
+}
+
+/* خلايا القوائم المنسدلة */
+table.dt tbody td:has(select){
+  min-width: 140px;
+  padding: 6px 8px !important;
+}
+
+/* القائمة المنسدلة داخل الخلية */
+table.dt tbody td select{
+  width: 100% !important;
+  min-width: 110px;
+  padding: 7px 10px !important;
+  font-size: 12.5px !important;
+  white-space: nowrap;
+}
+
+/* عند hover على صف، اعرض النص الكامل في tooltip */
+table.dt tbody td[contenteditable="true"]:hover{
+  position: relative;
+  z-index: 10;
+}
+
+/* أعمدة رأس الجدول — لا تختفي */
+table.dt thead th{
+  white-space: nowrap;
+  padding: 12px 14px !important;
+  min-width: 100px;
 }
   /* =========================================================
    STATUS COLOR CODING — تلوين الحالات
@@ -1443,37 +1507,26 @@ function createDropdown(col, currentVal, rowIdx){
       }, 100);
     }
 
-    if(col === 'States'){
+      if(col === 'States'){
       recalcTotalCost(rowIdx);
-      renderHead();
-      renderBody();
       if(newVal === 'In Progress'){
         setTimeout(()=> toast({type:'info', title:'Sub Status', message:'اختر Done أو Pending من العمود التالي'}), 300);
       }
     }
 
-    if(col === 'Main Scope'){
-      renderHead();
-      renderBody();
-    }
-
     try {
       await supabaseUpdate(data[rowIdx]);
       supabaseLogActivity('update', data[rowIdx].SiteID, col, oldVal, newVal);
+      
+      // ⭐ أعد رسم الجدول ليظهر اللون الجديد
+      renderHead();
+      renderBody();
       renderStats();
       renderCharts();
       renderFilterMenu();
     } catch(err){
       toast({type:'error', title:'Save failed', message:err.message});
     }
-  });
-
-  sel.addEventListener('click', e => e.stopPropagation());
-  sel.addEventListener('mousedown', e => e.stopPropagation());
-
-  return sel;
-}
-
 /* =========================================================
    BADGE CLASS
    ========================================================= */
@@ -1781,9 +1834,13 @@ function renderBody(){
         if(r[rule.dependsOn] !== rule.value) return;
       }
 
-      const td = document.createElement('td');
+          const td = document.createElement('td');
       let val = r[col] || '';
       td.setAttribute('data-label', col);
+      // ⭐ أضف tooltip للخلايا الطويلة
+      if(val && String(val).length > 30){
+        td.setAttribute('title', val);
+      }
 
       // ============ تطبيق ألوان الحالة ============
       const v = String(val || '').toLowerCase().trim();
