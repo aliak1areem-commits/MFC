@@ -1484,7 +1484,6 @@ function pushToSheet(force){
   const url = getSheetUrl();
   if(!url) return;
 
-  /* 🛡️ GUARD: لا ترفع بيانات فارغة أبداً */
   if(!data.length){
     console.warn('[pushToSheet] Skipped: no local data');
     setLiveStatus('Skipped (empty)', false);
@@ -1493,19 +1492,42 @@ function pushToSheet(force){
 
   if(!window.__lastPushCount) window.__lastPushCount = data.length;
 
-  /* 🛡️ GUARD: تأكيد قبل انخفاض كبير */
   if(!force && window.__lastPushCount > 5 && data.length < window.__lastPushCount * 0.7){
     const ok = confirm(
       `⚠️ تحذير مهم\n\n` +
       `عدد المواقع انخفض من ${window.__lastPushCount} إلى ${data.length}.\n\n` +
-      `الاستمرار سيحذف ${window.__lastPushCount - data.length} موقع من Google Sheet.\n\n` +
-      `هل أنت متأكد؟`
+      `هل أنت متأكد من الحفظ؟`
     );
     if(!ok){
       setLiveStatus('Save cancelled', false);
       return;
     }
   }
+
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(async ()=>{
+    if(isPushing) return;
+    isPushing = true;
+    setLiveStatus("Saving...", false);
+    try{
+      const payload = rowsToSheetPayload();
+
+      /* ✅ text/plain + no-cors لتجنب CORS */
+      await fetch(url, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+
+      window.__lastPushCount = data.length;
+      setLiveStatus("Live · Connected", true);
+    }catch(err){
+      setLiveStatus("Save failed", false);
+      console.error('[pushToSheet]', err);
+    }finally{ isPushing = false; }
+  }, 900);
+}
 
   clearTimeout(pushTimer);
   pushTimer = setTimeout(async ()=>{
@@ -1539,10 +1561,15 @@ function pushToSheet(force){
 function logActivityToServer(action, siteId, field, oldVal, newVal){
   const url = getSheetUrl();
   if(!url) return;
-  fetch(url, { method:"POST", body: JSON.stringify({
-    action:'logActivity', user: currentUser, action, siteId, field,
-    oldValue: oldVal, newValue: newVal
-  })}).catch(()=>{});
+  fetch(url, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      action:'logActivity', user: currentUser, action, siteId, field,
+      oldValue: oldVal, newValue: newVal
+    })
+  }).catch(()=>{});
 }
 function startPolling(){
   clearInterval(pollTimer);
@@ -2540,6 +2567,7 @@ function fileToBase64(file){
 }
 async function savePDFImport(){
   if(!pendingPDF) return;
+
   const items = collectExtractedItems();
   const number  = document.getElementById('ex_smrNumber').value.trim();
   const date    = document.getElementById('ex_smrDate').value;
@@ -2549,6 +2577,7 @@ async function savePDFImport(){
   const status  = document.getElementById('ex_status').value;
   const targetIdx = document.getElementById('ex_targetSite').value;
   const total = items.reduce((s,i)=> s + i.qty * i.price, 0);
+
   let idx;
   if(targetIdx !== ''){
     idx = parseInt(targetIdx, 10);
@@ -2561,6 +2590,7 @@ async function savePDFImport(){
     data.unshift(ensureSiteFields(blank));
     idx = 0;
   }
+
   const site = ensureSiteFields(data[idx]);
   site['SMR Number'] = number;
   site['SMR Value']  = total ? total.toString() : '';
@@ -2573,38 +2603,84 @@ async function savePDFImport(){
   site.smr.itemCount = items.length;
   site.smr.fileName  = pendingPDF.file.name;
   if(siteId && !site.SiteID) site.SiteID = siteId;
+
   const btn = document.getElementById('pdfImportSave');
   btn.disabled = true;
-  btn.textContent = 'Uploading...';
+  btn.textContent = '⏳ Uploading...';
+
   try{
     const base64 = await fileToBase64(pendingPDF.file);
+    console.log('[PDF] Uploading, size:', (base64.length/1024).toFixed(1), 'KB');
+
+    const body = JSON.stringify({
+      action: 'uploadPdf',
+      fileName: pendingPDF.file.name,
+      mimeType: 'application/pdf',
+      base64: base64,
+      siteId: site.SiteID || ''
+    });
+
+    /* ✅ استخدام text/plain لتجنب CORS preflight */
     const res = await fetch(getSheetUrl(), {
       method: 'POST',
-      body: JSON.stringify({ action:'uploadPdf', fileName: pendingPDF.file.name, mimeType:'application/pdf', base64, siteId: site.SiteID || '' })
+      mode: 'no-cors',           // ← مهم
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: body
     });
-    const json = await res.json();
-    if(!json.ok) throw new Error(json.error || 'Upload failed');
-    site.driveFileId      = json.fileId;
-    site.driveViewUrl     = json.viewUrl;
-    site.drivePrevUrl     = json.previewUrl;
-    site.driveDownloadUrl = json.downloadUrl;
-    toast({type:'success', title:'Uploaded to Drive'});
-  }catch(err){
+
+    /* ⚠️ no-cors لا يسمح بقراءة الرد، لذا نستخدم GET منفصل للتحقق */
+    console.log('[PDF] POST sent (no-cors mode)');
+
+    /* انتظر ثم تحقق من Drive */
+    await new Promise(r => setTimeout(r, 2000));
+
+    /* استعلم من Sheet للحصول على الرابط */
+    try{
+      const check = await fetch(getSheetUrl() + '?action=read&t=' + Date.now());
+      const checkJson = await check.json();
+      const updated = checkJson.rows?.find(r => r.SiteID === site.SiteID);
+      if(updated && updated["SMR Drive URL"]){
+        site.driveViewUrl = updated["SMR Drive URL"];
+        site["SMR Drive URL"] = updated["SMR Drive URL"];
+        site["SMR File"] = updated["SMR File"] || pendingPDF.file.name;
+        btn.textContent = '✅ Uploaded';
+        toast({type:'success', title:'✅ تم الرفع إلى Drive'});
+      } else {
+        btn.textContent = '📤 Sent (verify later)';
+        toast({type:'info', title:'تم إرسال الملف', message:'سيظهر في Drive خلال لحظات'});
+      }
+    }catch(e){
+      btn.textContent = '📤 Sent';
+      toast({type:'info', title:'تم الإرسال'});
+    }
+
+    /* احفظ محلياً أيضاً كنسخة احتياطية */
     const pdfKey = pdfKeyForSite(site.SiteID);
     try{
       await idbPut(pdfKey, pendingPDF.file);
       site.pdfKey = pdfKey;
-      toast({type:'warning', title:'Saved locally'});
-    }catch(e){
-      toast({type:'error', title:'Save failed'});
-    }
-  }
-  ensureSiteFields(site);
-  saveData(); renderAll();
-  logActivityToServer('uploadSMR', site.SiteID, '', '', pendingPDF.file.name);
-  setTimeout(closePDFImportModal, 500);
-}
+    }catch(e){}
 
+  }catch(err){
+    console.error('[PDF] Failed:', err);
+    const pdfKey = pdfKeyForSite(site.SiteID);
+    try{
+      await idbPut(pdfKey, pendingPDF.file);
+      site.pdfKey = pdfKey;
+      toast({
+        type:'warning',
+        title:'محفوظ محلياً فقط',
+        message: err.message
+      });
+    }catch(e){}
+  }
+
+  ensureSiteFields(site);
+  saveData();
+  renderAll();
+  logActivityToServer('uploadSMR', site.SiteID, '', '', pendingPDF.file.name);
+  setTimeout(closePDFImportModal, 1500);
+}
 /* ==== PDF VIEWER ==== */
 async function openPDFViewer(siteIdx){
   const site = data[siteIdx];
