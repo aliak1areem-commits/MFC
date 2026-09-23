@@ -761,15 +761,17 @@ tr.row-rejected td:first-child{
           <button class="btn btn-accent" id="importPDFQuickBtn">📄 Import SMR</button>
           <div class="kebab-menu">
             <button class="btn btn-outline btn-icon" id="kebabBtn">⋯</button>
-            <div class="kebab-menu-list" id="kebabList">
-              <button class="kebab-item" id="exportCsvBtn">📥 Export CSV</button>
-              <button class="kebab-item" id="exportXlsxBtn">📊 Export Excel</button>
-              <button class="kebab-item" id="exportReportBtn">📑 Export PDF Report</button>
-              <div class="kebab-divider"></div>
-              <button class="kebab-item" id="backupBtn">💾 Create Backup</button>
-              <div class="kebab-divider"></div>
-              <button class="kebab-item danger" id="resetBtn">🗑️ Reset Data</button>
-            </div>
+           <div class="kebab-menu-list" id="kebabList">
+  <button class="kebab-item" id="exportCsvBtn">📥 Export CSV</button>
+  <button class="kebab-item" id="exportXlsxBtn">📊 Export Excel</button>
+  <button class="kebab-item" id="exportReportBtn">📑 Export PDF Report</button>
+  <div class="kebab-divider"></div>
+  <button class="kebab-item" id="emailReportBtn">📧 Send Email Report</button>
+  <div class="kebab-divider"></div>
+  <button class="kebab-item" id="backupBtn">💾 Create Backup</button>
+  <div class="kebab-divider"></div>
+  <button class="kebab-item danger" id="resetBtn">🗑️ Reset Data</button>
+</div>
           </div>
         </div>
         <div class="filter-chips" id="filterChips"></div>
@@ -1027,7 +1029,52 @@ tr.row-rejected td:first-child{
     <div class="modal-actions"><button class="btn btn-outline" id="mapClose">Close</button></div>
   </div>
 </div>
+<!-- EMAIL REPORT MODAL -->
+<div class="modal-backdrop" id="emailReportModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-head">
+      <h3>📧 Send Site Report</h3>
+      <p>سيفتح Outlook مع التقرير جاهزاً — يمكنك إرفاق PDF يدوياً</p>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr;">
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Recipient Email</label>
+          <input type="email" id="reportEmailInput" placeholder="manager@mfc.com" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+        </div>
+        <div style="margin-top:12px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">CC (اختياري)</label>
+          <input type="email" id="reportEmailCC" placeholder="cc@mfc.com" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+        </div>
+        <div style="margin-top:12px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Report Type</label>
+          <select id="reportTypeSelect" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+            <option value="full">📊 Full Report — كل السايتات</option>
+            <option value="summary">📋 Summary — إحصائيات فقط</option>
+            <option value="filtered">🔽 Filtered — السايتات المفلترة فقط</option>
+            <option value="rejected">🔴 Rejected Sites — السايتات المرفوضة</option>
+            <option value="progress">🟡 In Progress — قيد العمل</option>
+          </select>
+        </div>
+      </div>
 
+      <div class="alert alert-info" style="margin-top:16px;">
+        📌 <strong>ملاحظة:</strong> سيُفتح برنامج الإيميل مع التقرير جاهزاً. 
+        لإرفاق PDF، اضغط <strong>Export PDF</strong> أولاً ثم أرفق الملف في الإيميل.
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" id="downloadPdfForEmail">
+          📑 تحميل PDF أولاً
+        </button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="emailReportCancel">إلغاء</button>
+      <button class="btn btn-primary" id="emailReportOpen">📧 فتح Outlook</button>
+    </div>
+  </div>
+</div>
 <!-- TOASTS -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -3641,7 +3688,168 @@ async function initApp(){
   console.log('%c📊 ' + data.length + ' sites loaded', 'color:#3b82f6;font-size:12px');
   console.log('%c⌨️  Shortcuts: Ctrl+K (palette), Ctrl+N (new), Ctrl+F (search), Ctrl+E (excel), Ctrl+P (pdf)', 'color:#6b7280;font-size:11px');
 }
+/* =========================================================
+   EMAIL REPORT — يفتح Outlook مباشرة
+   ========================================================= */
+function buildEmailBody(reportType) {
+  // اختر السايتات حسب النوع
+  let sites = data;
+  let title = 'Full Report';
 
+  if (reportType === 'filtered') {
+    sites = getFilteredSorted().map(x => x.r);
+    title = 'Filtered Sites';
+  } else if (reportType === 'rejected') {
+    sites = data.filter(r => (r.States||'').toLowerCase() === 'rejected');
+    title = 'Rejected Sites';
+  } else if (reportType === 'progress') {
+    sites = data.filter(r => (r.States||'').toLowerCase() === 'in progress');
+    title = 'In Progress Sites';
+  } else if (reportType === 'summary') {
+    sites = [];
+    title = 'Summary Only';
+  }
+
+  // الإحصائيات
+  const total = data.length;
+  const accepted = data.filter(r => (r.States||'').toLowerCase() === 'accepted').length;
+  const inProgress = data.filter(r => (r.States||'').toLowerCase() === 'in progress').length;
+  const rejected = data.filter(r => (r.States||'').toLowerCase() === 'rejected').length;
+
+  const totalNokia = data.reduce((s,r) => s + (parseFloat(r['Nokia Price'])||0), 0);
+  const totalSubcon = data.reduce((s,r) => s + (parseFloat(r['Subcon Price'])||0), 0);
+  const totalPaid = data.reduce((s,r) => s + (parseFloat(r['Paid Amount'])||0), 0);
+  const totalTransport = data.reduce((s,r) => s + (parseFloat(r['Transport & Crane'])||0), 0);
+  const balance = totalSubcon - totalPaid;
+  const totalCost = totalSubcon + totalTransport;
+
+  // بناء نص التقرير
+  let body = '';
+  body += '==========================================\n';
+  body += '   MFC SITE TRACKER REPORT\n';
+  body += '   ' + title + '\n';
+  body += '   ' + new Date().toLocaleString('en-GB') + '\n';
+  body += '==========================================\n\n';
+
+  // الإحصائيات
+  body += '📊 إحصائيات عامة:\n';
+  body += '----------------\n';
+  body += '• إجمالي المواقع: ' + total + '\n';
+  body += '• Accepted: ' + accepted + ' (' + (total ? Math.round(accepted/total*100) : 0) + '%)\n';
+  body += '• In Progress: ' + inProgress + '\n';
+  body += '• Rejected: ' + rejected + '\n\n';
+
+  // المالية
+  body += '💰 الملخص المالي (IQD):\n';
+  body += '----------------\n';
+  body += '• Nokia Price Total: ' + totalNokia.toLocaleString() + '\n';
+  body += '• Subcon Price Total: ' + totalSubcon.toLocaleString() + '\n';
+  body += '• Transport & Crane: ' + totalTransport.toLocaleString() + '\n';
+  body += '• Total Cost: ' + totalCost.toLocaleString() + '\n';
+  body += '• Paid: ' + totalPaid.toLocaleString() + '\n';
+  body += '• Balance: ' + balance.toLocaleString() + '\n\n';
+
+  // السايتات
+  if (sites.length > 0) {
+    body += '📋 قائمة المواقع (' + sites.length + '):\n';
+    body += '----------------\n';
+    body += 'Site ID\tGov\tTeam\tStatus\tScope\tSubcon\n';
+    body += '----------------------------------------\n';
+    
+    sites.slice(0, 100).forEach(r => {
+      body += [
+        r.SiteID || '—',
+        r.Gov || '—',
+        r.Team || '—',
+        r.States || '—',
+        r['Main Scope'] || '—',
+        (parseFloat(r['Subcon Price']) || 0).toLocaleString()
+      ].join('\t') + '\n';
+    });
+
+    if (sites.length > 100) {
+      body += '\n... و ' + (sites.length - 100) + ' موقع آخر\n';
+      body += '(استخدم Export Excel للحصول على القائمة الكاملة)\n';
+    }
+    body += '\n';
+  }
+
+  body += '==========================================\n';
+  body += 'تم التوليد بواسطة MFC Command Center\n';
+  body += window.location.href + '\n';
+  body += '==========================================\n';
+
+  return body;
+}
+
+function openOutlookEmail() {
+  const to = document.getElementById('reportEmailInput').value.trim();
+  const cc = document.getElementById('reportEmailCC').value.trim();
+  const reportType = document.getElementById('reportTypeSelect').value;
+
+  if (!to || !to.includes('@')) {
+    toast({type:'warning', title:'أدخل إيميل صحيح'});
+    return;
+  }
+
+  const subject = 'MFC Site Report - ' + new Date().toLocaleDateString('en-GB') + ' - ' + data.length + ' Sites';
+  const body = buildEmailBody(reportType);
+
+  // افتح Outlook Web (يعمل مع أي متصفح)
+  const outlookUrl = 'https://outlook.office.com/mail/deeplink/compose?' +
+    'to=' + encodeURIComponent(to) +
+    (cc ? '&cc=' + encodeURIComponent(cc) : '') +
+    '&subject=' + encodeURIComponent(subject) +
+    '&body=' + encodeURIComponent(body);
+
+  // افتح Outlook Web في نافذة جديدة
+  window.open(outlookUrl, '_blank');
+
+  // أغلق Modal
+  document.getElementById('emailReportModal').classList.remove('show');
+
+  toast({
+    type:'success',
+    title:'✅ تم فتح Outlook',
+    message:'التقرير جاهز — أرفق PDF يدوياً إذا احتجت'
+  });
+}
+
+/* ---- Email Report Modal Events ---- */
+const emailReportModal = document.getElementById('emailReportModal');
+
+document.getElementById('emailReportBtn').onclick = () => {
+  document.getElementById('kebabList').classList.remove('show');
+  emailReportModal.classList.add('show');
+  setTimeout(() => document.getElementById('reportEmailInput').focus(), 200);
+};
+
+document.getElementById('emailReportCancel').onclick = () => {
+  emailReportModal.classList.remove('show');
+};
+
+document.getElementById('emailReportOpen').onclick = openOutlookEmail;
+
+document.getElementById('downloadPdfForEmail').onclick = () => {
+  // استدعِ زر PDF الموجود
+  document.getElementById('exportReportBtn').click();
+  toast({
+    type:'info',
+    title:'📑 تم تحميل PDF',
+    message:'أرفقه في الإيميل بعد فتحه',
+    duration:5000
+  });
+};
+
+// إغلاق Modal بالنقر على الخلفية
+emailReportModal.onclick = (e) => {
+  if (e.target === emailReportModal) emailReportModal.classList.remove('show');
+};
+
+// Enter في حقل الإيميل → إرسال
+document.getElementById('reportEmailInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') openOutlookEmail();
+});
 /* =========================================================
    LOGIN
    ========================================================= */
