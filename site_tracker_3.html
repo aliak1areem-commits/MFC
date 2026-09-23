@@ -2547,7 +2547,46 @@ function switchView(view){
 function openSettings(){
   document.getElementById('settingsModal').classList.add('show');
 }
+/* =========================================================
+   PDF VIEWER
+   ========================================================= */
+function closePDFViewer(){
+  const modal = document.getElementById('pdfViewerModal');
+  const frame = document.getElementById('pdfViewerFrame');
+  if(modal) modal.classList.remove('show');
+  if(frame) frame.src = '';
+}
 
+function openPDFViewer(siteIdx){
+  const site = data[siteIdx];
+  if(!site) return;
+
+  let url = null;
+  if(site.smr?.fileUrl) url = site.smr.fileUrl;
+  else if(site.drivePrevUrl) url = site.drivePrevUrl;
+  else if(site.driveFileId) url = 'https://drive.google.com/file/d/' + site.driveFileId + '/preview';
+
+  if(!url){
+    toast({type:'warning', title:'No PDF available'});
+    return;
+  }
+
+  const title = `${site.smr?.number || site.SiteID || ''} — ${site.smr?.fileName || 'SMR.pdf'}`;
+  document.getElementById('pdfViewerTitle').textContent = title;
+
+  const viewerUrl = 'https://docs.google.com/viewer?embedded=true&url=' + encodeURIComponent(url);
+  document.getElementById('pdfViewerFrame').src = viewerUrl;
+
+  document.getElementById('pdfViewerDownload').onclick = ()=>{
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = site.smr?.fileName || 'SMR.pdf';
+    a.target = '_blank';
+    a.click();
+  };
+
+  document.getElementById('pdfViewerModal').classList.add('show');
+}
 /* =========================================================
    EVENT BINDINGS
    ========================================================= */
