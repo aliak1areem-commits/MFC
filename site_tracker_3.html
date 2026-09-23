@@ -16,6 +16,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.0/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   if(window.pdfjsLib){
     pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -534,6 +535,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
 </head>
 <body>
 
+<!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
     <div class="login-logo">MFC</div>
@@ -551,6 +553,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- APP ROOT -->
 <div id="appRoot">
   <header class="hero">
     <div class="hero-inner">
@@ -563,7 +566,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
         </div>
       </div>
       <div class="hero-right">
-        <div class="live-badge"><div class="live-dot"></div><span id="liveStatus">Live · Connected</span></div>
+        <div class="live-badge"><div class="live-dot"></div><span id="liveStatus">Connecting...</span></div>
         <div class="hero-clock" id="heroClock">--:--:--</div>
         <button class="icon-btn-hero" id="themeBtn" title="Change theme">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -580,12 +583,13 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
     <div id="alertsBanner" style="display:none;margin-bottom:16px;"></div>
 
     <div class="view-tabs" id="viewTabs">
-      <button class="view-tab active" data-view="dashboard">Dashboard</button>
-      <button class="view-tab" data-view="sites">Sites</button>
-      <button class="view-tab" data-view="gantt">Timeline</button>
-      <button class="view-tab" data-view="activity">Activity</button>
+      <button class="view-tab active" data-view="dashboard">📊 Dashboard</button>
+      <button class="view-tab" data-view="sites">📋 Sites</button>
+      <button class="view-tab" data-view="gantt">📅 Timeline</button>
+      <button class="view-tab" data-view="activity">⚡ Activity</button>
     </div>
 
+    <!-- DASHBOARD VIEW -->
     <div id="view-dashboard">
       <div class="kpi-groups" id="kpiGroups"></div>
       <div class="charts-row">
@@ -598,6 +602,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
       </div>
     </div>
 
+    <!-- SITES VIEW -->
     <div id="view-sites" style="display:none;">
       <div class="toolbar">
         <div class="toolbar-row">
@@ -607,25 +612,25 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
             <span class="search-kbd">⌘K</span>
           </div>
           <div class="filter-dropdown">
-            <button class="btn btn-outline" id="filterBtn">Filters <span id="filterCount" style="opacity:.7;"></span></button>
+            <button class="btn btn-outline" id="filterBtn">🔽 Filters <span id="filterCount" style="opacity:.7;"></span></button>
             <div class="filter-menu" id="filterMenu"></div>
           </div>
           <div style="flex:1;"></div>
-          <button class="btn btn-outline" id="mapBtn">Map</button>
+          <button class="btn btn-outline" id="mapBtn">🗺️ Map</button>
           <button class="btn btn-primary" id="addRowBtn">+ Add Site</button>
-          <button class="btn btn-accent" id="importPDFQuickBtn">Import SMR</button>
+          <button class="btn btn-accent" id="importPDFQuickBtn">📄 Import SMR</button>
           <div class="kebab-menu">
             <button class="btn btn-outline btn-icon" id="kebabBtn">⋯</button>
             <div class="kebab-menu-list" id="kebabList">
-              <button class="kebab-item" id="exportCsvBtn">Export CSV</button>
-              <button class="kebab-item" id="exportXlsxBtn">Export Excel</button>
-              <button class="kebab-item" id="exportReportBtn">Export PDF Report</button>
-              <button class="kebab-item" id="importBtn">Import Excel</button>
+              <button class="kebab-item" id="exportCsvBtn">📥 Export CSV</button>
+              <button class="kebab-item" id="exportXlsxBtn">📊 Export Excel</button>
+              <button class="kebab-item" id="exportReportBtn">📑 Export PDF Report</button>
+              <button class="kebab-item" id="importBtn">📤 Import Excel</button>
               <div class="kebab-divider"></div>
-              <button class="kebab-item" id="emailReportBtn">Send Email Report</button>
-              <button class="kebab-item" id="backupBtn">Create Backup</button>
+              <button class="kebab-item" id="emailReportBtn">📧 Send Email Report</button>
+              <button class="kebab-item" id="backupBtn">💾 Create Backup</button>
               <div class="kebab-divider"></div>
-              <button class="kebab-item danger" id="resetBtn">Reset Data</button>
+              <button class="kebab-item danger" id="resetBtn">🗑️ Reset Data</button>
             </div>
           </div>
         </div>
@@ -656,15 +661,17 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
       </div>
     </div>
 
+    <!-- GANTT VIEW -->
     <div id="view-gantt" style="display:none;">
       <div class="gantt-wrap" id="ganttWrap"></div>
     </div>
 
+    <!-- ACTIVITY VIEW -->
     <div id="view-activity" style="display:none;">
       <div class="table-card" style="padding:20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <h3 style="font-size:16px;font-weight:800;">Activity Log</h3>
-          <button class="btn btn-outline btn-sm" id="refreshActivity">Refresh</button>
+          <button class="btn btn-outline btn-sm" id="refreshActivity">🔄 Refresh</button>
         </div>
         <div id="activityList"></div>
       </div>
@@ -672,6 +679,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="bottomNav">
   <div class="bottom-nav-inner">
     <button class="bottom-nav-item active" data-view="dashboard"><span>🏠</span><span>Home</span></button>
@@ -682,8 +690,10 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </nav>
 
+<!-- CHAT FAB -->
 <button class="chat-fab" id="chatFab" title="Ask AI Assistant">💬</button>
 
+<!-- CHAT PANEL -->
 <div class="chat-panel" id="chatPanel">
   <div class="chat-head">
     <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;">🤖</div>
@@ -702,6 +712,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- DRAWER -->
 <div class="drawer-backdrop" id="drawerBackdrop"></div>
 <div class="drawer" id="siteDrawer">
   <div class="drawer-head">
@@ -715,10 +726,11 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   <div class="drawer-body" id="drawerBody"></div>
 </div>
 
+<!-- PDF IMPORT MODAL -->
 <div class="modal-backdrop" id="pdfImportModal">
   <div class="modal wide">
     <div class="modal-head">
-      <h3>Import SMR PDF</h3>
+      <h3>📄 Import SMR PDF</h3>
       <p>Upload a Stock Requisition PDF. Items will be extracted exactly as-is (no prices).</p>
     </div>
     <div class="modal-body">
@@ -785,6 +797,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- EXCEL IMPORT MODAL -->
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
     <div class="modal-head"><h3 id="importTitle">Import spreadsheet</h3><p id="importSummary">Preview will appear here.</p></div>
@@ -796,26 +809,19 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- SETTINGS MODAL -->
 <div class="modal-backdrop" id="settingsModal">
   <div class="modal" style="max-width:560px;">
-    <div class="modal-head"><h3>Settings</h3><p>Configuration and tools</p></div>
+    <div class="modal-head"><h3>⚙️ Settings</h3><p>Configuration and tools</p></div>
     <div class="modal-body">
       <div class="d-section">
-        <div class="d-section-title">Google Sheet Sync</div>
+        <div class="d-section-title">Supabase Sync</div>
         <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
           <div style="flex:1;">
             <div style="font-size:13.5px;font-weight:600;" id="settingsSyncStatus">Connected</div>
-            <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Data shared via Sheet + Drive.</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Real-time sync enabled</div>
           </div>
-          <button class="btn btn-outline btn-sm" id="syncNowBtn">Sync Now</button>
-        </div>
-        <div style="margin-top:12px;">
-          <label style="font-size:11.5px;font-weight:600;color:var(--text-dim);text-transform:uppercase;">Advanced: Sheet URL</label>
-          <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/..." style="width:100%;padding:9px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-subtle);font-family:'JetBrains Mono';font-size:11.5px;margin-top:5px;color:var(--text);">
-        </div>
-        <div style="display:flex;gap:6px;margin-top:10px;">
-          <button class="btn btn-outline btn-sm" id="sheetResetDefault">Use Default</button>
-          <button class="btn btn-primary btn-sm" id="sheetConnect">Save &amp; Reconnect</button>
+          <button class="btn btn-outline btn-sm" id="syncNowBtn">🔄 Sync Now</button>
         </div>
       </div>
       <div class="d-section">
@@ -825,12 +831,6 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
           <button class="btn btn-outline btn-sm theme-opt" data-theme-opt="dark">Dark</button>
           <button class="btn btn-outline btn-sm theme-opt" data-theme-opt="midnight">Midnight</button>
           <button class="btn btn-outline btn-sm theme-opt" data-theme-opt="sepia">Sepia</button>
-        </div>
-        <div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;">
-          <div><div style="font-size:13.5px;font-weight:600;">Language</div></div>
-          <select id="langSelect" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-subtle);color:var(--text);font-size:13px;">
-            <option value="en">English</option><option value="ar">العربية</option>
-          </select>
         </div>
       </div>
       <div class="d-section">
@@ -848,9 +848,10 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- EMAIL MODAL -->
 <div class="modal-backdrop" id="emailModal">
   <div class="modal">
-    <div class="modal-head"><h3>Send Email Report</h3><p>The report will be sent to the recipient below.</p></div>
+    <div class="modal-head"><h3>📧 Send Email Report</h3><p>The report will be sent to the recipient below.</p></div>
     <div class="modal-body">
       <div class="form-grid" style="grid-template-columns:1fr;">
         <div><label>Recipient Email</label><input type="email" id="emailTo"></div>
@@ -865,21 +866,23 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- PDF VIEWER -->
 <div class="modal-backdrop" id="pdfViewerModal">
   <div class="pdf-viewer">
     <div class="pdf-viewer-head">
       <div class="pdf-viewer-title" id="pdfViewerTitle">PDF</div>
-      <button class="btn btn-outline btn-sm" id="pdfViewerDownload">Download</button>
-      <button class="btn btn-outline btn-sm" id="pdfViewerClose">Close</button>
+      <button class="btn btn-outline btn-sm" id="pdfViewerDownload">⬇ Download</button>
+      <button class="btn btn-outline btn-sm" id="pdfViewerClose">✕ Close</button>
     </div>
     <div class="pdf-viewer-body"><iframe id="pdfViewerFrame"></iframe></div>
   </div>
 </div>
 
+<!-- MAP MODAL -->
 <div class="modal-backdrop" id="mapModal">
   <div class="modal" style="max-width:1100px;padding:0;overflow:hidden;">
     <div class="modal-head" style="background:var(--navy-900);color:#fff;border:none;">
-      <h3 style="color:#fff;">Site Map</h3>
+      <h3 style="color:#fff;">🗺️ Site Map</h3>
       <p style="color:#8fa3c2;">Sites plotted by LAT/Long · Clustered</p>
     </div>
     <div id="leafletMap" style="height:70vh;width:100%;"></div>
@@ -887,14 +890,14 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- SHORTCUTS MODAL -->
 <div class="modal-backdrop" id="shortcutsModal">
   <div class="modal">
-    <div class="modal-head"><h3>Keyboard Shortcuts</h3></div>
+    <div class="modal-head"><h3>⌨️ Keyboard Shortcuts</h3></div>
     <div class="modal-body">
       <div class="shortcut-row"><span>Command Palette</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">K</span></div></div>
       <div class="shortcut-row"><span>New Site</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">N</span></div></div>
       <div class="shortcut-row"><span>Search</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">F</span></div></div>
-      <div class="shortcut-row"><span>Save</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">S</span></div></div>
       <div class="shortcut-row"><span>Export Excel</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">E</span></div></div>
       <div class="shortcut-row"><span>PDF Report</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">P</span></div></div>
       <div class="shortcut-row"><span>Dashboard</span><div class="shortcut-keys"><span class="kbd">G</span><span class="kbd">D</span></div></div>
@@ -906,6 +909,7 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- COMMAND PALETTE -->
 <div class="cmdk-backdrop" id="cmdkBackdrop">
   <div class="cmdk">
     <div class="cmdk-input-wrap">
@@ -917,66 +921,34 @@ table.dt tbody tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
+<!-- TOASTS -->
 <div class="toast-container" id="toastContainer"></div>
 
 <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;">
 <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none;" multiple>
 
 <script>
-/* ============ CONFIG ============ */
-const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbw5eHnXphfuHvK0e_gy_a27mc8XzaW3W8yY3Yvc5c66fQL4YuI81_sAnEwcPODaRmiT/exec"; const SHEET_URL_KEY = "mfc_sheet_api_url";
-const STORAGE_KEY   = "mfc_site_tracker_data_v7";
-const LOGIN_KEY     = "mfc_logged_in";
-const THEME_KEY     = "mfc_theme";
-const DENSITY_KEY   = "mfc_density";
-const LANG_KEY      = "mfc_lang";
-const PINNED_KEY    = "mfc_pinned_columns";
-const VALID_USER    = "MFC";
-const VALID_PASS    = "MFC@1234";
+  /* =========================================================
+   CONFIG
+   ========================================================= */
+const SUPABASE_URL = "https://bagbnoupsnsltflgwpic.supabase.co";
+const SUPABASE_KEY = "sb_publishable_jyov6Yn5ulwm3fj3lIs9yw_IDZVhYMd";
 
-const ORIGINAL_DATA = [
-  {"SiteID":"6248","Gov":"Muthanna","Photo Report":"Shared","FLM Feedback":"accepted","Saif Tool":"Accepted","Team":"Audited Amir","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"4 Sectors","Date":"11-Oct-25","States":"Done","Payment to subcon":"25-Nov-25","Amount to subcon":"1500000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"31.19733","Long":"45.53186","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"262","Gov":"Muthanna","Photo Report":"Shared","FLM Feedback":"accepted","Saif Tool":"Accepted","Team":"Audited Amir","Nokia Comments":"","Extra Scope":"","Main Scope":"MM","Details of request":"","Date":"4-Nov-25","States":"Done","Payment to subcon":"25-Nov-25","Amount to subcon":"925000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"31.29798056","Long":"45.26566944","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"5290","Gov":"Muthanna","Photo Report":"Shared","FLM Feedback":"accepted","Saif Tool":"Accepted","Team":"Audited Amir","Nokia Comments":"","Extra Scope":"","Main Scope":"MM","Details of request":"","Date":"20-Oct-25","States":"Done","Payment to subcon":"25-Nov-25","Amount to subcon":"925000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"31.3096","Long":"45.287","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"892","Gov":"Muthanna","Photo Report":"Shared","FLM Feedback":"accepted","Saif Tool":"Accepted","Team":"Audited Amir","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"31-Aug-25","States":"Done","Payment to subcon":"25-Nov-25","Amount to subcon":"700000","PO":"50836360","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"31.20583","Long":"45.55044","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7098","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD (Add for Ziyara)","Details of request":"","Date":"21-Jun-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"32.532805","Long":"44.335879","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7033","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD (Add for Ziyara)","Details of request":"","Date":"21-Jun-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"32.542974","Long":"44.305098","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"8098","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD (Add for Ziyara)","Details of request":"","Date":"22-Jun-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"32.4347","Long":"44.324","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"2900","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"22-Jun-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"32.183878","Long":"44.363863","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7101","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"Accepted Wcl","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"25-Jun-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811265","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"32.224177","Long":"44.351341","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7283","Gov":"Qaddissiya","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"Accepted Wcl","Team":"Audited Zaid/Aqeel","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"24-Jun-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811294","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"31.9568","Long":"44.5925","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7290","Gov":"Qaddissiya","Photo Report":"Shared","FLM Feedback":"accepted","Saif Tool":"Accepted","Team":"Audited Zaid/Aqeel","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD (Add for Ziyara)","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50783416","PO2":"50783554","Pending Payment":"PAC/30","Nokia Amount":"1617000","LAT":"31.93154","Long":"44.53679","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7295","Gov":"Qaddissiya","Photo Report":"Shared","FLM Feedback":"Accepted Wcl/Need CL","Saif Tool":"Accepted","Team":"Audited Zaid/Aqeel","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"24-Jun-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50783329","PO2":"50783546","Pending Payment":"PAC/30","Nokia Amount":"1617000","LAT":"31.97656","Long":"44.60161","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"4679","Gov":"Qaddissiya","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"Accepted","Team":"Audited Zaid/Aqeel","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"26-Jun-25","States":"Done","Payment to subcon":"","Amount to subcon":"","PO":"50811340","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"31.959124","Long":"44.878394","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"4923","Gov":"Qaddissiya","Photo Report":"Shared","FLM Feedback":"accepted","Saif Tool":"Accepted","Team":"Audited Zaid/Aqeel","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD (Add for Ziyara)","Details of request":"","Date":"25-Jun-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811232","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"31.865231","Long":"44.629362","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6182","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"Accepted Wcl/Need CL","Saif Tool":"Accepted","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"4 Sectors","Date":"5-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"1150000","PO":"50780916","PO2":"50791375","Pending Payment":"PAC/30","Nokia Amount":"2133800","LAT":"32.45796","Long":"44.36552","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"5457","Gov":"Qaddissiya","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Zaid/Aqeel","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"3 Sectors","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"1000000","PO":"50780986","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"31.84056","Long":"44.83047","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"5573","Gov":"Qaddissiya","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Audited Zaid/Aqeel","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"3 Sectors","Date":"2-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"1000000","PO":"50780984","PO2":"50791502","Pending Payment":"PAC/30","Nokia Amount":"2262000","LAT":"31.81118","Long":"44.73116","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7280","Gov":"Qaddissiya","Photo Report":"Shared","FLM Feedback":"Accepted Wcl/Need CL","Saif Tool":"Accepted","Team":"Audited Zaid/Aqeel","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD (Add for Ziyara)","Details of request":"","Date":"4-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50783420","PO2":"50783552","Pending Payment":"PAC/30","Nokia Amount":"1617000","LAT":"31.74904","Long":"44.61501","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"360","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"3 Sectors","Date":"13-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"1000000","PO":"50780951","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"32.50945","Long":"44.39113","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"5414","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"4 Sectors","Date":"12-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"1150000","PO":"50780914","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"32.5171","Long":"44.3794","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6281","Gov":"Babil","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Audited Raad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"4 Sectors","Date":"23-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"1150000","PO":"50780946","PO2":"50791363","Pending Payment":"PAC/30","Nokia Amount":"2133800","LAT":"32.27987","Long":"44.32623","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6990","Gov":"Basra","Photo Report":"owner issue (multible times)","FLM Feedback":"","Saif Tool":"0","Team":"Adnan","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"19-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811303","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.57461","Long":"47.84698","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"4461","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Adnan","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"19-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811342","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.513758","Long":"47.859414","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"4668","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Adnan","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"19-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811281","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.476828","Long":"47.83788","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"4460","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"Rejected","Saif Tool":"0","Team":"Adnan","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"19-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811237","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.482581","Long":"47.865882","Dismantle":"","Snags 1":"One of PDU 5 output Source Must be 2 PDU and MAX Each PDU 4 output source","Snags 2":"Lable of PDU Missing","Snags 3":""},
-  {"SiteID":"7161","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"reported as Ali Emad (not correct)","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811252","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.46653","Long":"47.91537","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7168","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"reported as Ali Emad (not correct)","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811285","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.4597","Long":"47.8866","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7195","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"accepted","Saif Tool":"Accepted","Team":"reported as Ali Emad (old)","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.45","Long":"47.8747","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7167","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"reported as Ali Emad (not correct)","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811313","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.4458","Long":"47.8879","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6580","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Haider","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"23-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.40097","Long":"47.674617","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7165","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Haider","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811305","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.359985","Long":"47.712394","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6567","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Haider","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811334","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.43372147","Long":"47.95967661","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7156","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Haider","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"50811291","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.3972","Long":"47.71277","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6508","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Ali Emad","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"10-Jul-25","States":"Done","Payment to subcon":"","Amount to subcon":"","PO":"50811223","PO2":"","Pending Payment":"PAC/30","Nokia Amount":"1198800","LAT":"30.485519","Long":"47.84813","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7008","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Adnan","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.48866","Long":"47.84987","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6995","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Adnan","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"24-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.3877","Long":"47.7321","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7180","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"","Saif Tool":"0","Team":"Adnan","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"31-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.3782","Long":"47.7247","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6526","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"reported as Ali Emad (not correct)","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.574399","Long":"47.813726","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"7153","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"accepted","Saif Tool":"Accepted","Team":"reported as Ali Emad (old)","Nokia Comments":"","Extra Scope":"","Main Scope":"TDD","Details of request":"","Date":"17-Jul-25","States":"Done","Payment to subcon":"June July Payment","Amount to subcon":"750000","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.561696","Long":"47.711108","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""},
-  {"SiteID":"6133","Gov":"Basra","Photo Report":"Shared","FLM Feedback":"Accepted","Saif Tool":"Accepted","Team":"Audited Adnan","Nokia Comments":"Not Partial TDD","Extra Scope":"2nd AKHD added by insource team","Main Scope":"TDD","Details of request":"","Date":"27-Sep-25","States":"Done","Payment to subcon":"","Amount to subcon":"","PO":"","PO2":"","Pending Payment":"","Nokia Amount":"","LAT":"30.5543","Long":"47.7499","Dismantle":"","Snags 1":"","Snags 2":"","Snags 3":""}
-];
+const STORAGE_KEY = "mfc_site_tracker_data_v8";
+const LOGIN_KEY   = "mfc_logged_in_v8";
+const THEME_KEY   = "mfc_theme";
+const DENSITY_KEY = "mfc_density";
+const PINNED_KEY  = "mfc_pinned_columns";
+const VALID_USER  = "MFC";
+const VALID_PASS  = "MFC@1234";
 
+/* Supabase client */
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* =========================================================
+   COLUMNS
+   ========================================================= */
 const COLUMNS = [
   "SiteID","Gov","Photo Report","FLM Feedback","Saif Tool","Team",
   "Nokia Comments","Extra Scope","Main Scope","Details of request","Date","States",
@@ -991,353 +963,348 @@ const CALC_COLS  = ["Balance"];
 const WIDE_COLS  = ["Team","Nokia Comments","Extra Scope","Snags 1","Snags 2","Field Engineer","Subcontractor","SMR Drive URL"];
 const BADGE_COLS = ["FLM Feedback","Saif Tool","States","Payment Status"];
 
+/* DB mapping */
+const DB_MAP = {
+  "SiteID":"site_id","Gov":"gov","Photo Report":"photo_report","FLM Feedback":"flm_feedback",
+  "Saif Tool":"saif_tool","Team":"team","Nokia Comments":"nokia_comments","Extra Scope":"extra_scope",
+  "Main Scope":"main_scope","Details of request":"details_of_request","Date":"date_field","States":"states",
+  "Payment to subcon":"payment_to_subcon","Amount to subcon":"amount_to_subcon","PO":"po","PO2":"po2",
+  "Pending Payment":"pending_payment","Nokia Amount":"nokia_amount","SMR Number":"smr_number",
+  "SMR Value":"smr_value","SMR File":"smr_file","SMR Drive URL":"smr_drive_url",
+  "Contract Value":"contract_value","Payment Status":"payment_status","Payment Date":"payment_date",
+  "Amount Paid":"amount_paid","Balance":"balance",
+  "Field Engineer":"field_engineer","Subcontractor":"subcontractor",
+  "LAT":"lat","Long":"long","Dismantle":"dismantle",
+  "Snags 1":"snags_1","Snags 2":"snags_2","Snags 3":"snags_3"
+};
+const DB_REVERSE = {};
+Object.entries(DB_MAP).forEach(([k,v]) => DB_REVERSE[v] = k);
+
+/* =========================================================
+   STATE
+   ========================================================= */
 let data = [];
 let sortState = {col:null, dir:1};
-let pendingImportRows = null;
-let newRowKey = null;
-let pendingPDF = null;
 let activeFilters = {};
+let newRowKey = null;
+let pendingImportRows = null;
+let pendingPDF = null;
 let charts = {};
-let undoBuffer = null;
-let undoTimeout = null;
-let leafletInstance = null;
-let currentUser = "MFC";
-let currentView = "dashboard";
+let realtimeChannel = null;
 let pinnedColumns = new Set();
 let currentTheme = "light";
-let currentLang = "en";
+let leafletInstance = null;
 let lastKeyPress = null;
+let isSaving = false;
 
-function applyTheme(){
-  const saved = localStorage.getItem(THEME_KEY) || "light";
-  currentTheme = saved;
-  document.documentElement.setAttribute('data-theme', saved);
-}
-applyTheme();
-
-function applyLang(){
-  const saved = localStorage.getItem(LANG_KEY) || "en";
-  currentLang = saved;
-  document.documentElement.setAttribute('dir', saved === 'ar' ? 'rtl' : 'ltr');
-  document.documentElement.setAttribute('lang', saved);
-}
-applyLang();
-
-function loadPinned(){
-  try{
-    const saved = JSON.parse(localStorage.getItem(PINNED_KEY) || "[]");
-    pinnedColumns = new Set(saved);
-  }catch(e){ pinnedColumns = new Set(); }
-}
-loadPinned();
-function savePinned(){
-  localStorage.setItem(PINNED_KEY, JSON.stringify(Array.from(pinnedColumns)));
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function escapeHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function updateClock(){
-  const el = document.getElementById('heroClock');
-  if(!el) return;
-  el.textContent = new Date().toLocaleTimeString('en-GB', {hour12:false});
+function fmtShort(n){
+  const abs = Math.abs(n);
+  if(abs >= 1e9) return (n/1e9).toFixed(2)+'B';
+  if(abs >= 1e6) return (n/1e6).toFixed(2)+'M';
+  if(abs >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toLocaleString();
 }
-setInterval(updateClock, 1000); updateClock();
-
-document.getElementById('themeBtn').onclick = ()=>{
-  const themes = ['light','dark','midnight','sepia'];
-  const idx = themes.indexOf(currentTheme);
-  const next = themes[(idx + 1) % themes.length];
-  currentTheme = next;
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem(THEME_KEY, next);
-  setTimeout(renderCharts, 100);
-  toast({type:'info', title:`Theme: ${next.charAt(0).toUpperCase()+next.slice(1)}`});
-};
 
 function toast(opts){
-  const { type='info', title, message='', duration=4000, actions=[] } = opts;
+  const { type='info', title, message='', duration=4000 } = opts;
   const container = document.getElementById('toastContainer');
   const el = document.createElement('div');
   el.className = `toast ${type}`;
   const icons = {success:'✓',error:'!',warning:'!',info:'i'};
-  const actionsHtml = actions.length
-    ? `<div class="toast-actions">${actions.map((a,i)=>`<button class="toast-btn ${a.primary?'primary':''}" data-action="${i}">${a.label}</button>`).join('')}</div>`
-    : '';
   el.innerHTML = `
     <div class="toast-icon">${icons[type]||'i'}</div>
     <div class="toast-body">
       <div class="toast-title">${escapeHtml(title||'')}</div>
       ${message?`<div class="toast-msg">${escapeHtml(message)}</div>`:''}
-      ${actionsHtml}
-    </div>
-    <button class="toast-close">✕</button>`;
+    </div>`;
   container.appendChild(el);
-  const close = ()=>{ el.classList.add('removing'); setTimeout(()=> el.remove(), 250); };
-  el.querySelector('.toast-close').onclick = close;
-  actions.forEach((a,i)=>{
-    const btn = el.querySelector(`[data-action="${i}"]`);
-    if(btn) btn.onclick = ()=>{ close(); if(a.onClick) a.onClick(); };
-  });
-  if(duration > 0) setTimeout(close, duration);
-}
-function pushUndo(snapshot, message){
-  undoBuffer = snapshot;
-  clearTimeout(undoTimeout);
-  undoTimeout = setTimeout(()=>{ undoBuffer = null; }, 8000);
-  toast({
-    type:'warning', title: message, duration: 8000,
-    actions: [{ label:'Undo', primary:true, onClick: ()=>{
-      if(undoBuffer){ data = undoBuffer; undoBuffer = null; saveData(); renderAll(); toast({type:'success', title:'Restored'}); }
-    }}]
-  });
+  if(duration > 0) setTimeout(()=>{
+    el.classList.add('removing');
+    setTimeout(()=> el.remove(), 250);
+  }, duration);
 }
 
-const DB_NAME = "mfc_tracker_pdfs";
-const STORE   = "pdfs";
-function openDB(){
-  return new Promise((res, rej)=>{
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = e => { if(!e.target.result.objectStoreNames.contains(STORE)) e.target.result.createObjectStore(STORE); };
-    req.onsuccess = e => res(e.target.result);
-    req.onerror = () => rej(req.error);
-  });
-}
-async function idbPut(key, blob){
-  const db = await openDB();
-  return new Promise((res, rej)=>{
-    const tx = db.transaction(STORE, "readwrite");
-    tx.objectStore(STORE).put(blob, key);
-    tx.oncomplete = res; tx.onerror = () => rej(tx.error);
-  });
-}
-async function idbGet(key){
-  const db = await openDB();
-  return new Promise((res, rej)=>{
-    const tx = db.transaction(STORE, "readonly");
-    const req = tx.objectStore(STORE).get(key);
-    req.onsuccess = () => res(req.result);
-    req.onerror = () => rej(req.error);
-  });
-}
-async function idbDelete(key){
-  const db = await openDB();
-  return new Promise((res, rej)=>{
-    const tx = db.transaction(STORE, "readwrite");
-    tx.objectStore(STORE).delete(key);
-    tx.oncomplete = res; tx.onerror = () => rej(tx.error);
-  });
-}
-function pdfKeyForSite(siteId){
-  return "pdf_site_" + String(siteId || "unknown").trim();
-}
-
-let pushTimer = null, pollTimer = null, isPushing = false;
-function getSheetUrl(){
-  const override = (localStorage.getItem(SHEET_URL_KEY) || "").trim();
-  return override || DEFAULT_SHEET_URL;
-}
 function setLiveStatus(text, ok=true){
   const el = document.getElementById('liveStatus');
-  if(!el) return;
-  el.textContent = text;
-  const dot = el.parentElement.querySelector('.live-dot');
-  if(dot){ dot.style.background = ok ? '#10b981' : '#f59e0b'; }
+  if(el){
+    el.textContent = text;
+    const dot = el.parentElement.querySelector('.live-dot');
+    if(dot) dot.style.background = ok ? '#10b981' : '#f59e0b';
+  }
+  const badge = document.getElementById('syncBadge');
+  const badgeText = document.getElementById('syncBadgeText');
+  if(badge) badge.className = 'sync-badge ' + (ok ? 'connected' : 'syncing');
+  if(badgeText) badgeText.textContent = text;
   const settingsEl = document.getElementById('settingsSyncStatus');
   if(settingsEl) settingsEl.textContent = text;
 }
-function rowsToSheetPayload(){
-  return { headers: COLUMNS, rows: data.map(r=>{
-    const out = {};
-    COLUMNS.forEach(c=> out[c] = r[c] || "");
-    return out;
-  })};
-}
-function mapImportedRows(raw){
-  const normalize = s => s.toString().trim().toLowerCase().replace(/\s+/g," ");
-  const colLookup = {};
-  COLUMNS.forEach(c => colLookup[normalize(c)] = c);
-  return raw.map(row=>{
-    const out = {};
-    COLUMNS.forEach(c=> out[c] = "");
-    Object.entries(row).forEach(([k,v])=>{
-      const target = colLookup[normalize(k)];
-      if(target) out[target] = (v===null||v===undefined) ? "" : v.toString().trim();
-    });
-    const url = out["SMR Drive URL"] || "";
-    const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if(m){
-      out.driveFileId = m[1];
-      out.driveViewUrl = url;
-      out.drivePrevUrl = "https://drive.google.com/file/d/" + m[1] + "/preview";
-      out.driveDownloadUrl = "https://drive.google.com/uc?export=download&id=" + m[1];
-    }
-    return ensureSiteFields(out);
-  });
-}
 
-async function pullFromSheet(silent){
-  const url = getSheetUrl();
-  if(!url) return;
-  if(!silent) setLiveStatus("Pulling...", false);
-  try{
-    const res = await fetch(url + (url.includes("?") ? "&" : "?") + "action=read&t=" + Date.now());
-    const json = await res.json();
-    if(!json.rows) throw new Error("Unexpected response");
-
-    const incoming = mapImportedRows(json.rows);
-
-    if(incoming.length === 0){
-      console.warn('[pullFromSheet] Sheet is empty — keeping local data');
-      if(data.length > 0){
-        setLiveStatus('Sheet empty — pushing local...', false);
-        setTimeout(()=> pushToSheet(true), 1000);
+/* =========================================================
+   SUPABASE: DB ↔ SITE MAPPING
+   ========================================================= */
+function dbRowToSite(row){
+  const site = {};
+  COLUMNS.forEach(col => { site[col] = ""; });
+  
+  Object.entries(DB_REVERSE).forEach(([dbCol, jsCol]) => {
+    if(row[dbCol] !== undefined && row[dbCol] !== null){
+      if(NUM_COLS.includes(jsCol)){
+        site[jsCol] = row[dbCol] === 0 ? "" : String(row[dbCol]);
       } else {
-        setLiveStatus('Sheet empty — no local data', false);
-      }
-      return;
-    }
-
-    if(data.length > 5 && incoming.length < data.length * 0.5){
-      const ok = confirm(
-        `⚠️ تحذير\n\n` +
-        `Sheet يحتوي ${incoming.length} صف.\n` +
-        `البيانات المحلية ${data.length} صف.\n\n` +
-        `هل تريد استبدال البيانات المحلية ببيانات الـ Sheet؟\n` +
-        `(Cancel = رفع البيانات المحلية بدلاً من ذلك)`
-      );
-      if(!ok){
-        pushToSheet(true);
-        return;
+        site[jsCol] = String(row[dbCol]);
       }
     }
-
-    const merged = incoming.map(newRow => {
-      const existing = data.find(d => d.SiteID && newRow.SiteID && d.SiteID === newRow.SiteID);
-      if(existing){
-        newRow.pdfKey = existing.pdfKey || newRow.pdfKey || "";
-        newRow.smr = existing.smr || newRow.smr;
-        newRow.consumption = existing.consumption || newRow.consumption || [];
-        newRow.notes = existing.notes || newRow.notes || "";
-        newRow.photos = existing.photos || newRow.photos || [];
-        if(!newRow.driveFileId && existing.driveFileId){
-          newRow.driveFileId = existing.driveFileId;
-          newRow.driveViewUrl = existing.driveViewUrl;
-          newRow.drivePrevUrl = existing.drivePrevUrl;
-          newRow.driveDownloadUrl = existing.driveDownloadUrl;
-        }
-      }
-      return ensureSiteFields(newRow);
-    });
-
-    data = merged;
-    window.__lastPushCount = data.length;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    renderAll();
-    setLiveStatus("Live · Connected", true);
-  }catch(err){
-    setLiveStatus("Offline · retry", false);
-    console.error("Sheet pull failed:", err);
-  }
-}
-
-function pushToSheet(force){
-  const url = getSheetUrl();
-  if(!url) return;
-
-  if(!data.length){
-    console.warn('[pushToSheet] Skipped: no local data');
-    setLiveStatus('Skipped (empty)', false);
-    return;
-  }
-
-  if(!window.__lastPushCount) window.__lastPushCount = data.length;
-
-  if(!force && window.__lastPushCount > 5 && data.length < window.__lastPushCount * 0.7){
-    const ok = confirm(
-      `⚠️ تحذير مهم\n\n` +
-      `عدد المواقع انخفض من ${window.__lastPushCount} إلى ${data.length}.\n\n` +
-      `هل أنت متأكد من الحفظ؟`
-    );
-    if(!ok){
-      setLiveStatus('Save cancelled', false);
-      return;
-    }
-  }
-
-  clearTimeout(pushTimer);
-  pushTimer = setTimeout(async ()=>{
-    if(isPushing) return;
-    isPushing = true;
-    setLiveStatus("Saving...", false);
-    try{
-      const payload = rowsToSheetPayload();
-      await fetch(url, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
-      window.__lastPushCount = data.length;
-      setLiveStatus("Live · Connected", true);
-    }catch(err){
-      setLiveStatus("Save failed", false);
-      console.error('[pushToSheet]', err);
-    }finally{ isPushing = false; }
-  }, 900);
-}
-
-function logActivityToServer(action, siteId, field, oldVal, newVal){
-  const url = getSheetUrl();
-  if(!url) return;
-  fetch(url, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({
-      action:'logActivity', user: currentUser, action, siteId, field,
-      oldValue: oldVal, newValue: newVal
-    })
-  }).catch(()=>{});
-}
-
-function startPolling(){
-  clearInterval(pollTimer);
-  pollTimer = setInterval(()=>{
-    if(document.hidden || pendingImportRows || pendingPDF) return;
-    const active = document.activeElement;
-    const isEditing = active && active.matches
-      && active.matches('td[contenteditable="true"], input, textarea, select');
-    if(!isEditing && !isPushing) pullFromSheet(true);
-  }, 60000);
-}
-
-function ensureSiteFields(site){
-  COLUMNS.forEach(c=>{ if(site[c] === undefined) site[c] = ""; });
-  if(!site.smr){
-    site.smr = { number: site["SMR Number"] || "", date:"", project:"", budget:"", status:"", fileName:"", itemCount:0, items: [] };
-  }
-  if(!Array.isArray(site.smr.items)) site.smr.items = [];
-  if(!Array.isArray(site.consumption)) site.consumption = [];
-  if(!Array.isArray(site.photos)) site.photos = [];
-  if(!site.pdfKey) site.pdfKey = "";
-  if(!site.driveFileId) site.driveFileId = "";
-  if(site.notes === undefined) site.notes = "";
+  });
+  
+  site._id = row.id;
+  site.smr = {
+    number: row.smr_number || site["SMR Number"] || "",
+    items: Array.isArray(row.smr_items) ? row.smr_items : []
+  };
+  site.consumption = Array.isArray(row.consumption) ? row.consumption : [];
+  site.photos = Array.isArray(row.photos) ? row.photos : [];
+  site.notes = row.notes || "";
+  site.driveFileId = row.drive_file_id || "";
+  
   if(site.driveFileId){
-    site["SMR File"] = site.smr?.fileName || site["SMR File"] || "";
-    site["SMR Drive URL"] = site.driveViewUrl || ("https://drive.google.com/file/d/" + site.driveFileId + "/view");
+    site.driveViewUrl = "https://drive.google.com/file/d/" + site.driveFileId + "/view";
+    site.drivePrevUrl = "https://drive.google.com/file/d/" + site.driveFileId + "/preview";
+    site.driveDownloadUrl = "https://drive.google.com/uc?export=download&id=" + site.driveFileId;
+    site["SMR Drive URL"] = site.driveViewUrl;
   }
+  
   return site;
 }
-function loadData(){
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if(saved){
-    try{ data = JSON.parse(saved).map(ensureSiteFields); return; }catch(e){}
-  }
-  data = JSON.parse(JSON.stringify(ORIGINAL_DATA)).map(ensureSiteFields);
-}
-function saveData(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  pushToSheet();
+
+function siteToDbRow(site){
+  const row = {};
+  COLUMNS.forEach(col => {
+    const dbCol = DB_MAP[col];
+    if(!dbCol) return;
+    if(NUM_COLS.includes(col)){
+      const n = parseFloat(String(site[col]||'').replace(/,/g,''));
+      row[dbCol] = isNaN(n) ? 0 : n;
+    } else {
+      row[dbCol] = site[col] || "";
+    }
+  });
+  
+  row.smr_number = site.smr?.number || site["SMR Number"] || "";
+  row.smr_items  = site.smr?.items || [];
+  row.consumption = site.consumption || [];
+  row.photos     = site.photos || [];
+  row.notes      = site.notes || "";
+  row.drive_file_id = site.driveFileId || "";
+  
+  return row;
 }
 
+/* =========================================================
+   SUPABASE: CRUD
+   ========================================================= */
+async function supabaseLoad(){
+  setLiveStatus("Loading...", false);
+  try{
+    const { data: rows, error } = await db
+      .from('sites')
+      .select('*')
+      .order('id', { ascending: true });
+
+    if(error) throw error;
+
+    data = rows.map(dbRowToSite);
+    console.log('[Supabase] Loaded', data.length, 'sites');
+    renderAll();
+    setLiveStatus("Live · Realtime", true);
+  }catch(err){
+    console.error('[Supabase] Load failed:', err);
+    setLiveStatus("Error loading", false);
+    toast({type:'error', title:'Load failed', message: err.message});
+  }
+}
+
+async function supabaseInsert(site){
+  const row = siteToDbRow(site);
+  const { data: inserted, error } = await db
+    .from('sites')
+    .insert([row])
+    .select()
+    .single();
+  if(error) throw error;
+  site._id = inserted.id;
+  return inserted;
+}
+
+async function supabaseUpdate(site){
+  if(!site._id) return supabaseInsert(site);
+  const row = siteToDbRow(site);
+  const { error } = await db
+    .from('sites')
+    .update(row)
+    .eq('id', site._id);
+  if(error) throw error;
+  return true;
+}
+
+async function supabaseDelete(id){
+  const { error } = await db.from('sites').delete().eq('id', id);
+  if(error) throw error;
+  return true;
+}
+
+async function supabaseLogActivity(action, siteId, field, oldVal, newVal){
+  try{
+    await db.from('activity_log').insert([{
+      user_name: 'MFC',
+      action: action,
+      site_id: siteId || '',
+      field: field || '',
+      old_value: String(oldVal || '').substring(0, 200),
+      new_value: String(newVal || '').substring(0, 200)
+    }]);
+  }catch(e){ console.warn('Activity log failed:', e); }
+}
+
+/* =========================================================
+   SUPABASE: REALTIME
+   ========================================================= */
+function subscribeRealtime(){
+  if(realtimeChannel){
+    try{ db.removeChannel(realtimeChannel); }catch(e){}
+  }
+  
+  realtimeChannel = db
+    .channel('sites-changes')
+    .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'sites' },
+        (payload) => {
+          console.log('[Realtime]', payload.eventType);
+          
+          if(payload.eventType === 'INSERT'){
+            const ns = dbRowToSite(payload.new);
+            if(!data.find(s => s._id === ns._id)){
+              data.push(ns);
+              renderAll();
+              toast({type:'info', title:'📍 موقع جديد', message: 'Site ' + ns.SiteID, duration: 3000});
+            }
+          } else if(payload.eventType === 'UPDATE'){
+            const idx = data.findIndex(s => s._id === payload.new.id);
+            if(idx >= 0){
+              data[idx] = dbRowToSite(payload.new);
+              renderAll();
+            }
+          } else if(payload.eventType === 'DELETE'){
+            const idx = data.findIndex(s => s._id === payload.old.id);
+            if(idx >= 0){
+              data.splice(idx, 1);
+              renderAll();
+            }
+          }
+        })
+    .subscribe(status => {
+      console.log('[Realtime]', status);
+      if(status === 'SUBSCRIBED') setLiveStatus("Live · Realtime", true);
+    });
+}
+
+/* =========================================================
+   RENDERING: STATS
+   ========================================================= */
+function renderStats(){
+  const total = data.length;
+  const done = data.filter(r=>(r.States||'').toLowerCase()==='done').length;
+  const accepted = data.filter(r=>(r['FLM Feedback']||'').toLowerCase().includes('accept')).length;
+  const govCount = new Set(data.map(r=>r.Gov).filter(Boolean)).size;
+  const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Amount'])||0), 0);
+  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Amount to subcon'])||0), 0);
+  const totalSMR    = data.reduce((s,r)=> s + (parseFloat(r['SMR Value'])||0), 0);
+  const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Amount Paid'])||0), 0);
+  const totalBalance = totalSubcon - totalPaid;
+  const withSMR = data.filter(r=>r.smr?.number || r.driveFileId).length;
+  const smrItems = data.reduce((s,r)=> s + (r.smr?.items?.length || 0), 0);
+  const donePct = total ? Math.round(done / total * 100) : 0;
+
+  const groups = [
+    {title:'Operations', icon:'📊', items:[
+      {label:'Total Sites', value: total},
+      {label:'Governorates', value: govCount},
+      {label:'Done', value: `${donePct}%`},
+      {label:'FLM Accepted', value: accepted}
+    ]},
+    {title:'Financials', icon:'💰', items:[
+      {label:'Subcon Amount', value: fmtShort(totalSubcon)},
+      {label:'Total Paid', value: fmtShort(totalPaid)},
+      {label:'Balance Due', value: fmtShort(totalBalance), danger: totalBalance>0},
+      {label:'Nokia Amount', value: fmtShort(totalNokia)}
+    ]},
+    {title:'SMR Materials', icon:'📄', items:[
+      {label:'Sites with SMR', value: `${withSMR}/${total}`},
+      {label:'Total Items', value: smrItems.toLocaleString()},
+      {label:'SMR Value', value: fmtShort(totalSMR)},
+      {label:'Coverage', value: total ? Math.round(withSMR/total*100)+'%' : '0%'}
+    ]}
+  ];
+  document.getElementById('kpiGroups').innerHTML = groups.map(g=>`
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">${g.icon}</div>${g.title}</div>
+      <div class="kpi-grid">
+        ${g.items.map(it=>`
+          <div class="kpi">
+            <div class="kpi-label">${escapeHtml(it.label)}</div>
+            <div class="kpi-value" style="${it.danger?'color:var(--red-600)':''}">${escapeHtml(String(it.value))}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* =========================================================
+   RENDERING: TABLE HEAD
+   ========================================================= */
+function renderHead(){
+  const headRow = document.getElementById('headRow');
+  headRow.innerHTML = '';
+  COLUMNS.forEach((col)=>{
+    const th = document.createElement('th');
+    th.className = NUM_COLS.includes(col) ? 'num' : '';
+    const isPinned = pinnedColumns.has(col);
+    th.innerHTML = escapeHtml(col) +
+      (sortState.col===col ? `<span class="arrow">${sortState.dir===1?'▲':'▼'}</span>` : '') +
+      `<span class="pin ${isPinned?'active':''}">📌</span>`;
+    th.onclick = (e)=>{
+      if(e.target.classList.contains('pin')){
+        e.stopPropagation();
+        if(pinnedColumns.has(col)) pinnedColumns.delete(col);
+        else pinnedColumns.add(col);
+        localStorage.setItem(PINNED_KEY, JSON.stringify(Array.from(pinnedColumns)));
+        renderHead(); renderBody();
+        return;
+      }
+      if(sortState.col===col) sortState.dir *= -1;
+      else {sortState.col=col; sortState.dir=1;}
+      renderHead(); renderBody();
+    };
+    headRow.appendChild(th);
+  });
+  const thAct = document.createElement('th');
+  thAct.textContent = '';
+  thAct.style.cssText = 'text-align:center;width:100px;';
+  headRow.appendChild(thAct);
+}
+
+/* =========================================================
+   RENDERING: FILTERS
+   ========================================================= */
 function badgeClass(col, val){
   const v = (val||"").toString().trim().toLowerCase();
   if(!v) return "badge-gray";
@@ -1349,17 +1316,22 @@ function badgeClass(col, val){
   if(v.includes("overdue")) return "badge-red";
   return "badge-gray";
 }
+
 function uniqueVals(col){
   const s = new Set();
   data.forEach(r=>{ if(r[col]) s.add(r[col]); });
   return Array.from(s).sort();
 }
+
 function renderFilterMenu(){
   const menu = document.getElementById('filterMenu');
   const filterCols = [
-    {id:"Gov", label:"Governorate"},{id:"States", label:"Status"},
-    {id:"FLM Feedback", label:"FLM Feedback"},{id:"Team", label:"Team"},
-    {id:"Main Scope", label:"Main Scope"},{id:"Payment Status", label:"Payment Status"},
+    {id:"Gov", label:"Governorate"},
+    {id:"States", label:"Status"},
+    {id:"FLM Feedback", label:"FLM Feedback"},
+    {id:"Team", label:"Team"},
+    {id:"Main Scope", label:"Main Scope"},
+    {id:"Payment Status", label:"Payment Status"}
   ];
   menu.innerHTML = '';
   filterCols.forEach(col=>{
@@ -1367,70 +1339,55 @@ function renderFilterMenu(){
     label.className = 'filter-menu-label';
     label.textContent = col.label;
     menu.appendChild(label);
+
     const opts = uniqueVals(col.id);
     const all = document.createElement('div');
     all.className = 'filter-menu-item' + (!activeFilters[col.id] ? ' active' : '');
     all.textContent = 'All';
-    all.onclick = ()=>{ delete activeFilters[col.id]; renderFilterMenu(); renderBody(); renderFilterChips(); updateFilterCount(); };
+    all.onclick = ()=>{ delete activeFilters[col.id]; renderFilterMenu(); renderBody(); renderFilterChips(); };
     menu.appendChild(all);
+
     opts.forEach(v=>{
       const item = document.createElement('div');
       item.className = 'filter-menu-item' + (activeFilters[col.id] === v ? ' active' : '');
       item.textContent = v;
-      item.onclick = ()=>{ activeFilters[col.id] = v; renderFilterMenu(); renderBody(); renderFilterChips(); updateFilterCount(); };
+      item.onclick = ()=>{ activeFilters[col.id] = v; renderFilterMenu(); renderBody(); renderFilterChips(); };
       menu.appendChild(item);
     });
   });
 }
-function updateFilterCount(){
-  const n = Object.keys(activeFilters).length;
-  document.getElementById('filterCount').textContent = n ? `(${n})` : '';
-}
+
 function renderFilterChips(){
   const container = document.getElementById('filterChips');
+  if(!container) return;
   container.innerHTML = '';
+  const keys = Object.keys(activeFilters);
+  document.getElementById('filterCount').textContent = keys.length ? `(${keys.length})` : '';
   Object.entries(activeFilters).forEach(([col,val])=>{
     const chip = document.createElement('div');
     chip.className = 'chip';
     chip.innerHTML = `${escapeHtml(col)}: <strong>${escapeHtml(val)}</strong> <span class="chip-x">×</span>`;
-    chip.querySelector('.chip-x').onclick = ()=>{ delete activeFilters[col]; renderFilterMenu(); renderBody(); renderFilterChips(); updateFilterCount(); };
+    chip.querySelector('.chip-x').onclick = ()=>{
+      delete activeFilters[col];
+      renderFilterMenu(); renderBody(); renderFilterChips();
+    };
     container.appendChild(chip);
   });
-  if(Object.keys(activeFilters).length){
+  if(keys.length){
     const clear = document.createElement('button');
     clear.className = 'chip-clear';
     clear.textContent = 'Clear all';
-    clear.onclick = ()=>{ activeFilters = {}; renderFilterMenu(); renderBody(); renderFilterChips(); updateFilterCount(); };
+    clear.onclick = ()=>{
+      activeFilters = {};
+      renderFilterMenu(); renderBody(); renderFilterChips();
+    };
     container.appendChild(clear);
   }
 }
-function renderHead(){
-  const headRow = document.getElementById('headRow');
-  headRow.innerHTML = '';
-  COLUMNS.forEach((col)=>{
-    const th = document.createElement('th');
-    th.className = NUM_COLS.includes(col) ? 'num' : '';
-    const isPinned = pinnedColumns.has(col);
-    th.innerHTML = col +
-      (sortState.col===col ? `<span class="arrow">${sortState.dir===1?'▲':'▼'}</span>` : '') +
-      `<span class="pin ${isPinned?'active':''}">📌</span>`;
-    th.onclick = (e)=>{
-      if(e.target.classList.contains('pin')){
-        e.stopPropagation();
-        if(pinnedColumns.has(col)) pinnedColumns.delete(col);
-        else pinnedColumns.add(col);
-        savePinned(); renderHead(); renderBody(); return;
-      }
-      if(sortState.col===col) sortState.dir *= -1; else {sortState.col=col; sortState.dir=1;}
-      renderHead(); renderBody();
-    };
-    headRow.appendChild(th);
-  });
-  const thAct = document.createElement('th');
-  thAct.textContent = '';
-  thAct.style.cssText = 'text-align:center;width:100px;';
-  headRow.appendChild(thAct);
-}
+
+/* =========================================================
+   RENDERING: BODY
+   ========================================================= */
 function matchesFilters(row){
   const search = document.getElementById('searchInput').value.trim().toLowerCase();
   if(search){
@@ -1443,6 +1400,7 @@ function matchesFilters(row){
   }
   return true;
 }
+
 function getFilteredSorted(){
   let rows = data.map((r,i)=>({r,i})).filter(x=>matchesFilters(x.r));
   if(sortState.col){
@@ -1455,11 +1413,13 @@ function getFilteredSorted(){
   }
   return rows;
 }
+
 function computeBalance(row){
   const total = parseFloat(row['Amount to subcon']) || 0;
   const paid  = parseFloat(row['Amount Paid']) || 0;
   return total - paid;
 }
+
 function renderBody(){
   const body = document.getElementById('bodyRows');
   body.innerHTML = '';
@@ -1477,6 +1437,7 @@ function renderBody(){
   rows.forEach(({r,i})=>{
     const tr = document.createElement('tr');
     if(r.__key && r.__key === newRowKey) tr.classList.add('new-row');
+    
     COLUMNS.forEach((col)=>{
       const td = document.createElement('td');
       let val = r[col] || '';
@@ -1490,7 +1451,7 @@ function renderBody(){
         return;
       }
       if(col === 'SMR Drive URL'){
-        td.textContent = val ? 'Open' : '';
+        td.textContent = val ? '🔗 Open' : '';
         if(val){
           td.style.cursor = 'pointer';
           td.style.color = 'var(--primary)';
@@ -1498,7 +1459,6 @@ function renderBody(){
           td.onclick = ()=> window.open(val, '_blank');
         }
       } else if(BADGE_COLS.includes(col)){
-        td.className = 'center';
         td.style.textAlign = 'center';
         td.innerHTML = val ? `<span class="badge ${badgeClass(col,val)}">${escapeHtml(val)}</span>` : '';
         td.contentEditable = 'true';
@@ -1523,7 +1483,7 @@ function renderBody(){
       if(r.__key && r.__key === newRowKey && col === 'SiteID' && !firstNewCell) firstNewCell = td;
 
       if(col !== 'SMR Drive URL'){
-        td.addEventListener('blur', ()=>{
+        td.addEventListener('blur', async ()=>{
           const oldVal = data[i][col];
           let newVal = td.textContent.trim();
           const isNumeric = NUM_COLS.includes(col);
@@ -1531,9 +1491,7 @@ function renderBody(){
           if(oldVal === newVal) return;
           data[i][col] = newVal;
           if(col === 'SMR Number') data[i].smr.number = newVal;
-          if(col === 'SMR Value')  data[i].smr.value  = newVal;
-          saveData();
-          logActivityToServer('update', data[i].SiteID, col, oldVal, newVal);
+          
           if(BADGE_COLS.includes(col)){
             td.innerHTML = newVal ? `<span class="badge ${badgeClass(col,newVal)}">${escapeHtml(newVal)}</span>` : '';
           }
@@ -1541,19 +1499,25 @@ function renderBody(){
             const n = parseFloat(newVal);
             td.textContent = isNaN(n) ? newVal : n.toLocaleString();
           }
-          if(col === 'Amount to subcon' || col === 'Amount Paid') renderBody();
-          renderStats(); renderCharts(); renderFilterMenu(); renderSmartAlerts();
+          
+          try{
+            await supabaseUpdate(data[i]);
+            supabaseLogActivity('update', data[i].SiteID, col, oldVal, newVal);
+            renderStats();
+            renderFilterMenu();
+          }catch(e){
+            toast({type:'error', title:'Save failed', message: e.message});
+          }
         });
       }
       tr.appendChild(td);
     });
 
+    /* Actions */
     const tdAct = document.createElement('td');
-    tdAct.className = 'actions-cell';
-    const hasPdf = r.driveFileId || r.pdfKey || (r.SiteID && r.smr?.fileName);
+    tdAct.style.textAlign = 'center';
     tdAct.innerHTML = `
       <div class="row-actions">
-        ${hasPdf ? `<button class="btn btn-ghost btn-icon btn-sm" data-act="pdf" data-i="${i}" title="View PDF">📄</button>` : ''}
         <button class="btn btn-ghost btn-icon btn-sm" data-act="open" data-i="${i}" title="Details">🔍</button>
         <button class="btn btn-ghost btn-icon btn-sm" data-act="del" data-i="${i}" title="Delete" style="color:var(--red-500);">✕</button>
       </div>`;
@@ -1562,20 +1526,24 @@ function renderBody(){
   });
 
   body.querySelectorAll('.row-actions button').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
+    btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
       const i = parseInt(btn.dataset.i, 10);
       const act = btn.dataset.act;
       if(act === 'open') openSiteDrawer(i);
-      else if(act === 'pdf')  openPDFViewer(i);
       else if(act === 'del'){
-        const snapshot = JSON.parse(JSON.stringify(data));
         const sid = data[i].SiteID;
-        if(data[i].pdfKey) idbDelete(data[i].pdfKey).catch(()=>{});
-        data.splice(i,1);
-        saveData(); renderAll();
-        logActivityToServer('delete', sid, '', '', '');
-        pushUndo(snapshot, `Site ${sid || '(new)'} deleted`);
+        if(confirm(`Delete site ${sid || '(new)'}?`)){
+          try{
+            await supabaseDelete(data[i]._id);
+            await supabaseLogActivity('delete', sid, '', '', '');
+            data.splice(i,1);
+            renderAll();
+            toast({type:'success', title:`Site ${sid} deleted`});
+          }catch(err){
+            toast({type:'error', title:'Delete failed', message: err.message});
+          }
+        }
       }
     });
   });
@@ -1590,67 +1558,16 @@ function renderBody(){
     newRowKey = null;
   }
 }
-function escapeHtml(s){
-  return String(s == null ? '' : s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
 
-function renderStats(){
-  const total = data.length;
-  const done = data.filter(r=>(r.States||'').toLowerCase()==='done').length;
-  const accepted = data.filter(r=>(r['FLM Feedback']||'').toLowerCase().includes('accept')).length;
-  const govCount = new Set(data.map(r=>r.Gov).filter(Boolean)).size;
-  const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Amount'])||0), 0);
-  const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Amount to subcon'])||0), 0);
-  const totalSMR    = data.reduce((s,r)=> s + (parseFloat(r['SMR Value'])||0), 0);
-  const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Amount Paid'])||0), 0);
-  const totalBalance = totalSubcon - totalPaid;
-  const withSMR = data.filter(r=>r.smr?.number || r.driveFileId).length;
-  const smrItems = data.reduce((s,r)=> s + (r.smr?.items?.length || 0), 0);
-  const donePct = total ? Math.round(done / total * 100) : 0;
-
-  const groups = [
-    {title:'Operations',icon:'📊',items:[
-      {label:'Total Sites', value: total},{label:'Governorates', value: govCount},
-      {label:'Done', value: `${donePct}%`},{label:'FLM Accepted', value: accepted}
-    ]},
-    {title:'Financials',icon:'💰',items:[
-      {label:'Subcon Amount', value: fmtShort(totalSubcon)},{label:'Total Paid', value: fmtShort(totalPaid)},
-      {label:'Balance Due', value: fmtShort(totalBalance), danger: totalBalance>0},{label:'Nokia Amount', value: fmtShort(totalNokia)}
-    ]},
-    {title:'SMR Materials',icon:'📄',items:[
-      {label:'Sites with SMR', value: `${withSMR}/${total}`},{label:'Total Items', value: smrItems.toLocaleString()},
-      {label:'SMR Value', value: fmtShort(totalSMR)},{label:'Coverage', value: total ? Math.round(withSMR/total*100)+'%' : '0%'}
-    ]}
-  ];
-  document.getElementById('kpiGroups').innerHTML = groups.map(g=>`
-    <div class="kpi-group">
-      <div class="kpi-group-title"><div class="kpi-group-icon">${g.icon}</div>${g.title}</div>
-      <div class="kpi-grid">
-        ${g.items.map(it=>`
-          <div class="kpi">
-            <div class="kpi-label">${escapeHtml(it.label)}</div>
-            <div class="kpi-value" style="${it.danger?'color:var(--red-600)':''}">${escapeHtml(String(it.value))}</div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
-}
-function fmtShort(n){
-  const abs = Math.abs(n);
-  if(abs >= 1e9) return (n/1e9).toFixed(2)+'B';
-  if(abs >= 1e6) return (n/1e6).toFixed(2)+'M';
-  if(abs >= 1e3) return (n/1e3).toFixed(1)+'K';
-  return n.toLocaleString();
-}
-
+/* =========================================================
+   RENDERING: CHARTS
+   ========================================================= */
 function renderCharts(){
   const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#6b7280';
   const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#e5e7eb';
   const destroy = (key)=>{ if(charts[key]){ try{charts[key].destroy();}catch(e){} delete charts[key]; } };
 
+  /* Status doughnut */
   const states = {};
   data.forEach(r=>{ const k = (r.States || 'Unknown').toString(); states[k] = (states[k]||0)+1; });
   const statusLabels = Object.keys(states);
@@ -1666,6 +1583,7 @@ function renderCharts(){
       plugins:{ legend:{ position:'right', labels:{ boxWidth:10, boxHeight:10, padding:10, color:textColor, font:{size:11} } } } }
   });
 
+  /* Gov bar */
   const govCounts = {};
   data.forEach(r=>{ if(r.Gov) govCounts[r.Gov] = (govCounts[r.Gov]||0)+1; });
   const govLabels = Object.keys(govCounts).slice(0,8);
@@ -1680,6 +1598,7 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
   });
 
+  /* Finance bar */
   const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Amount to subcon'])||0), 0);
   const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Amount Paid'])||0), 0);
   const totalSMR    = data.reduce((s,r)=> s + (parseFloat(r['SMR Value'])||0), 0);
@@ -1696,6 +1615,7 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10}, callback: v => v + 'M' }, beginAtZero:true } } }
   });
 
+  /* Monthly trends */
   const monthMap = {};
   data.forEach(r=>{
     if(!r.Date) return;
@@ -1717,6 +1637,7 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
   });
 
+  /* Team performance */
   const teamMap = {};
   data.forEach(r=>{
     if(!r.Team) return;
@@ -1742,6 +1663,7 @@ function renderCharts(){
         y:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } } } }
   });
 
+  /* Payment progress */
   destroy('payment');
   const ctx6 = document.getElementById('chartPayment');
   if(ctx6) charts.payment = new Chart(ctx6, {
@@ -1752,130 +1674,20 @@ function renderCharts(){
   });
 }
 
-function renderSmartAlerts(){
-  const alerts = [];
-  const today = new Date();
-  data.forEach(r => {
-    if(r['Payment Date'] && r.Balance && parseFloat(r.Balance) > 0){
-      const d = new Date(r['Payment Date']);
-      if(!isNaN(d) && d < today){
-        alerts.push({severity:'red', site:r.SiteID, msg:`Payment overdue since ${r['Payment Date']}`});
-      }
-    }
-    if((r.States||'').toLowerCase()==='done' && !r['SMR Number'] && !r.driveFileId){
-      alerts.push({severity:'amber', site:r.SiteID, msg:`Done but no SMR attached`});
-    }
-    const bal = parseFloat(r.Balance) || 0;
-    if(bal > 500000){
-      alerts.push({severity:'amber', site:r.SiteID, msg:`Large balance: ${bal.toLocaleString()}`});
-    }
-    if((r.States||'').toLowerCase()==='done' && !r['FLM Feedback']){
-      alerts.push({severity:'amber', site:r.SiteID, msg:`FLM Feedback missing`});
-    }
-  });
-  const banner = document.getElementById('alertsBanner');
-  if(!alerts.length){ banner.style.display = 'none'; return; }
-  const grouped = {red:[], amber:[]};
-  alerts.forEach(a => grouped[a.severity].push(a));
-  let html = `<div class="alert alert-warn" style="margin-bottom:8px;">
-    <strong>⚠ ${alerts.length} alerts across ${new Set(alerts.map(a=>a.site)).size} sites</strong>`;
-  if(grouped.red.length){
-    html += `<div style="margin-top:8px;font-size:12px;">
-      <b style="color:var(--red-700);">🔴 ${grouped.red.length} critical:</b>
-      ${grouped.red.slice(0,3).map(a=>`Site ${a.site} — ${a.msg}`).join(' · ')}
-    </div>`;
-  }
-  if(grouped.amber.length){
-    html += `<div style="margin-top:4px;font-size:12px;">
-      <b style="color:var(--amber-700);">🟡 ${grouped.amber.length} warnings:</b>
-      ${grouped.amber.slice(0,3).map(a=>`Site ${a.site} — ${a.msg}`).join(' · ')}
-    </div>`;
-  }
-  html += `</div>`;
-  banner.innerHTML = html;
-  banner.style.display = 'block';
+/* =========================================================
+   RENDER ALL
+   ========================================================= */
+function renderAll(){
+  renderStats();
+  renderHead();
+  renderBody();
+  renderFilterMenu();
+  renderFilterChips();
+  renderCharts();
 }
-
-function renderGantt(){
-  const wrap = document.getElementById('ganttWrap');
-  if(!wrap) return;
-  const items = data.filter(r=> r.Date).map(r=>{
-    const start = parseDate(r.Date);
-    return {
-      site: r.SiteID, team: r.Team || '', start: start,
-      end: start ? new Date(start.getTime() + 30*86400000) : null,
-      status: (r.States||'').toLowerCase() === 'done' ? 'done' : 'progress'
-    };
-  }).filter(i=> i.start);
-
-  if(!items.length){
-    wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-dim);">No dated sites to show.</div>';
-    return;
-  }
-
-  const minDate = new Date(Math.min(...items.map(i=>i.start.getTime())));
-  const maxDate = new Date(Math.max(...items.map(i=>i.end.getTime())));
-  const totalDays = Math.max(1, Math.ceil((maxDate - minDate)/86400000));
-
-  let html = `<div class="gantt-header"><div class="gantt-label">Site</div><div class="gantt-track" style="display:flex;"><div style="flex:1;text-align:left;">${fmtDate(minDate)}</div><div style="flex:1;text-align:right;">${fmtDate(maxDate)}</div></div></div>`;
-
-  items.sort((a,b)=>a.start - b.start).forEach(it=>{
-    const startPct = ((it.start - minDate)/86400000) / totalDays * 100;
-    const widthPct = Math.max(2, ((it.end - it.start)/86400000) / totalDays * 100);
-    html += `<div class="gantt-row">
-      <div class="gantt-label">${escapeHtml(it.site||'')}</div>
-      <div class="gantt-track">
-        <div class="gantt-bar ${it.status}" style="left:${startPct}%;width:${widthPct}%;">${it.status}</div>
-      </div>
-    </div>`;
-  });
-  wrap.innerHTML = html;
-}
-function parseDate(s){
-  if(!s) return null;
-  const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-  const m = s.match(/^(\d{1,2})[-\s]([A-Za-z]{3})[-\s](\d{2,4})$/);
-  if(m){
-    let year = parseInt(m[3], 10);
-    if(year < 100) year += 2000;
-    return new Date(year, months[m[2]], parseInt(m[1], 10));
-  }
-  const d = new Date(s);
-  return isNaN(d) ? null : d;
-}
-function fmtDate(d){
-  return d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'2-digit'});
-}
-
-async function loadActivity(){
-  const list = document.getElementById('activityList');
-  list.innerHTML = 'Loading...';
-  try{
-    const url = getSheetUrl();
-    const res = await fetch(url + (url.includes("?") ? "&" : "?") + "action=activity&t=" + Date.now());
-    const json = await res.json();
-    const rows = json.rows || [];
-    if(!rows.length){
-      list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-dim);">No activity yet.</div>';
-      return;
-    }
-    list.innerHTML = rows.map(r=>{
-      const action = (r.Action || 'update').toLowerCase();
-      const icon = action.includes('delete') ? '🗑' : action.includes('add') ? '➕' : '✎';
-      const ts = r.Timestamp ? new Date(r.Timestamp).toLocaleString() : '';
-      return `<div class="activity-item">
-        <div class="activity-icon">${icon}</div>
-        <div class="activity-content">
-          <div class="activity-text"><b>${escapeHtml(r.User||'user')}</b> ${escapeHtml(action)} ${r.SiteID ? `site <b>${escapeHtml(r.SiteID)}</b>` : ''} ${r.Field ? `· <b>${escapeHtml(r.Field)}</b>` : ''}</div>
-          <div class="activity-meta"><span>${escapeHtml(ts)}</span></div>
-        </div>
-      </div>`;
-    }).join('');
-  }catch(e){
-    list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--red-600);">Failed to load activity.</div>';
-  }
-}
-
+  /* =========================================================
+   PDF EXTRACTION
+   ========================================================= */
 async function extractPdfStructure(file, onProgress){
   const arrayBuffer = await file.arrayBuffer();
   const pages = [];
@@ -1891,6 +1703,7 @@ async function extractPdfStructure(file, onProgress){
   }catch(e){ console.warn('pdf.js failed:', e); }
   return pages;
 }
+
 function groupByY(items){
   const valid = items.filter(it => it.str && it.str.trim());
   valid.sort((a, b) => b.transform[5] - a.transform[5]);
@@ -1902,25 +1715,28 @@ function groupByY(items){
     const x = item.transform[4];
     const str = item.str.trim();
     if(!currentRow || Math.abs(currentRow.y - y) > TOLERANCE){
-      currentRow = { y, cells: [{ x, str, w: item.width || 0 }] };
+      currentRow = { y, cells: [{ x, str }] };
       rows.push(currentRow);
     } else {
-      currentRow.cells.push({ x, str, w: item.width || 0 });
+      currentRow.cells.push({ x, str });
       currentRow.y = (currentRow.y * (currentRow.cells.length - 1) + y) / currentRow.cells.length;
     }
   });
   rows.forEach(r => r.cells.sort((a, b) => a.x - b.x));
   return rows;
 }
+
 function pagesToText(pages){
   return pages.map(p => p.rows.map(r => r.cells.map(c => c.str).join("\t")).join("\n")).join("\n\n");
 }
+
 function normalizeDate(str){
   if(!str) return '';
   const s = str.replace(/\s+/g,'-');
   const d = new Date(s);
   return isNaN(d) ? '' : d.toISOString().slice(0,10);
 }
+
 function parseSMRFromStructure(pages){
   const result = { number:null, date:"", project:null, budget:null, siteId:null, items:[], warning:"", structure: pages, debugLog: [] };
   const allText = pagesToText(pages);
@@ -1959,31 +1775,7 @@ function parseSMRFromStructure(pages){
     if(headerInfo) break;
   }
 
-  if(!headerInfo){
-    result.debugLog.push('No header — using fallback');
-    const units = /^(pcs?|pc|pieces?|sets?|set|mtrs?|meters?|mtr|m|rolls?|roll|boxes?|box|units?|unit|kits?|kit|lot|no|nos?)$/i;
-    pages.forEach(p=>{
-      p.rows.forEach(row=>{
-        const cells = row.cells;
-        if(cells.length < 3) return;
-        for(let i = 1; i < cells.length; i++){
-          const s = cells[i].str.replace(/,/g,'').trim();
-          if(/^\d{1,6}$/.test(s)){
-            const n = parseInt(s, 10);
-            if(n > 0 && n < 100000 && i+1 < cells.length && units.test(cells[i+1].str.trim())){
-              const codeParts = cells.slice(0, i).map(c => c.str).filter(Boolean);
-              let code = codeParts.join(' ').trim();
-              if(code.length < 2 || /^\d+$/.test(code)) continue;
-              const key = code.toLowerCase().replace(/\s+/g,' ').trim();
-              if(result.items.some(it => it.code.toLowerCase().replace(/\s+/g,' ').trim() === key)) continue;
-              result.items.push({ code, desc:'', qty:n, unit:cells[i+1].str.toLowerCase().trim(), price:0 });
-              break;
-            }
-          }
-        }
-      });
-    });
-  } else {
+  if(headerInfo){
     const headerY = headerInfo.y;
     const map = headerInfo.map;
     const isNumber = (s) => /^\d{1,6}(\.\d{1,4})?$/.test(s.replace(/,/g,''));
@@ -1999,46 +1791,29 @@ function parseSMRFromStructure(pages){
         if(!codeCell) return;
         const code = codeCell.str.trim();
         if(code.length < 2) return;
-        if(/^(index|product|item|total|qty)$/i.test(code)) return;
 
         let qty = null;
         if(map.qtyIdx !== undefined && cells[map.qtyIdx]){
-          const qtyStr = cells[map.qtyIdx].str.replace(/,/g,'').trim();
-          if(isNumber(qtyStr)) qty = parseFloat(qtyStr);
-        }
-        if(qty === null){
-          for(let i = 2; i < cells.length; i++){
-            const s = cells[i].str.replace(/,/g,'').trim();
-            if(isNumber(s)){
-              const n = parseFloat(s);
-              if(n >= 0 && n < 100000){ qty = n; break; }
-            }
-          }
+          const q = cells[map.qtyIdx].str.replace(/,/g,'').trim();
+          if(isNumber(q)) qty = parseFloat(q);
         }
         if(qty === null || qty <= 0) return;
 
         let desc = '';
         const codeIdx = map.codeIdx ?? 1;
         const qtyIdx = map.qtyIdx;
-        if(qtyIdx !== undefined && qtyIdx > codeIdx + 1){
-          const descParts = [];
-          for(let di = codeIdx + 1; di < qtyIdx; di++){
-            if(cells[di] && cells[di].str && cells[di].str.trim()){
-              descParts.push(cells[di].str.trim());
-            }
-          }
-          desc = descParts.join(' ');
+        if(qtyIdx > codeIdx + 1){
+          desc = cells.slice(codeIdx+1, qtyIdx).map(c=>c.str).join(' ').trim();
         } else if(map.descIdx !== undefined && cells[map.descIdx]){
-          desc = cells[map.descIdx].str.trim();
+          desc = cells[map.descIdx].str;
         }
-        desc = desc.replace(/\s+/g,' ').trim();
 
         let unit = 'pcs';
         const unitCell = cells.find(c => /^(pcs?|pc|m|mtr|meter|kit|set|roll|box|unit)$/i.test(c.str.trim()));
         if(unitCell) unit = unitCell.str.toLowerCase();
 
-        const key = code.toLowerCase().replace(/\s+/g,' ').trim();
-        if(result.items.some(it => it.code.toLowerCase().replace(/\s+/g,' ').trim() === key)) return;
+        const key = code.toLowerCase();
+        if(result.items.some(it => it.code.toLowerCase() === key)) return;
 
         result.items.push({ code, desc, qty, unit, price: 0 });
       });
@@ -2047,56 +1822,21 @@ function parseSMRFromStructure(pages){
   }
 
   if(!result.items.length){
-    result.warning = "No items auto-detected. Use 'Debug Structure' to inspect.";
+    result.warning = "No items auto-detected.";
   }
   return result;
 }
-function normalizeCode(s){ return String(s||'').trim().toUpperCase().replace(/\s+/g,' '); }
 
-function analyzeConsumption(smrItems, consumption){
-  const map = new Map();
-  (smrItems||[]).forEach(it=>{
-    const key = normalizeCode(it.code);
-    if(!key) return;
-    map.set(key, { code: it.code, desc: it.desc || '', unit: it.unit || '-', ordered: it.qty || 0, price: it.price || 0, consumed: 0, note: '' });
-  });
-  (consumption||[]).forEach(c=>{
-    const key = normalizeCode(c.code);
-    if(!key) return;
-    if(map.has(key)){
-      const item = map.get(key);
-      item.consumed += (parseInt(c.qty,10) || 0);
-      if(c.note) item.note = c.note;
-    } else {
-      map.set(key, { code: c.code, desc: c.desc || '', unit: c.unit || '-', ordered: 0, price: 0, consumed: parseInt(c.qty,10) || 0, note: c.note || '' });
-    }
-  });
-  const items = [];
-  map.forEach(v=>{
-    const diff = v.consumed - v.ordered;
-    let status = 'pending';
-    if(v.consumed > 0){
-      if(diff < 0) status = 'shortage';
-      else if(diff > 0) status = 'excess';
-      else status = 'match';
-    }
-    items.push({...v, diff, status});
-  });
-  return {
-    items,
-    shortages: items.filter(i=>i.status === 'shortage'),
-    excesses:  items.filter(i=>i.status === 'excess'),
-    matches:   items.filter(i=>i.status === 'match'),
-    pendings:  items.filter(i=>i.status === 'pending')
-  };
-}
-
+/* =========================================================
+   PDF IMPORT MODAL
+   ========================================================= */
 function openPDFImportModal(){
   pendingPDF = null;
   document.getElementById('pdfExtracted').style.display = 'none';
   document.getElementById('ocrProgress').style.display = 'none';
   document.getElementById('pdfImportSave').disabled = true;
   document.getElementById('pdfFileInput').value = '';
+
   const sel = document.getElementById('ex_targetSite');
   sel.innerHTML = '<option value="">— Create new site or choose existing —</option>';
   data.forEach((s,i)=>{
@@ -2108,10 +1848,12 @@ function openPDFImportModal(){
   });
   document.getElementById('pdfImportModal').classList.add('show');
 }
+
 function closePDFImportModal(){
   document.getElementById('pdfImportModal').classList.remove('show');
   pendingPDF = null;
 }
+
 function renderExtractedItems(items){
   const body = document.getElementById('ex_itemsBody');
   body.innerHTML = '';
@@ -2125,16 +1867,20 @@ function renderExtractedItems(items){
       <td><input type="number" data-f="price" value="${it.price||0}"></td>
       <td><button type="button" class="row-del">✕</button></td>
     `;
-    tr.querySelector('[data-f="qty"]').addEventListener('input', updateExtractedTotal);
-    tr.querySelector('[data-f="price"]').addEventListener('input', updateExtractedTotal);
     tr.querySelector('.row-del').addEventListener('click', ()=>{
-      tr.remove(); updateExtractedCount(); updateExtractedTotal();
+      tr.remove();
+      updateExtractedCount();
+      updateExtractedTotal();
+    });
+    tr.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('input', updateExtractedTotal);
     });
     body.appendChild(tr);
   });
   updateExtractedCount();
   updateExtractedTotal();
 }
+
 function collectExtractedItems(){
   const items = [];
   document.querySelectorAll('#ex_itemsBody tr').forEach(tr=>{
@@ -2146,46 +1892,55 @@ function collectExtractedItems(){
   });
   return items;
 }
+
 function updateExtractedCount(){
   document.getElementById('ex_itemsCount').textContent = collectExtractedItems().length;
 }
+
 function updateExtractedTotal(){
   const items = collectExtractedItems();
   document.getElementById('ex_total').textContent = items.reduce((s,i)=> s + i.qty * i.price, 0).toLocaleString();
 }
+
 async function handlePDFFile(file){
   if(!file) return;
   if(!file.name.toLowerCase().endsWith('.pdf')){
-    toast({type:'error', title:'Invalid file'}); return;
+    toast({type:'error', title:'Invalid file'});
+    return;
   }
   document.getElementById('pdfExtracted').style.display = 'none';
   document.getElementById('ocrProgress').style.display = 'block';
   const fill = document.getElementById('ocrFill');
   const lbl  = document.getElementById('ocrLabel');
   fill.style.width = '0%'; lbl.textContent = 'Reading PDF...';
+
   try{
     const pages = await extractPdfStructure(file, (p, msg)=>{
       fill.style.width = Math.round(p*100) + '%';
       lbl.textContent = msg;
     });
     const parsed = parseSMRFromStructure(pages);
+
     document.getElementById('ex_smrNumber').value = parsed.number || '';
     document.getElementById('ex_smrDate').value   = parsed.date || '';
     document.getElementById('ex_project').value   = parsed.project || '';
     document.getElementById('ex_budget').value    = parsed.budget || '';
     document.getElementById('ex_siteId').value    = parsed.siteId || '';
     document.getElementById('ex_status').value    = 'Submitted';
+
     renderExtractedItems(parsed.items);
     pendingPDF = { file, pages, parsed, text: pagesToText(pages) };
+
     document.getElementById('pdfExtracted').style.display = 'block';
     document.getElementById('pdfImportSave').disabled = false;
-    const old = document.querySelector('#pdfExtracted .alert-warn');
-    if(old) old.remove();
+
     if(parsed.warning){
+      const old = document.querySelector('#pdfExtracted .alert-warn');
+      if(old) old.remove();
       const box = document.createElement('div');
       box.className = 'alert alert-warn';
       box.style.marginBottom = '16px';
-      box.textContent = 'Warning: ' + parsed.warning;
+      box.textContent = '⚠️ ' + parsed.warning;
       document.getElementById('pdfExtracted').insertBefore(box, document.getElementById('pdfExtracted').children[1]);
     }
     toast({type:'success', title:'PDF parsed', message:`Found ${parsed.items.length} items`});
@@ -2196,17 +1951,18 @@ async function handlePDFFile(file){
     setTimeout(()=>{ document.getElementById('ocrProgress').style.display = 'none'; }, 600);
   }
 }
+
 function fileToBase64(file){
   return new Promise((res, rej)=>{
     const r = new FileReader();
-    r.onload = () => { res((r.result.split(',')[1]) || ''); };
+    r.onload = () => res((r.result.split(',')[1]) || '');
     r.onerror = rej;
     r.readAsDataURL(file);
   });
 }
+
 async function savePDFImport(){
   if(!pendingPDF) return;
-
   const items = collectExtractedItems();
   const number  = document.getElementById('ex_smrNumber').value.trim();
   const date    = document.getElementById('ex_smrDate').value;
@@ -2224,132 +1980,84 @@ async function savePDFImport(){
     const blank = {};
     COLUMNS.forEach(c=> blank[c] = '');
     blank.SiteID = siteId || '';
-    const key = 'new-' + Date.now();
-    blank.__key = key; newRowKey = key;
-    data.unshift(ensureSiteFields(blank));
+    blank.smr = { number, items };
+    blank.consumption = [];
+    blank.photos = [];
+    blank.notes = "";
+    blank["SMR Number"] = number;
+    blank["SMR Value"] = total ? total.toString() : "";
+    data.unshift(blank);
     idx = 0;
+    newRowKey = null;
   }
 
-  const site = ensureSiteFields(data[idx]);
-  site['SMR Number'] = number;
-  site['SMR Value']  = total ? total.toString() : '';
-  site.smr.number    = number;
-  site.smr.date      = date;
-  site.smr.project   = project;
-  site.smr.budget    = budget;
-  site.smr.status    = status;
-  site.smr.items     = items;
-  site.smr.itemCount = items.length;
-  site.smr.fileName  = pendingPDF.file.name;
+  const site = data[idx];
+  site["SMR Number"] = number;
+  site["SMR Value"]  = total ? total.toString() : "";
+  site.smr = site.smr || {};
+  site.smr.number = number;
+  site.smr.date = date;
+  site.smr.project = project;
+  site.smr.budget = budget;
+  site.smr.status = status;
+  site.smr.items = items;
+  site.smr.fileName = pendingPDF.file.name;
   if(siteId && !site.SiteID) site.SiteID = siteId;
 
   const btn = document.getElementById('pdfImportSave');
   btn.disabled = true;
-  btn.textContent = '⏳ Uploading...';
+  btn.textContent = '⏳ Saving...';
 
   try{
-    const base64 = await fileToBase64(pendingPDF.file);
-    console.log('[PDF] Uploading, size:', (base64.length/1024).toFixed(1), 'KB');
-
-    const body = JSON.stringify({
-      action: 'uploadPdf',
-      fileName: pendingPDF.file.name,
-      mimeType: 'application/pdf',
-      base64: base64,
-      siteId: site.SiteID || ''
-    });
-
-    await fetch(getSheetUrl(), {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: body
-    });
-
-    console.log('[PDF] POST sent (no-cors mode)');
-    await new Promise(r => setTimeout(r, 2000));
-
-    try{
-      const check = await fetch(getSheetUrl() + '?action=read&t=' + Date.now());
-      const checkJson = await check.json();
-      const updated = checkJson.rows?.find(r => r.SiteID === site.SiteID);
-      if(updated && updated["SMR Drive URL"]){
-        site.driveViewUrl = updated["SMR Drive URL"];
-        site["SMR Drive URL"] = updated["SMR Drive URL"];
-        site["SMR File"] = updated["SMR File"] || pendingPDF.file.name;
-        btn.textContent = '✅ Uploaded';
-        toast({type:'success', title:'✅ تم الرفع إلى Drive'});
-      } else {
-        btn.textContent = '📤 Sent (verify later)';
-        toast({type:'info', title:'تم إرسال الملف', message:'سيظهر في Drive خلال لحظات'});
-      }
-    }catch(e){
-      btn.textContent = '📤 Sent';
-      toast({type:'info', title:'تم الإرسال'});
-    }
-
-    const pdfKey = pdfKeyForSite(site.SiteID);
-    try{
-      await idbPut(pdfKey, pendingPDF.file);
-      site.pdfKey = pdfKey;
-    }catch(e){}
-
+    if(site._id) await supabaseUpdate(site);
+    else await supabaseInsert(site);
+    renderAll();
+    toast({type:'success', title:'✅ Saved', message: number});
+    setTimeout(closePDFImportModal, 800);
   }catch(err){
-    console.error('[PDF] Failed:', err);
-    const pdfKey = pdfKeyForSite(site.SiteID);
-    try{
-      await idbPut(pdfKey, pendingPDF.file);
-      site.pdfKey = pdfKey;
-      toast({type:'warning', title:'محفوظ محلياً فقط', message: err.message});
-    }catch(e){}
+    toast({type:'error', title:'Save failed', message: err.message});
+    btn.disabled = false;
+    btn.textContent = 'Save & Upload';
   }
-
-  ensureSiteFields(site);
-  saveData();
-  renderAll();
-  logActivityToServer('uploadSMR', site.SiteID, '', '', pendingPDF.file.name);
-  setTimeout(closePDFImportModal, 1500);
 }
 
-async function openPDFViewer(siteIdx){
+/* =========================================================
+   PDF VIEWER
+   ========================================================= */
+function openPDFViewer(siteIdx){
   const site = data[siteIdx];
   if(!site) return;
   let url = null;
   if(site.drivePrevUrl) url = site.drivePrevUrl;
   else if(site.driveFileId) url = 'https://drive.google.com/file/d/' + site.driveFileId + '/preview';
-  if(!url){
-    let key = site.pdfKey || (site.SiteID ? pdfKeyForSite(site.SiteID) : '');
-    if(key){
-      try{
-        const blob = await idbGet(key);
-        if(blob){ url = URL.createObjectURL(blob); document.getElementById('pdfViewerModal').dataset.localUrl = url; }
-      }catch(e){}
-    }
-  }
   if(!url){ toast({type:'warning', title:'No PDF available'}); return; }
   document.getElementById('pdfViewerTitle').textContent = `${site.smr?.number || site.SiteID} — ${site.smr?.fileName || 'SMR'}`;
   document.getElementById('pdfViewerFrame').src = url;
   document.getElementById('pdfViewerDownload').onclick = ()=>{
     const a = document.createElement('a');
-    a.href = site.driveDownloadUrl || (site.driveFileId ? 'https://drive.google.com/uc?export=download&id=' + site.driveFileId : url);
-    a.download = site.smr?.fileName || 'SMR.pdf'; a.target = '_blank'; a.click();
+    a.href = site.driveDownloadUrl || url;
+    a.download = site.smr?.fileName || 'SMR.pdf';
+    a.target = '_blank';
+    a.click();
   };
   document.getElementById('pdfViewerModal').classList.add('show');
 }
+
 function closePDFViewer(){
-  const modal = document.getElementById('pdfViewerModal');
-  const localUrl = modal.dataset.localUrl;
-  if(localUrl){ URL.revokeObjectURL(localUrl); modal.dataset.localUrl = ''; }
   document.getElementById('pdfViewerFrame').src = 'about:blank';
-  modal.classList.remove('show');
+  document.getElementById('pdfViewerModal').classList.remove('show');
 }
 
+/* =========================================================
+   SITE DRAWER
+   ========================================================= */
 let drawerSiteIdx = -1;
 let drawerActiveTab = 'overview';
+
 function openSiteDrawer(idx){
   drawerSiteIdx = idx;
   drawerActiveTab = 'overview';
-  const site = ensureSiteFields(data[idx]);
+  const site = data[idx];
   document.getElementById('drawerTitle').textContent = `Site ${site.SiteID || '(new)'}`;
   document.getElementById('drawerSub').textContent = [site.Gov, site.Team, site['Main Scope']].filter(Boolean).join(' • ');
   renderDrawerTabs();
@@ -2357,16 +2065,13 @@ function openSiteDrawer(idx){
   document.getElementById('siteDrawer').classList.add('show');
   document.getElementById('drawerBackdrop').classList.add('show');
 }
+
 function renderDrawerTabs(){
-  const site = data[drawerSiteIdx];
-  const smr = site.smr || {};
-  const photos = site.photos || [];
   const tabs = [
     {id:'overview', label:'Overview'},
-    {id:'materials', label:`Materials${smr.items?.length?` (${smr.items.length})`:''}`},
+    {id:'materials', label:'Materials'},
     {id:'finance', label:'Finance'},
-    {id:'photos', label:`Photos${photos.length?` (${photos.length})`:''}`},
-    {id:'notes', label:'Notes'},
+    {id:'notes', label:'Notes'}
   ];
   const el = document.getElementById('drawerTabs');
   el.innerHTML = tabs.map(t=>`<button class="drawer-tab ${t.id===drawerActiveTab?'active':''}" data-tab="${t.id}">${escapeHtml(t.label)}</button>`).join('');
@@ -2374,257 +2079,344 @@ function renderDrawerTabs(){
     btn.onclick = ()=>{ drawerActiveTab = btn.dataset.tab; renderDrawerTabs(); renderDrawerBody(); };
   });
 }
+
 function renderDrawerBody(){
   const body = document.getElementById('drawerBody');
   const idx = drawerSiteIdx;
-  const site = ensureSiteFields(data[idx]);
+  const site = data[idx];
   body.innerHTML = '';
-  const pane = document.createElement('div');
-  pane.className = 'drawer-pane active';
 
   if(drawerActiveTab === 'overview'){
-    pane.appendChild(section('Site Info', kvGrid([
-      ['Site ID', site.SiteID],['Governorate', site.Gov],['Team', site.Team],['Main Scope', site['Main Scope']],
-      ['Field Engineer', site['Field Engineer']],['Subcontractor', site['Subcontractor']],
-      ['FLM Feedback', site['FLM Feedback']],['Status', site.States],
-      ['Date', site.Date],['LAT / Long', `${site.LAT||'-'} / ${site.Long||'-'}`],
-    ])));
-
-    const subcon = parseFloat(site['Amount to subcon']) || 0;
-    const paid   = parseFloat(site['Amount Paid']) || 0;
-    const nokia  = parseFloat(site['Nokia Amount']) || 0;
-    const balance = subcon - paid;
-    const retention = subcon * 0.05;
-    const netProfit = nokia - subcon;
-    const aging = site['Payment Date'] ? Math.round((new Date() - new Date(site['Payment Date']))/86400000) : 0;
-    const margin = nokia ? ((netProfit/nokia)*100).toFixed(1) : 0;
-
-    const calcBlock = document.createElement('div');
-    calcBlock.innerHTML = `
-      <div class="kv-grid">
-        <div class="kv success clickable" data-copy="${balance}"><div class="k">Balance</div><div class="v">${balance.toLocaleString()} IQD</div></div>
-        <div class="kv clickable" data-copy="${retention}"><div class="k">Retention (5%)</div><div class="v">${retention.toLocaleString()} IQD</div></div>
-        <div class="kv ${netProfit>0?'success':'danger'} clickable" data-copy="${netProfit}"><div class="k">Net Profit</div><div class="v">${netProfit.toLocaleString()} IQD</div></div>
-        <div class="kv clickable" data-copy="${aging}"><div class="k">Aging</div><div class="v">${aging} days · ${margin}%</div></div>
+    const balance = computeBalance(site);
+    body.innerHTML = `
+      <div class="d-section">
+        <div class="d-section-title">Site Info</div>
+        <div class="kv-grid">
+          ${[['Site ID', site.SiteID],['Governorate', site.Gov],['Team', site.Team],
+             ['Main Scope', site["Main Scope"]],['Field Engineer', site["Field Engineer"]],
+             ['Subcontractor', site.Subcontractor],['FLM Feedback', site["FLM Feedback"]],
+             ['Status', site.States],['Date', site.Date],
+             ['LAT / Long', `${site.LAT||'-'} / ${site.Long||'-'}`]]
+            .map(([k,v])=>`<div class="kv"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v||'—')}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="d-section">
+        <div class="d-section-title">Financial</div>
+        <div class="kv-grid">
+          ${[['Contract Value', fmtMoney(site["Contract Value"])],
+             ['Amount to Subcon', fmtMoney(site["Amount to subcon"])],
+             ['Amount Paid', fmtMoney(site["Amount Paid"])],
+             ['Balance', fmtMoney(balance), balance>0?'danger':'success'],
+             ['Nokia Amount', fmtMoney(site["Nokia Amount"])],
+             ['Payment Status', site["Payment Status"]],
+             ['Payment Date', site["Payment Date"]],
+             ['PO', site.PO]]
+            .map(([k,v,cls])=>`<div class="kv ${cls||''}"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v||'—')}</div></div>`).join('')}
+        </div>
       </div>
     `;
-    pane.appendChild(section('💰 Smart Calculators', calcBlock));
-    calcBlock.querySelectorAll('.clickable').forEach(el=>{
-      el.onclick = ()=>{
-        navigator.clipboard.writeText(el.dataset.copy);
-        toast({type:'success', title:'Copied', duration:1500});
-      };
-    });
-
-    pane.appendChild(section('SMR Summary', (()=>{
-      const smr = site.smr || {};
-      return kvGrid([
-        ['SMR Number', smr.number],['SMR Date', smr.date],['Project', smr.project],
-        ['Budget', smr.budget],['Status', smr.status],['Items Count', smr.items?.length || 0],
-      ]);
-    })()));
-
-    if(site.pdfKey || site.driveFileId){
-      const btnWrap = document.createElement('div');
-      btnWrap.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;';
-      btnWrap.innerHTML = `<button class="btn btn-primary btn-sm" id="openPdfFromDrawer">View SMR PDF</button>` +
-        (site.driveViewUrl ? `<a class="btn btn-outline btn-sm" href="${site.driveViewUrl}" target="_blank">Open in Drive</a>` : '');
-      pane.appendChild(btnWrap);
-      btnWrap.querySelector('#openPdfFromDrawer').onclick = ()=> openPDFViewer(idx);
-    }
   }
   else if(drawerActiveTab === 'materials'){
-    const smr = site.smr || {};
-    if(!smr.items?.length){
-      const empty = document.createElement('div');
-      empty.className = 'alert alert-info';
-      empty.textContent = 'No materials attached. Import an SMR PDF to add items.';
-      pane.appendChild(empty);
+    const items = site.smr?.items || [];
+    if(!items.length){
+      body.innerHTML = '<div class="alert alert-info">No materials attached. Import an SMR PDF.</div>';
     } else {
-      pane.appendChild(section(`SMR Items (${smr.items.length})`, (()=>{
-        const tbl = document.createElement('table');
-        tbl.className = 'it';
-        tbl.innerHTML = `
-          <thead><tr><th style="width:180px;">Code</th><th>Description</th>
-            <th style="text-align:center;width:60px;">Qty</th><th style="text-align:center;width:60px;">Unit</th>
-            <th style="text-align:right;width:90px;">Price</th><th style="text-align:right;width:100px;">Total</th></tr></thead>
-          <tbody>${smr.items.map(it=>`
-            <tr><td class="mono" style="font-size:11.5px;">${escapeHtml(it.code||'')}</td>
-            <td style="font-size:12px;">${escapeHtml(it.desc||'')}</td>
-            <td style="text-align:center;">${it.qty||0}</td>
-            <td style="text-align:center;">${escapeHtml(it.unit||'')}</td>
-            <td style="text-align:right;">${it.price ? (it.price).toLocaleString() : '—'}</td>
-            <td style="text-align:right;">${it.price ? ((it.qty||0)*(it.price||0)).toLocaleString() : '—'}</td></tr>`).join('')}
-          </tbody>`;
-        return tbl;
-      })()));
-      const analysis = analyzeConsumption(smr.items, site.consumption || []);
-      const summary = document.createElement('div');
-      summary.style.cssText = 'display:flex;gap:8px;margin:14px 0 10px;flex-wrap:wrap;';
-      summary.innerHTML = `
-        <span class="status-pill sp-short">Shortage: ${analysis.shortages.length}</span>
-        <span class="status-pill sp-excess">Excess: ${analysis.excesses.length}</span>
-        <span class="status-pill sp-match">Match: ${analysis.matches.length}</span>
-        <span class="status-pill sp-pending">Pending: ${analysis.pendings.length}</span>`;
-      pane.appendChild(section('Consumption Analysis', summary));
-      if(analysis.items.length){
-        const tbl2 = document.createElement('table');
-        tbl2.className = 'it';
-        tbl2.innerHTML = `
-          <thead><tr><th style="width:170px;">Code</th>
-            <th style="text-align:center;">Ordered</th><th style="text-align:center;">Used</th>
-            <th style="text-align:center;">Diff</th><th style="text-align:center;">Status</th><th>Note</th></tr></thead>
-          <tbody>${analysis.items.map((it, i)=>`
-            <tr><td class="mono" style="font-size:11.5px;">${escapeHtml(it.code)}</td>
-              <td style="text-align:center;">${it.ordered}</td>
-              <td style="text-align:center;">${it.consumed}</td>
-              <td style="text-align:center;font-weight:700;">${it.status==='pending' ? '—' : (it.diff > 0 ? '+' : '') + it.diff}</td>
-              <td style="text-align:center;">
-                <span class="status-pill ${it.status==='shortage'?'sp-short':it.status==='excess'?'sp-excess':it.status==='match'?'sp-match':'sp-pending'}">
-                  ${it.status==='shortage' ? 'Short' : it.status==='excess' ? 'Excess' : it.status==='match' ? 'Match' : 'Pending'}
-                </span></td>
-              <td><input type="text" data-note-idx="${i}" value="${escapeHtml(it.note || '')}" placeholder="Note..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11.5px;background:var(--bg-subtle);color:var(--text);"></td></tr>`).join('')}
-          </tbody>`;
-        pane.appendChild(tbl2);
-        tbl2.querySelectorAll('input[data-note-idx]').forEach(inp=>{
-          inp.addEventListener('change', ()=>{
-            const iidx = parseInt(inp.dataset.noteIdx, 10);
-            const item = analysis.items[iidx];
-            site.consumption = site.consumption || [];
-            const existing = site.consumption.find(c => normalizeCode(c.code) === normalizeCode(item.code));
-            if(existing) existing.note = inp.value.trim();
-            else site.consumption.push({ code: item.code, qty: 0, note: inp.value.trim() });
-            saveData();
-          });
-        });
-      }
-      const addRow = document.createElement('div');
-      addRow.style.cssText = 'display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;';
-      addRow.innerHTML = `
-        <input id="consCode" placeholder="Item code" style="flex:1;min-width:120px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--bg-subtle);color:var(--text);">
-        <input id="consQty" type="number" placeholder="Qty used" style="width:110px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;text-align:center;background:var(--bg-subtle);color:var(--text);">
-        <button class="btn btn-accent btn-sm" id="consAdd">+ Add Used</button>`;
-      pane.appendChild(addRow);
-      addRow.querySelector('#consAdd').onclick = ()=>{
-        const code = document.getElementById('consCode').value.trim();
-        const qty  = parseFloat(document.getElementById('consQty').value) || 0;
-        if(!code || !qty){ toast({type:'warning', title:'Enter code and qty'}); return; }
-        site.consumption = site.consumption || [];
-        const existing = site.consumption.find(c=>normalizeCode(c.code) === normalizeCode(code));
-        if(existing) existing.qty = (parseFloat(existing.qty)||0) + qty;
-        else site.consumption.push({ code, qty, note: '' });
-        saveData(); renderDrawerBody();
-        toast({type:'success', title:`Added ${qty} × ${code}`});
-      };
+      body.innerHTML = `
+        <div class="d-section">
+          <div class="d-section-title">SMR: ${escapeHtml(site.smr.number||'—')}</div>
+          <table class="it">
+            <thead><tr><th>Code</th><th>Description</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Unit</th></tr></thead>
+            <tbody>${items.map(it=>`
+              <tr><td class="mono" style="font-size:11.5px;">${escapeHtml(it.code||'')}</td>
+                  <td>${escapeHtml(it.desc||'')}</td>
+                  <td style="text-align:center;">${it.qty||0}</td>
+                  <td style="text-align:center;">${escapeHtml(it.unit||'')}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
     }
   }
   else if(drawerActiveTab === 'finance'){
     const balance = computeBalance(site);
-    pane.appendChild(section('Financial Details', kvGrid([
-      ['Contract Value', fmt(site['Contract Value'])],['Amount to Subcon', fmt(site['Amount to subcon'])],
-      ['Amount Paid', fmt(site['Amount Paid'])],['Balance', fmt(balance), balance > 0 ? 'danger' : 'success'],
-      ['Nokia Amount', fmt(site['Nokia Amount'])],['Payment Status', site['Payment Status']],
-      ['Payment Date', site['Payment Date']],['PO', site.PO],['PO2', site.PO2],['Pending Payment', site['Pending Payment']],
-    ])));
-  }
-  else if(drawerActiveTab === 'photos'){
-    const photos = site.photos || [];
-    const gallery = document.createElement('div');
-    gallery.className = 'gallery';
-    gallery.innerHTML = photos.map((p, i)=>`
-      <div class="gallery-item">
-        <img src="${escapeHtml(p.url)}" onclick="window.open('${escapeHtml(p.url)}','_blank')">
-        <button class="del" data-idx="${i}">✕</button>
-      </div>
-    `).join('') + `
-      <div class="gallery-upload" id="photoUploadBtn">
-        <span style="font-size:24px;">📷</span>
-        <span>Add Photos</span>
-      </div>
-    `;
-    pane.appendChild(section(`Photos (${photos.length})`, gallery));
-    gallery.querySelectorAll('.del').forEach(btn=>{
-      btn.onclick = (e)=>{
-        e.stopPropagation();
-        const i = parseInt(btn.dataset.idx, 10);
-        if(confirm('Delete this photo?')){
-          site.photos.splice(i, 1);
-          saveData(); renderDrawerBody();
-        }
-      };
-    });
-    const uploadBtn = gallery.querySelector('#photoUploadBtn');
-    uploadBtn.onclick = ()=>{
-      const input = document.getElementById('photoFileInput');
-      input.onchange = async ()=>{
-        const files = Array.from(input.files || []);
-        for(const file of files){
-          const base64 = await fileToBase64(file);
-          try{
-            await fetch(getSheetUrl(), {
-              method:'POST',
-              mode:'no-cors',
-              headers:{'Content-Type':'text/plain;charset=utf-8'},
-              body: JSON.stringify({
-                action:'uploadPhoto',
-                fileName: `site_${site.SiteID}_${Date.now()}_${file.name}`,
-                mimeType: file.type || 'image/jpeg',
-                base64, siteId: site.SiteID || ''
-              })
-            });
-          }catch(e){ console.error(e); }
-        }
-        saveData(); renderDrawerBody();
-        toast({type:'success', title:`${files.length} photo(s) uploaded`});
-        input.value = '';
-      };
-      input.click();
-    };
+    body.innerHTML = `
+      <div class="d-section">
+        <div class="d-section-title">Financial Details</div>
+        <div class="kv-grid">
+          ${[['Contract Value', fmtMoney(site["Contract Value"])],
+             ['Amount to Subcon', fmtMoney(site["Amount to subcon"])],
+             ['Amount Paid', fmtMoney(site["Amount Paid"])],
+             ['Balance', fmtMoney(balance), balance>0?'danger':'success'],
+             ['Nokia Amount', fmtMoney(site["Nokia Amount"])],
+             ['Payment Status', site["Payment Status"]],
+             ['Payment Date', site["Payment Date"]],
+             ['PO', site.PO],['PO2', site.PO2],['Pending Payment', site["Pending Payment"]]]
+            .map(([k,v,cls])=>`<div class="kv ${cls||''}"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v||'—')}</div></div>`).join('')}
+        </div>
+      </div>`;
   }
   else if(drawerActiveTab === 'notes'){
-    const notesBlock = document.createElement('div');
-    notesBlock.innerHTML = `
-      <textarea id="siteNotesArea" placeholder="Write general notes..." style="width:100%;min-height:200px;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;background:var(--bg-subtle);color:var(--text);">${escapeHtml(site.notes || '')}</textarea>
-      <div style="text-align:right;margin-top:10px;"><button class="btn btn-primary btn-sm" id="saveSiteNotes">Save Notes</button></div>`;
-    pane.appendChild(section('Notes', notesBlock));
-    notesBlock.querySelector('#saveSiteNotes').onclick = ()=>{
-      site.notes = notesBlock.querySelector('#siteNotesArea').value;
-      saveData();
-      toast({type:'success', title:'Notes saved'});
+    body.innerHTML = `
+      <div class="d-section">
+        <div class="d-section-title">Notes</div>
+        <textarea id="siteNotesArea" style="width:100%;min-height:200px;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;background:var(--bg-subtle);color:var(--text);">${escapeHtml(site.notes || '')}</textarea>
+        <div style="text-align:right;margin-top:10px;">
+          <button class="btn btn-primary btn-sm" id="saveSiteNotes">Save Notes</button>
+        </div>
+      </div>`;
+    document.getElementById('saveSiteNotes').onclick = async ()=>{
+      site.notes = document.getElementById('siteNotesArea').value;
+      try{
+        await supabaseUpdate(site);
+        toast({type:'success', title:'Notes saved'});
+      }catch(e){ toast({type:'error', title:'Save failed', message: e.message}); }
     };
   }
-  body.appendChild(pane);
 }
+
 function closeDrawer(){
   document.getElementById('siteDrawer').classList.remove('show');
   document.getElementById('drawerBackdrop').classList.remove('show');
   drawerSiteIdx = -1;
 }
-function section(title, node){
-  const div = document.createElement('div');
-  div.className = 'd-section';
-  div.innerHTML = `<div class="d-section-title">${escapeHtml(title)}</div>`;
-  div.appendChild(node);
-  return div;
-}
-function kvGrid(pairs){
-  const g = document.createElement('div');
-  g.className = 'kv-grid';
-  pairs.forEach(([k,v,cls])=>{
-    const box = document.createElement('div');
-    box.className = 'kv' + (cls==='danger'?' danger':cls==='success'?' success':'');
-    box.innerHTML = `<div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v===''||v==null?'—':String(v))}</div>`;
-    g.appendChild(box);
-  });
-  return g;
-}
-function fmt(v){
+
+function fmtMoney(v){
   const n = parseFloat(v);
   return isNaN(n) ? (v || '—') : n.toLocaleString();
 }
 
+/* =========================================================
+   GANTT
+   ========================================================= */
+function renderGantt(){
+  const wrap = document.getElementById('ganttWrap');
+  if(!wrap) return;
+  const items = data.filter(r=> r.Date).map(r=>{
+    const start = parseDate(r.Date);
+    return {
+      site: r.SiteID, team: r.Team || '', start: start,
+      end: start ? new Date(start.getTime() + 30*86400000) : null,
+      status: (r.States||'').toLowerCase() === 'done' ? 'done' : 'progress'
+    };
+  }).filter(i=> i.start);
+
+  if(!items.length){
+    wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-dim);">No dated sites to show.</div>';
+    return;
+  }
+
+  const minDate = new Date(Math.min(...items.map(i=>i.start.getTime())));
+  const maxDate = new Date(Math.max(...items.map(i=>i.end.getTime())));
+  const totalDays = Math.max(1, Math.ceil((maxDate - minDate)/86400000));
+
+  let html = `<div class="gantt-header"><div class="gantt-label">Site</div><div class="gantt-track" style="display:flex;"><div style="flex:1;text-align:left;">${fmtDate(minDate)}</div><div style="flex:1;text-align:right;">${fmtDate(maxDate)}</div></div></div>`;
+
+  items.sort((a,b)=>a.start - b.start).forEach(it=>{
+    const startPct = ((it.start - minDate)/86400000) / totalDays * 100;
+    const widthPct = Math.max(2, ((it.end - it.start)/86400000) / totalDays * 100);
+    html += `<div class="gantt-row">
+      <div class="gantt-label">${escapeHtml(it.site||'')}</div>
+      <div class="gantt-track">
+        <div class="gantt-bar ${it.status}" style="left:${startPct}%;width:${widthPct}%;">${it.status}</div>
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+function parseDate(s){
+  if(!s) return null;
+  const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const m = s.match(/^(\d{1,2})[-\s]([A-Za-z]{3})[-\s](\d{2,4})$/);
+  if(m){
+    let year = parseInt(m[3], 10);
+    if(year < 100) year += 2000;
+    return new Date(year, months[m[2]], parseInt(m[1], 10));
+  }
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+
+function fmtDate(d){
+  return d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'2-digit'});
+}
+
+/* =========================================================
+   ACTIVITY LOG
+   ========================================================= */
+async function loadActivity(){
+  const list = document.getElementById('activityList');
+  list.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;">Loading...</div>';
+  try{
+    const { data: rows, error } = await db
+      .from('activity_log')
+      .select('*')
+      .order('timestamp', { ascending: false })
+      .limit(200);
+    if(error) throw error;
+    if(!rows.length){
+      list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-dim);">No activity yet.</div>';
+      return;
+    }
+    list.innerHTML = rows.map(r=>{
+      const action = (r.action || 'update').toLowerCase();
+      const icon = action.includes('delete') ? '🗑' : action.includes('add') ? '➕' : '✎';
+      const ts = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
+      return `<div class="activity-item">
+        <div class="activity-icon">${icon}</div>
+        <div class="activity-content">
+          <div class="activity-text"><b>${escapeHtml(r.user_name||'user')}</b> ${escapeHtml(action)} ${r.site_id ? `site <b>${escapeHtml(r.site_id)}</b>` : ''} ${r.field ? `· <b>${escapeHtml(r.field)}</b>` : ''}</div>
+          <div class="activity-meta"><span>${escapeHtml(ts)}</span></div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--red-600);">Failed to load activity.</div>';
+  }
+}
+
+/* =========================================================
+   MAP
+   ========================================================= */
+function openMap(){
+  document.getElementById('mapModal').classList.add('show');
+  setTimeout(()=>{
+    if(leafletInstance){ leafletInstance.remove(); }
+    leafletInstance = L.map('leafletMap').setView([31.5, 45], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18, attribution: '© OpenStreetMap'
+    }).addTo(leafletInstance);
+
+    const getColor = (r)=>{
+      const s = (r.States||'').toLowerCase();
+      if(s === 'done') return '#10b981';
+      if(s.includes('progress')) return '#f59e0b';
+      return '#6b7280';
+    };
+
+    const groups = new Map();
+    data.forEach(r => {
+      if(!r.LAT || !r.Long) return;
+      const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
+      if(isNaN(lat) || isNaN(lng)) return;
+      const key = lat.toFixed(4) + ',' + lng.toFixed(4);
+      if(!groups.has(key)) groups.set(key, []);
+      groups.get(key).push({r, lat, lng});
+    });
+
+    groups.forEach(group => {
+      const first = group[0];
+      const r = first.r;
+      if(group.length === 1){
+        const marker = L.circleMarker([first.lat, first.lng], {
+          radius: 7, fillColor: getColor(r), color: '#fff',
+          weight: 2, opacity: 1, fillOpacity: 0.9
+        }).addTo(leafletInstance);
+        marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
+          permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
+        });
+        marker.bindPopup(`<div style="font-family:Inter,sans-serif;font-size:13px;min-width:180px;">
+          <b>Site ${escapeHtml(r.SiteID)}</b><br>
+          <span style="color:#6b7280;">${escapeHtml(r.Gov||'')} · ${escapeHtml(r.Team||'')}</span><br>
+          <span style="color:#6b7280;">${escapeHtml(r.States||'—')}</span>
+        </div>`);
+      } else {
+        const ids = group.map(g => g.r.SiteID).join(', ');
+        const marker = L.circleMarker([first.lat, first.lng], {
+          radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff',
+          weight: 2, opacity: 1, fillOpacity: 0.9
+        }).addTo(leafletInstance);
+        marker.bindTooltip(`<b>${group.length} sites</b>`, {
+          permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
+        });
+      }
+    });
+
+    const allPoints = Array.from(groups.values()).flat().map(g => [g.lat, g.lng]);
+    if(allPoints.length){
+      leafletInstance.fitBounds(allPoints, { padding: [40, 40], maxZoom: 12 });
+    }
+  }, 100);
+}
+
+function closeMap(){
+  document.getElementById('mapModal').classList.remove('show');
+  if(leafletInstance){ leafletInstance.remove(); leafletInstance = null; }
+}
+
+/* =========================================================
+   COMMAND PALETTE
+   ========================================================= */
+let cmdkItems = [];
+let cmdkActive = 0;
+
+function openCmdk(){
+  document.getElementById('cmdkBackdrop').classList.add('show');
+  document.getElementById('cmdkInput').value = '';
+  document.getElementById('cmdkInput').focus();
+  renderCmdk('');
+}
+
+function closeCmdk(){
+  document.getElementById('cmdkBackdrop').classList.remove('show');
+}
+
+function renderCmdk(query){
+  const q = query.trim().toLowerCase();
+  const results = document.getElementById('cmdkResults');
+  const commands = [
+    { icon:'📊', title:'Dashboard', sub:'View KPIs and charts', action: ()=>{ closeCmdk(); switchView('dashboard'); } },
+    { icon:'📋', title:'Sites List', sub:'View all sites', action: ()=>{ closeCmdk(); switchView('sites'); } },
+    { icon:'📅', title:'Timeline', sub:'Gantt view', action: ()=>{ closeCmdk(); switchView('gantt'); } },
+    { icon:'⚡', title:'Activity Log', sub:'Recent changes', action: ()=>{ closeCmdk(); switchView('activity'); } },
+    { icon:'+', title:'Add new site', sub:'Create a blank site', action: ()=>{ closeCmdk(); document.getElementById('addRowBtn').click(); } },
+    { icon:'📄', title:'Import SMR PDF', sub:'Upload file', action: ()=>{ closeCmdk(); openPDFImportModal(); } },
+    { icon:'📊', title:'Export Excel', sub:'Download XLSX', action: ()=>{ closeCmdk(); document.getElementById('exportXlsxBtn').click(); } },
+    { icon:'🗺️', title:'View Map', sub:'Show sites on map', action: ()=>{ closeCmdk(); openMap(); } },
+    { icon:'⚙️', title:'Settings', sub:'Configuration', action: ()=>{ closeCmdk(); openSettings(); } }
+  ];
+  const filtered = q ? commands.filter(c => c.title.toLowerCase().includes(q) || c.sub.toLowerCase().includes(q)) : commands;
+  const siteResults = q ? data.map((r,i)=>({r,i})).filter(({r})=>{
+    const hay = `${r.SiteID||''} ${r.Gov||''} ${r.Team||''}`.toLowerCase();
+    return hay.includes(q);
+  }).slice(0, 8) : [];
+
+  let html = '';
+  if(filtered.length){
+    html += `<div class="cmdk-section">Commands</div>`;
+    filtered.forEach((c,i)=>{
+      html += `<div class="cmdk-item ${i===0?'active':''}"><div class="cmdk-item-icon">${c.icon}</div><div class="cmdk-item-text"><div class="cmdk-item-title">${escapeHtml(c.title)}</div><div class="cmdk-item-sub">${escapeHtml(c.sub)}</div></div></div>`;
+    });
+  }
+  if(siteResults.length){
+    html += `<div class="cmdk-section">Sites</div>`;
+    siteResults.forEach((s,i)=>{
+      const idx = filtered.length + i;
+      html += `<div class="cmdk-item ${idx===0?'active':''}"><div class="cmdk-item-icon">📍</div><div class="cmdk-item-text"><div class="cmdk-item-title">Site ${escapeHtml(s.r.SiteID||'(new)')} — ${escapeHtml(s.r.Gov||'?')}</div></div></div>`;
+    });
+  }
+  if(!html) html = `<div class="cmdk-empty">No results for "${escapeHtml(q)}"</div>`;
+  results.innerHTML = html;
+
+  cmdkItems = [
+    ...filtered.map(c=>({action:c.action})),
+    ...siteResults.map(s=>({action:()=>{ closeCmdk(); openSiteDrawer(s.i); }}))
+  ];
+  cmdkActive = 0;
+  results.querySelectorAll('.cmdk-item').forEach((el, i)=>{
+    el.onmouseenter = ()=>{
+      results.querySelectorAll('.cmdk-item').forEach(x=>x.classList.remove('active'));
+      el.classList.add('active'); cmdkActive = i;
+    };
+    el.onclick = ()=>{ cmdkItems[i]?.action(); };
+  });
+}
+
+/* =========================================================
+   CHAT ASSISTANT
+   ========================================================= */
 function openChat(){ document.getElementById('chatPanel').classList.add('show'); document.getElementById('chatInput').focus(); }
 function closeChat(){ document.getElementById('chatPanel').classList.remove('show'); }
+
 function addChatMsg(text, who='bot'){
   const body = document.getElementById('chatBody');
   const msg = document.createElement('div');
@@ -2633,6 +2425,7 @@ function addChatMsg(text, who='bot'){
   body.appendChild(msg);
   body.scrollTop = body.scrollHeight;
 }
+
 function answerQuestion(q){
   const text = q.toLowerCase();
   const total = data.length;
@@ -2643,12 +2436,11 @@ function answerQuestion(q){
   const balance = totalSubcon - totalPaid;
 
   if(/how many|كم|عدد|total sites/i.test(text) && !/basra|babil|gov|محافظ/i.test(text)){
-    return `عندك <b>${total}</b> موقع. منها <b>${done}</b> منجزة (<b>${Math.round(done/total*100)}%</b>).`;
+    return `عندك <b>${total}</b> موقع. منها <b>${done}</b> منجزة (<b>${total?Math.round(done/total*100):0}%</b>).`;
   }
   if(/basra|بصرة/i.test(text)){
     const basra = data.filter(r=> (r.Gov||'').toLowerCase().includes('basra'));
-    const basraDone = basra.filter(r=>(r.States||'').toLowerCase()==='done').length;
-    return `في Basra: <b>${basra.length}</b> موقع، منها <b>${basraDone}</b> منجزة.`;
+    return `في Basra: <b>${basra.length}</b> موقع.`;
   }
   if(/babil|بابل/i.test(text)){
     const b = data.filter(r=> (r.Gov||'').toLowerCase().includes('babil'));
@@ -2663,101 +2455,24 @@ function answerQuestion(q){
       if((r.States||'').toLowerCase()==='done') teams[r.Team].done++;
     });
     const best = Object.entries(teams).sort((a,b)=> b[1].done - a[1].done)[0];
-    if(!best) return 'No team data available.';
-    return `أفضل فريق: <b>${escapeHtml(best[0])}</b> — ${best[1].done}/${best[1].total} موقع منجز.`;
+    if(!best) return 'No team data.';
+    return `أفضل فريق: <b>${escapeHtml(best[0])}</b> — ${best[1].done}/${best[1].total}`;
   }
-  if(/money|مالية|subcon|balance|دفع|payment/i.test(text)){
-    return `المالية:<br>• Subcon Amount: <b>${fmtShort(totalSubcon)} IQD</b><br>• Total Paid: <b>${fmtShort(totalPaid)} IQD</b><br>• Balance: <b style="color:var(--red-600)">${fmtShort(balance)} IQD</b>`;
-  }
-  if(/overdue|متأخر/i.test(text)){
-    const today = new Date();
-    const overdue = data.filter(r=>{
-      if(!r['Payment Date'] || !r.Balance) return false;
-      const d = new Date(r['Payment Date']);
-      return !isNaN(d) && d < today && parseFloat(r.Balance) > 0;
-    });
-    return overdue.length ? `عندك <b>${overdue.length}</b> موقع فيه دفع متأخر.` : `ما فيه دفعات متأخرة. ✅`;
-  }
-  if(/snag|مشاكل/i.test(text)){
-    const withSnags = data.filter(r=> r['Snags 1'] || r['Snags 2'] || r['Snags 3']);
-    return withSnags.length ? `عندك <b>${withSnags.length}</b> موقع فيه Snags.` : `ما فيه Snags. ✅`;
+  if(/money|مالية|balance|دفع|payment/i.test(text)){
+    return `المالية:<br>• Subcon: <b>${fmtShort(totalSubcon)} IQD</b><br>• Paid: <b>${fmtShort(totalPaid)} IQD</b><br>• Balance: <b style="color:var(--red-600)">${fmtShort(balance)} IQD</b>`;
   }
   if(/smr|مواد/i.test(text)){
-    const withSMR = data.filter(r=> r.smr?.number || r.driveFileId).length;
+    const withSMR = data.filter(r=> r.smr?.number).length;
     return `عندك <b>${withSMR}/${total}</b> موقع مع SMR.`;
   }
   if(/flm/i.test(text)) return `FLM Accepted: <b>${accepted}</b> موقع.`;
-  if(/help|مساعدة/i.test(text)){
-    return `يمكنني مساعدتك في:<br>• عدد المواقع<br>• إحصائيات Basra / Babil<br>• أفضل فريق<br>• المالية والمدفوعات<br>• الدفعات المتأخرة<br>• Snags<br>• SMR`;
-  }
-  return `ما فهمت سؤالك. جرّب: "كم موقع Basra؟" أو "أفضل فريق" أو "المالية".`;
+  return `جرّب: "كم موقع Basra؟" أو "أفضل فريق" أو "المالية".`;
 }
 
-let cmdkItems = [];
-let cmdkActive = 0;
-function openCmdk(){
-  document.getElementById('cmdkBackdrop').classList.add('show');
-  document.getElementById('cmdkInput').value = '';
-  document.getElementById('cmdkInput').focus();
-  renderCmdk('');
-}
-function closeCmdk(){ document.getElementById('cmdkBackdrop').classList.remove('show'); }
-function renderCmdk(query){
-  const q = query.trim().toLowerCase();
-  const results = document.getElementById('cmdkResults');
-  const commands = [
-    { icon:'📊', title:'Dashboard', sub:'View KPIs and charts', action: ()=>{ closeCmdk(); switchView('dashboard'); } },
-    { icon:'📋', title:'Sites List', sub:'View all sites', action: ()=>{ closeCmdk(); switchView('sites'); } },
-    { icon:'📅', title:'Timeline', sub:'Gantt view', action: ()=>{ closeCmdk(); switchView('gantt'); } },
-    { icon:'⚡', title:'Activity Log', sub:'Recent changes', action: ()=>{ closeCmdk(); switchView('activity'); } },
-    { icon:'+', title:'Add new site', sub:'Create a blank site', action: ()=>{ closeCmdk(); document.getElementById('addRowBtn').click(); } },
-    { icon:'📄', title:'Import SMR PDF', sub:'Upload file', action: ()=>{ closeCmdk(); openPDFImportModal(); } },
-    { icon:'📊', title:'Export Excel', sub:'Download XLSX', action: ()=>{ closeCmdk(); document.getElementById('exportXlsxBtn').click(); } },
-    { icon:'📑', title:'Export PDF Report', sub:'Generate report', action: ()=>{ closeCmdk(); document.getElementById('exportReportBtn').click(); } },
-    { icon:'🗺️', title:'View Map', sub:'Show sites on map', action: ()=>{ closeCmdk(); document.getElementById('mapBtn').click(); } },
-    { icon:'🎨', title:'Change theme', sub:'Light / Dark / Midnight / Sepia', action: ()=>{ closeCmdk(); document.getElementById('themeBtn').click(); } },
-    { icon:'📧', title:'Send Email Report', sub:'Email to recipient', action: ()=>{ closeCmdk(); document.getElementById('emailReportBtn').click(); } },
-    { icon:'💾', title:'Create Backup', sub:'Backup to Drive', action: ()=>{ closeCmdk(); document.getElementById('backupBtn').click(); } },
-    { icon:'⌨️', title:'Show Shortcuts', sub:'Keyboard shortcuts', action: ()=>{ closeCmdk(); document.getElementById('shortcutsModal').classList.add('show'); } },
-    { icon:'⚙️', title:'Settings', sub:'Configuration', action: ()=>{ closeCmdk(); document.getElementById('settingsBtn').click(); } },
-  ];
-  const filteredCommands = q ? commands.filter(c => c.title.toLowerCase().includes(q) || c.sub.toLowerCase().includes(q)) : commands;
-  const siteResults = q ? data.map((r, i)=>({r, i})).filter(({r})=>{
-      const hay = `${r.SiteID||''} ${r.Gov||''} ${r.Team||''}`.toLowerCase();
-      return hay.includes(q);
-    }).slice(0, 8) : [];
-  let html = '';
-  if(filteredCommands.length){
-    html += `<div class="cmdk-section">Commands</div>`;
-    filteredCommands.forEach((c, i)=>{
-      html += `<div class="cmdk-item ${i===0?'active':''}"><div class="cmdk-item-icon">${c.icon}</div><div class="cmdk-item-text"><div class="cmdk-item-title">${escapeHtml(c.title)}</div><div class="cmdk-item-sub">${escapeHtml(c.sub)}</div></div></div>`;
-    });
-  }
-  if(siteResults.length){
-    html += `<div class="cmdk-section">Sites</div>`;
-    siteResults.forEach((s, i)=>{
-      const idx = filteredCommands.length + i;
-      html += `<div class="cmdk-item ${idx===0?'active':''}"><div class="cmdk-item-icon">📍</div><div class="cmdk-item-text"><div class="cmdk-item-title">Site ${escapeHtml(s.r.SiteID||'(new)')} — ${escapeHtml(s.r.Gov||'?')}</div><div class="cmdk-item-sub">${escapeHtml(s.r.Team||'')}</div></div></div>`;
-    });
-  }
-  if(!html) html = `<div class="cmdk-empty">No results for "${escapeHtml(q)}"</div>`;
-  results.innerHTML = html;
-  cmdkItems = [
-    ...filteredCommands.map(c=>({type:'cmd', action:c.action})),
-    ...siteResults.map(s=>({type:'site', action:()=>{ closeCmdk(); openSiteDrawer(s.i); }}))
-  ];
-  cmdkActive = 0;
-  results.querySelectorAll('.cmdk-item').forEach((el, i)=>{
-    el.onmouseenter = ()=>{
-      results.querySelectorAll('.cmdk-item').forEach(x=>x.classList.remove('active'));
-      el.classList.add('active'); cmdkActive = i;
-    };
-    el.onclick = ()=>{ const item = cmdkItems[i]; if(item) item.action(); };
-  });
-}
-
+/* =========================================================
+   VIEW SWITCHING
+   ========================================================= */
 function switchView(view){
-  currentView = view;
   ['dashboard','sites','gantt','activity'].forEach(v=>{
     document.getElementById('view-'+v).style.display = v === view ? 'block' : 'none';
   });
@@ -2772,28 +2487,37 @@ function switchView(view){
   if(view === 'activity') loadActivity();
 }
 
-function renderAll(){
-  renderFilterMenu();
-  renderFilterChips();
-  updateFilterCount();
-  renderHead();
-  renderBody();
-  renderStats();
-  renderCharts();
-  renderSmartAlerts();
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+function openSettings(){
+  document.getElementById('settingsModal').classList.add('show');
 }
 
+/* =========================================================
+   EVENT BINDINGS
+   ========================================================= */
 document.getElementById('searchInput').addEventListener('input', ()=>{
-  clearTimeout(window.__searchT); window.__searchT = setTimeout(renderBody, 200);
+  clearTimeout(window.__searchT);
+  window.__searchT = setTimeout(renderBody, 200);
 });
-document.getElementById('filterBtn').onclick = (e)=>{ e.stopPropagation(); document.getElementById('filterMenu').classList.toggle('show'); };
+
+document.getElementById('filterBtn').onclick = (e)=>{
+  e.stopPropagation();
+  document.getElementById('filterMenu').classList.toggle('show');
+};
 document.getElementById('filterMenu').onclick = e => e.stopPropagation();
 document.addEventListener('click', ()=>{
   document.getElementById('filterMenu').classList.remove('show');
   document.getElementById('kebabList').classList.remove('show');
 });
-document.getElementById('kebabBtn').onclick = (e)=>{ e.stopPropagation(); document.getElementById('kebabList').classList.toggle('show'); };
+
+document.getElementById('kebabBtn').onclick = (e)=>{
+  e.stopPropagation();
+  document.getElementById('kebabList').classList.toggle('show');
+};
 document.getElementById('kebabList').onclick = e => e.stopPropagation();
+
 document.querySelectorAll('.density-btn').forEach(btn=>{
   btn.onclick = ()=>{
     document.querySelectorAll('.density-btn').forEach(b=>b.classList.remove('active'));
@@ -2805,25 +2529,91 @@ document.querySelectorAll('.density-btn').forEach(btn=>{
 const savedDensity = localStorage.getItem(DENSITY_KEY) || 'normal';
 document.querySelectorAll('.density-btn').forEach(b=>{ b.classList.toggle('active', b.dataset.density === savedDensity); });
 document.getElementById('dataTable').className = 'dt density-' + savedDensity;
-document.getElementById('addRowBtn').onclick = ()=>{
+
+document.getElementById('addRowBtn').onclick = async ()=>{
   const blank = {};
   COLUMNS.forEach(c=> blank[c] = '');
-  const key = 'new-' + Date.now();
-  blank.__key = key; newRowKey = key;
-  data.unshift(ensureSiteFields(blank));
-  saveData(); renderAll();
-  toast({type:'info', title:'New site added'});
-};
-document.getElementById('bnAddSite').onclick = ()=> document.getElementById('addRowBtn').click();
-document.getElementById('bnMap').onclick = ()=> document.getElementById('mapBtn').click();
-document.getElementById('resetBtn').onclick = ()=>{
-  const snapshot = JSON.parse(JSON.stringify(data));
-  if(confirm('Restore original data and discard all local edits?')){
-    localStorage.removeItem(STORAGE_KEY);
-    loadData(); renderAll();
-    pushUndo(snapshot, 'Data reset');
+  blank.smr = { number:"", items: [] };
+  blank.consumption = [];
+  blank.photos = [];
+  blank.notes = "";
+  try{
+    await supabaseInsert(blank);
+    data.push(blank);
+    renderAll();
+    switchView('sites');
+    toast({type:'info', title:'New site added', message:'Fill in the details'});
+  }catch(e){
+    toast({type:'error', title:'Insert failed', message: e.message});
   }
 };
+
+document.getElementById('importPDFQuickBtn').onclick = openPDFImportModal;
+document.getElementById('pdfImportCancel').onclick = closePDFImportModal;
+document.getElementById('pdfImportSave').onclick = savePDFImport;
+document.getElementById('ex_addItem').onclick = ()=>{
+  renderExtractedItems(collectExtractedItems().concat([{ code:'', desc:'', qty:1, unit:'pcs', price:0 }]));
+};
+document.getElementById('pdfDropZone').onclick = ()=> document.getElementById('pdfFileInput').click();
+document.getElementById('pdfFileInput').onchange = (e)=>{
+  const f = e.target.files[0];
+  if(f) handlePDFFile(f);
+  e.target.value = '';
+};
+
+document.getElementById('drawerClose').onclick = closeDrawer;
+document.getElementById('drawerBackdrop').onclick = closeDrawer;
+document.getElementById('pdfViewerClose').onclick = closePDFViewer;
+document.getElementById('pdfViewerModal').addEventListener('click', e=>{
+  if(e.target.id === 'pdfViewerModal') closePDFViewer();
+});
+document.getElementById('mapClose').onclick = closeMap;
+document.getElementById('mapBtn').onclick = openMap;
+document.getElementById('bnMap').onclick = openMap;
+document.getElementById('bnAddSite').onclick = ()=> document.getElementById('addRowBtn').click();
+document.getElementById('refreshActivity').onclick = loadActivity;
+
+document.querySelectorAll('.view-tab').forEach(t=>{
+  t.onclick = ()=> switchView(t.dataset.view);
+});
+document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
+  t.onclick = ()=> switchView(t.dataset.view);
+});
+
+document.getElementById('settingsBtn').onclick = openSettings;
+document.getElementById('settingsClose').onclick = ()=> document.getElementById('settingsModal').classList.remove('show');
+document.getElementById('syncNowBtn').onclick = async ()=>{
+  await supabaseLoad();
+  toast({type:'success', title:'Synced'});
+};
+document.getElementById('logoutBtn').onclick = ()=>{
+  if(confirm('Log out?')){
+    localStorage.removeItem(LOGIN_KEY);
+    location.reload();
+  }
+};
+
+document.querySelectorAll('.theme-opt').forEach(btn=>{
+  btn.onclick = ()=>{
+    const t = btn.dataset.themeOpt;
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem(THEME_KEY, t);
+    setTimeout(renderCharts, 100);
+  };
+});
+
+document.getElementById('themeBtn').onclick = ()=>{
+  const themes = ['light','dark','midnight','sepia'];
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = themes[(themes.indexOf(cur) + 1) % themes.length];
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem(THEME_KEY, next);
+  setTimeout(renderCharts, 100);
+};
+
+/* =========================================================
+   EXPORT
+   ========================================================= */
 document.getElementById('exportCsvBtn').onclick = ()=>{
   document.getElementById('kebabList').classList.remove('show');
   const rows = getFilteredSorted().map(x=>x.r);
@@ -2838,10 +2628,13 @@ document.getElementById('exportCsvBtn').onclick = ()=>{
   downloadFile('mfc_site_tracker.csv', 'text/csv;charset=utf-8;', '\uFEFF'+csvRows.join('\n'));
   toast({type:'success', title:'CSV exported'});
 };
+
 document.getElementById('exportXlsxBtn').onclick = ()=>{
   document.getElementById('kebabList').classList.remove('show');
   const rows = getFilteredSorted().map(x=>{
-    const clean = {}; COLUMNS.forEach(c=> clean[c] = x.r[c] || ''); return clean;
+    const clean = {};
+    COLUMNS.forEach(c=> clean[c] = x.r[c] || '');
+    return clean;
   });
   const ws = XLSX.utils.json_to_sheet(rows, {header: COLUMNS});
   const wb = XLSX.utils.book_new();
@@ -2849,9 +2642,9 @@ document.getElementById('exportXlsxBtn').onclick = ()=>{
   XLSX.writeFile(wb, 'mfc_site_tracker.xlsx');
   toast({type:'success', title:'Excel exported'});
 };
+
 document.getElementById('exportReportBtn').onclick = async ()=>{
   document.getElementById('kebabList').classList.remove('show');
-  toast({type:'info', title:'Generating report...'});
   try{
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -2859,48 +2652,41 @@ document.getElementById('exportReportBtn').onclick = async ()=>{
     doc.rect(0, 0, 210, 60, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(28);
-    doc.setFont('helvetica', 'bold');
     doc.text('MFC Company', 15, 25);
     doc.setFontSize(18);
     doc.text('RAN Site Tracker Report', 15, 38);
     doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
     doc.text('Generated: ' + new Date().toLocaleString(), 15, 50);
     doc.setTextColor(30, 30, 30);
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
     doc.text('Summary', 15, 80);
+
     const total = data.length;
-    const done = data.filter(r => (r.States||'').toLowerCase() === 'done').length;
     const totalSubcon = data.reduce((s,r) => s + (parseFloat(r['Amount to subcon'])||0), 0);
     const totalPaid = data.reduce((s,r) => s + (parseFloat(r['Amount Paid'])||0), 0);
-    const balance = totalSubcon - totalPaid;
     doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
     let y = 90;
-    [['Total Sites', total.toString()], ['Completed', `${done} (${Math.round(done/(total||1)*100)}%)`],
-     ['Subcon Amount', totalSubcon.toLocaleString() + ' IQD'], ['Amount Paid', totalPaid.toLocaleString() + ' IQD'],
-     ['Balance Due', balance.toLocaleString() + ' IQD']].forEach(([k, v]) => {
+    [['Total Sites', total], ['Subcon', totalSubcon.toLocaleString() + ' IQD'],
+     ['Paid', totalPaid.toLocaleString() + ' IQD'],
+     ['Balance', (totalSubcon - totalPaid).toLocaleString() + ' IQD']].forEach(([k,v])=>{
       doc.setFont('helvetica', 'bold');
       doc.text(k + ':', 15, y);
       doc.setFont('helvetica', 'normal');
-      doc.text(v, 80, y);
+      doc.text(String(v), 80, y);
       y += 8;
     });
     doc.addPage();
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
     doc.text('Sites Detail', 15, 20);
-    const rows = getFilteredSorted().map(x => {
+    const rows = getFilteredSorted().map(x=>{
       const r = x.r;
-      return [r.SiteID || '', r.Gov || '', r.Team || '', r.States || '',
+      return [r.SiteID||'', r.Gov||'', r.Team||'', r.States||'',
         (parseFloat(r['Amount to subcon'])||0).toLocaleString(),
-        (parseFloat(r['Amount Paid'])||0).toLocaleString(),
-        (parseFloat(r.Balance)||0).toLocaleString()];
+        (parseFloat(r['Amount Paid'])||0).toLocaleString()];
     });
     doc.autoTable({
       startY: 28,
-      head: [['SiteID', 'Gov', 'Team', 'Status', 'Subcon', 'Paid', 'Balance']],
+      head: [['SiteID','Gov','Team','Status','Subcon','Paid']],
       body: rows,
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: [10, 26, 48], textColor: [255,255,255] }
@@ -2911,44 +2697,31 @@ document.getElementById('exportReportBtn').onclick = async ()=>{
     toast({type:'error', title:'Report failed', message: err.message});
   }
 };
-document.getElementById('backupBtn').onclick = async ()=>{
+
+document.getElementById('backupBtn').onclick = ()=>{
   document.getElementById('kebabList').classList.remove('show');
-  try{
-    const res = await fetch(getSheetUrl() + "?action=backup&t=" + Date.now());
-    const json = await res.json();
-    if(json.ok) toast({type:'success', title:'Backup created'});
-    else throw new Error(json.error);
-  }catch(err){
-    toast({type:'error', title:'Backup failed', message: err.message});
-  }
+  const json = JSON.stringify(data, null, 2);
+  downloadFile('mfc_backup_' + new Date().toISOString().slice(0,10) + '.json', 'application/json', json);
+  toast({type:'success', title:'Backup downloaded'});
 };
+
 document.getElementById('emailReportBtn').onclick = ()=>{
   document.getElementById('kebabList').classList.remove('show');
   document.getElementById('emailModal').classList.add('show');
 };
 document.getElementById('emailCancel').onclick = ()=> document.getElementById('emailModal').classList.remove('show');
-document.getElementById('emailSend').onclick = async ()=>{
-  const to = document.getElementById('emailTo').value.trim();
-  if(!to){ toast({type:'warning', title:'Enter recipient email'}); return; }
-  const subject = document.getElementById('emailSubject').value;
-  const message = document.getElementById('emailMessage').value;
-  const total = data.length;
-  const done = data.filter(r=> (r.States||'').toLowerCase()==='done').length;
-  const htmlBody = `<h2>MFC Site Tracker Report</h2><p>${escapeHtml(message) || 'Please find the site tracker summary below.'}</p><ul><li>Total Sites: <b>${total}</b></li><li>Completed: <b>${done}</b></li></ul>`;
-  try{
-    await fetch(getSheetUrl(), {
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({ action:'sendEmail', to, subject, htmlBody })
-    });
-    toast({type:'success', title:'Email sent (check inbox)', message:`To: ${to}`});
-    document.getElementById('emailModal').classList.remove('show');
-    document.getElementById('emailTo').value = '';
-  }catch(e){
-    toast({type:'error', title:'Email failed', message: e.message});
+document.getElementById('emailSend').onclick = ()=>{
+  toast({type:'warning', title:'Email not configured', message:'Use Export PDF instead'});
+  document.getElementById('emailModal').classList.remove('show');
+};
+
+document.getElementById('resetBtn').onclick = ()=>{
+  if(confirm('Reload from Supabase? Local cache will be cleared.')){
+    localStorage.clear();
+    location.reload();
   }
 };
+
 function downloadFile(filename, mime, content){
   const blob = new Blob([content], {type:mime});
   const url = URL.createObjectURL(blob);
@@ -2957,227 +2730,63 @@ function downloadFile(filename, mime, content){
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-document.getElementById('importBtn').onclick = ()=>{
-  document.getElementById('kebabList').classList.remove('show');
-  document.getElementById('importFile').click();
-};
-document.getElementById('importFile').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (evt)=>{
-    try{
-      const wb = XLSX.read(evt.target.result, {type:'array', codepage:65001});
-      const sheetName = wb.SheetNames[0];
-      const raw = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {defval:'', raw:false});
-      if(!raw.length){ toast({type:'warning', title:'No rows found'}); return; }
-      const mapped = mapImportedRows(raw);
-      pendingImportRows = mapped;
-      document.getElementById('importTitle').textContent = `Import "${file.name}"`;
-      document.getElementById('importSummary').textContent = `Found ${mapped.length} row(s). Append to ${data.length} existing, or replace all?`;
-      document.getElementById('importModal').classList.add('show');
-    }catch(err){
-      toast({type:'error', title:'Read failed', message:err.message});
-    }finally{ e.target.value = ''; }
-  };
-  reader.readAsArrayBuffer(file);
-});
-document.getElementById('importCancel').onclick = ()=>{
-  pendingImportRows = null;
-  document.getElementById('importModal').classList.remove('show');
-};
-document.getElementById('importAppend').onclick = ()=>{
-  if(pendingImportRows){ data = data.concat(pendingImportRows); saveData(); renderAll();
-    toast({type:'success', title:`${pendingImportRows.length} rows appended`}); }
-  pendingImportRows = null;
-  document.getElementById('importModal').classList.remove('show');
-};
-document.getElementById('importReplace').onclick = ()=>{
-  const snapshot = JSON.parse(JSON.stringify(data));
-  if(pendingImportRows){
-    const count = pendingImportRows.length;
-    data = pendingImportRows;
-    saveData(); renderAll();
-    pushUndo(snapshot, `Replaced with ${count} rows`);
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+document.addEventListener('keydown', e=>{
+  if((e.metaKey || e.ctrlKey) && e.key === 'k'){ e.preventDefault(); openCmdk(); return; }
+  if((e.metaKey || e.ctrlKey) && e.key === 'n'){ e.preventDefault(); document.getElementById('addRowBtn').click(); return; }
+  if((e.metaKey || e.ctrlKey) && e.key === 'f'){ e.preventDefault(); document.getElementById('searchInput').focus(); return; }
+  if((e.metaKey || e.ctrlKey) && e.key === 'e'){ e.preventDefault(); document.getElementById('exportXlsxBtn').click(); return; }
+  if((e.metaKey || e.ctrlKey) && e.key === 'p'){ e.preventDefault(); document.getElementById('exportReportBtn').click(); return; }
+  if(e.key === '?' && !e.metaKey && !e.ctrlKey){
+    e.preventDefault();
+    document.getElementById('shortcutsModal').classList.add('show');
+    return;
   }
-  pendingImportRows = null;
-  document.getElementById('importModal').classList.remove('show');
-};
-document.getElementById('settingsBtn').onclick = ()=>{
-  document.getElementById('sheetUrlInput').value = localStorage.getItem(SHEET_URL_KEY) || '';
-  document.getElementById('settingsModal').classList.add('show');
-};
-document.getElementById('settingsClose').onclick = ()=> document.getElementById('settingsModal').classList.remove('show');
-document.getElementById('sheetResetDefault').onclick = ()=>{
-  localStorage.removeItem(SHEET_URL_KEY);
-  document.getElementById('sheetUrlInput').value = '';
-  pullFromSheet(false); startPolling();
-  toast({type:'success', title:'Default sheet restored'});
-};
-document.getElementById('sheetConnect').onclick = async ()=>{
-  const val = document.getElementById('sheetUrlInput').value.trim();
-  if(val) localStorage.setItem(SHEET_URL_KEY, val); else localStorage.removeItem(SHEET_URL_KEY);
-  await pullFromSheet(false); startPolling();
-  toast({type:'success', title:'Reconnected'});
-};
-document.getElementById('syncNowBtn').onclick = ()=>{ pullFromSheet(false); toast({type:'info', title:'Syncing...'}); };
-document.getElementById('logoutBtn').onclick = ()=>{
-  if(confirm('Log out on this device?')){ localStorage.removeItem(LOGIN_KEY); location.reload(); }
-};
-document.querySelectorAll('.theme-opt').forEach(btn=>{
-  btn.onclick = ()=>{
-    const t = btn.dataset.themeOpt;
-    currentTheme = t;
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem(THEME_KEY, t);
-    setTimeout(renderCharts, 100);
-    toast({type:'info', title:`Theme: ${t}`});
-  };
-});
-document.getElementById('langSelect').onchange = (e)=>{
-  const lang = e.target.value;
-  localStorage.setItem(LANG_KEY, lang);
-  applyLang();
-  toast({type:'info', title: lang === 'ar' ? 'تم تغيير اللغة' : 'Language changed'});
-};
-document.getElementById('importPDFQuickBtn').onclick = ()=>{ openPDFImportModal(); };
-document.getElementById('pdfImportCancel').onclick = closePDFImportModal;
-document.getElementById('pdfImportSave').onclick = savePDFImport;
-document.getElementById('ex_addItem').onclick = ()=>{
-  renderExtractedItems(collectExtractedItems().concat([{ code:'', desc:'', qty:1, unit:'pcs', price:0 }]));
-};
-document.getElementById('ex_debugBtn').onclick = ()=>{
-  if(!pendingPDF){ toast({type:'warning', title:'No PDF loaded'}); return; }
-  const text = pendingPDF.text || '';
-  const win = window.open('', '_blank', 'width=1000,height=750');
-  if(!win) return;
-  win.document.write(`<html><head><title>PDF Raw Text</title><style>body{font-family:monospace;padding:20px;background:#0f172a;color:#e2e8f0;}pre{background:#1e293b;padding:14px;border-radius:8px;white-space:pre-wrap;border:1px solid #334155;max-height:80vh;overflow:auto;font-size:11.5px;}</style></head><body><h2>PDF Raw Text (${text.length} chars)</h2><pre>${escapeHtml(text.slice(0, 10000))}</pre></body></html>`);
-};
-document.getElementById('ex_structBtn').onclick = ()=>{
-  if(!pendingPDF || !pendingPDF.pages){ toast({type:'warning', title:'No PDF'}); return; }
-  const win = window.open('', '_blank', 'width=1400,height=900');
-  if(!win) return;
-  const units = /^(pcs?|pc|pieces?|sets?|set|mtrs?|meters?|mtr|m|rolls?|roll|boxes?|box|units?|unit|kits?|kit|lot|no|nos?)$/i;
-  let html = `<html><head><title>PDF Structure Debug</title><style>body{font-family:monospace;font-size:12px;padding:20px;background:#0f172a;color:#e2e8f0;}h2{color:#60a5fa;}.info{background:#1e3a8a;padding:10px;border-radius:6px;margin-bottom:14px;color:#dbeafe;}.page{margin:16px 0;padding:12px;background:#1e293b;border-radius:8px;}.page-title{color:#fbbf24;font-weight:700;margin-bottom:10px;}.row{padding:4px 0;border-bottom:1px solid #334155;display:flex;gap:8px;flex-wrap:wrap;}.cell{padding:3px 8px;background:#334155;border-radius:4px;}.cell-num{background:#059669;font-weight:700;}.cell-unit{background:#d97706;}.cell-header{background:#7c3aed;font-weight:700;}</style></head><body><h2>PDF Structure Debug</h2>`;
-  const parsed = pendingPDF.parsed || {};
-  html += `<div class="info"><b>Parsed Items: ${parsed.items?.length || 0}</b><br>${(parsed.debugLog || []).map(l => '• ' + escapeHtml(l)).join('<br>')}</div>`;
-  pendingPDF.pages.forEach(p => {
-    html += `<div class="page"><div class="page-title">Page ${p.pageNum} — ${p.rows.length} rows</div>`;
-    p.rows.forEach((row, ri) => {
-      html += `<div class="row"><span style="color:#64748b;font-size:10px;">#${ri}</span>`;
-      const texts = row.cells.map(c => c.str.toLowerCase().trim());
-      const isHeader = texts.some(t => /^(code|description|qty|unit|price|total|index|product)$/i.test(t));
-      row.cells.forEach(c => {
-        let cls = 'cell';
-        if(isHeader) cls += ' cell-header';
-        else if(/^\d+(\.\d+)?$/.test(c.str)) cls += ' cell-num';
-        else if(units.test(c.str)) cls += ' cell-unit';
-        html += `<span class="${cls}">${escapeHtml(c.str)}</span>`;
-      });
-      html += `</div>`;
-    });
-    html += `</div>`;
-  });
-  html += `</body></html>`;
-  win.document.write(html);
-};
-const dropZone = document.getElementById('pdfDropZone');
-const pdfInput = document.getElementById('pdfFileInput');
-dropZone.onclick = ()=> pdfInput.click();
-dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('drag'); });
-dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('drag'));
-dropZone.addEventListener('drop', e=>{
-  e.preventDefault(); dropZone.classList.remove('drag');
-  const f = e.dataTransfer.files[0]; if(f) handlePDFFile(f);
-});
-pdfInput.addEventListener('change', e=>{
-  const f = e.target.files[0]; if(f) handlePDFFile(f); e.target.value = '';
-});
-document.getElementById('drawerClose').onclick = closeDrawer;
-document.getElementById('drawerBackdrop').onclick = closeDrawer;
-document.getElementById('pdfViewerClose').onclick = closePDFViewer;
-document.getElementById('pdfViewerModal').addEventListener('click', e=>{
-  if(e.target.id === 'pdfViewerModal') closePDFViewer();
-});
-document.getElementById('clearFiltersEmpty').onclick = ()=>{
-  activeFilters = {};
-  document.getElementById('searchInput').value = '';
-  renderFilterMenu(); renderBody(); renderFilterChips(); updateFilterCount();
-};
-
-document.getElementById('mapBtn').onclick = ()=>{
-  document.getElementById('mapModal').classList.add('show');
-  setTimeout(()=>{
-    if(leafletInstance){ leafletInstance.remove(); }
-    leafletInstance = L.map('leafletMap').setView([31.5, 45], 6);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(leafletInstance);
-
-    const getColor = (r)=>{
-      const s = (r.States||'').toLowerCase();
-      if(s === 'done') return '#10b981';
-      if(s.includes('progress')) return '#f59e0b';
-      if(s.includes('hold')) return '#ef4444';
-      return '#6b7280';
-    };
-
-    const locationGroups = new Map();
-    data.forEach(r => {
-      if(!r.LAT || !r.Long) return;
-      const lat = parseFloat(r.LAT), lng = parseFloat(r.Long);
-      if(isNaN(lat) || isNaN(lng)) return;
-      const key = lat.toFixed(4) + ',' + lng.toFixed(4);
-      if(!locationGroups.has(key)) locationGroups.set(key, []);
-      locationGroups.get(key).push({r, lat, lng});
-    });
-
-    locationGroups.forEach(group => {
-      const first = group[0];
-      if(group.length === 1){
-        const r = first.r;
-        const marker = L.circleMarker([first.lat, first.lng], {
-          radius: 7, fillColor: getColor(r), color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.9
-        }).addTo(leafletInstance);
-        marker.bindTooltip(`<b style="font-size:11px;">${escapeHtml(r.SiteID || '?')}</b>`, {
-          permanent: true, direction: 'top', offset: [0, -8], className: 'site-label', opacity: 1
-        });
-        marker.bindPopup(`<div style="font-family:Inter,sans-serif;font-size:13px;min-width:180px;"><b style="font-size:14px;">Site ${escapeHtml(r.SiteID)}</b><br><span style="color:#6b7280;">${escapeHtml(r.Gov||'')} · ${escapeHtml(r.Team||'')}</span><br><span style="color:#6b7280;">${escapeHtml(r.States||'—')}</span><br><b style="color:#2563eb;">${(parseFloat(r['Amount to subcon'])||0).toLocaleString()} IQD</b><br><button onclick="window.__openSiteFromMap('${escapeHtml(r.SiteID)}')" style="margin-top:6px;padding:4px 10px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;">Open Details</button></div>`);
-      } else {
-        const ids = group.map(g => g.r.SiteID).join(', ');
-        const marker = L.circleMarker([first.lat, first.lng], {
-          radius: 10 + group.length * 2, fillColor: '#8b5cf6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.9
-        }).addTo(leafletInstance);
-        marker.bindTooltip(`<b style="font-size:11px;">${group.length} sites</b>`, {
-          permanent: true, direction: 'top', offset: [0, -12], className: 'site-label', opacity: 1
-        });
-        marker.bindPopup(`<div style="font-family:Inter,sans-serif;font-size:13px;min-width:180px;"><b>${group.length} Sites</b><br><div style="color:#6b7280;font-size:11.5px;margin-top:4px;">${escapeHtml(ids)}</div></div>`);
-      }
-    });
-
-    const allPoints = Array.from(locationGroups.values()).flat().map(g => [g.lat, g.lng]);
-    if(allPoints.length){
-      leafletInstance.fitBounds(allPoints, { padding: [40, 40], maxZoom: 12 });
+  if(e.key === 'g'){ lastKeyPress = 'g'; setTimeout(()=>{ lastKeyPress = null; }, 800); return; }
+  if(lastKeyPress === 'g' && e.key === 'd'){ switchView('dashboard'); lastKeyPress = null; return; }
+  if(lastKeyPress === 'g' && e.key === 'm'){ openMap(); lastKeyPress = null; return; }
+  if(e.key === 'Escape'){
+    if(document.getElementById('cmdkBackdrop').classList.contains('show')) closeCmdk();
+    else {
+      closePDFViewer();
+      closeDrawer();
+      closeMap();
+      document.getElementById('shortcutsModal').classList.remove('show');
+      document.getElementById('emailModal').classList.remove('show');
+      document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
     }
-  }, 100);
-};
-window.__openSiteFromMap = (siteId)=>{
-  const idx = data.findIndex(r => r.SiteID === siteId);
-  if(idx >= 0){
-    document.getElementById('mapModal').classList.remove('show');
-    openSiteDrawer(idx);
   }
-};
-document.getElementById('mapClose').onclick = ()=>{
-  document.getElementById('mapModal').classList.remove('show');
-  if(leafletInstance){ leafletInstance.remove(); leafletInstance = null; }
-};
-document.getElementById('refreshActivity').onclick = loadActivity;
+});
+
 document.getElementById('shortcutsClose').onclick = ()=> document.getElementById('shortcutsModal').classList.remove('show');
-document.querySelectorAll('.view-tab').forEach(t=>{
-  t.onclick = ()=> switchView(t.dataset.view);
+document.getElementById('cmdkInput').addEventListener('input', e => renderCmdk(e.target.value));
+document.getElementById('cmdkInput').addEventListener('keydown', e=>{
+  const items = document.querySelectorAll('#cmdkResults .cmdk-item');
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    cmdkActive = Math.min(cmdkActive + 1, items.length - 1);
+    items.forEach(x=>x.classList.remove('active'));
+    items[cmdkActive]?.classList.add('active');
+    items[cmdkActive]?.scrollIntoView({block:'nearest'});
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    cmdkActive = Math.max(cmdkActive - 1, 0);
+    items.forEach(x=>x.classList.remove('active'));
+    items[cmdkActive]?.classList.add('active');
+    items[cmdkActive]?.scrollIntoView({block:'nearest'});
+  } else if(e.key === 'Enter'){
+    e.preventDefault();
+    cmdkItems[cmdkActive]?.action();
+  }
 });
-document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
-  t.onclick = ()=> switchView(t.dataset.view);
+document.getElementById('cmdkBackdrop').addEventListener('click', e=>{
+  if(e.target.id === 'cmdkBackdrop') closeCmdk();
 });
+
+/* Chat */
 document.getElementById('chatFab').onclick = openChat;
 document.getElementById('chatClose').onclick = closeChat;
 document.getElementById('chatSend').onclick = ()=>{
@@ -3186,69 +2795,44 @@ document.getElementById('chatSend').onclick = ()=>{
   if(!q) return;
   addChatMsg(escapeHtml(q), 'user');
   input.value = '';
-  setTimeout(()=>{
-    const ans = answerQuestion(q);
-    addChatMsg(ans, 'bot');
-  }, 300);
+  setTimeout(()=> addChatMsg(answerQuestion(q), 'bot'), 300);
 };
 document.getElementById('chatInput').addEventListener('keydown', e=>{
   if(e.key === 'Enter') document.getElementById('chatSend').click();
 });
-document.getElementById('cmdkInput').addEventListener('input', e => renderCmdk(e.target.value));
-document.getElementById('cmdkInput').addEventListener('keydown', e=>{
-  const items = document.querySelectorAll('#cmdkResults .cmdk-item');
-  if(e.key === 'ArrowDown'){ e.preventDefault(); cmdkActive = Math.min(cmdkActive + 1, items.length - 1);
-    items.forEach(x=>x.classList.remove('active')); items[cmdkActive]?.classList.add('active'); items[cmdkActive]?.scrollIntoView({block:'nearest'}); }
-  else if(e.key === 'ArrowUp'){ e.preventDefault(); cmdkActive = Math.max(cmdkActive - 1, 0);
-    items.forEach(x=>x.classList.remove('active')); items[cmdkActive]?.classList.add('active'); items[cmdkActive]?.scrollIntoView({block:'nearest'}); }
-  else if(e.key === 'Enter'){ e.preventDefault(); cmdkItems[cmdkActive]?.action(); }
-});
-document.getElementById('cmdkBackdrop').addEventListener('click', e=>{
-  if(e.target.id === 'cmdkBackdrop') closeCmdk();
-});
 
-document.addEventListener('keydown', e=>{
-  if((e.metaKey || e.ctrlKey) && e.key === 'k'){ e.preventDefault(); openCmdk(); return; }
-  if((e.metaKey || e.ctrlKey) && e.key === 'n'){ e.preventDefault(); document.getElementById('addRowBtn').click(); return; }
-  if((e.metaKey || e.ctrlKey) && e.key === 'f'){ e.preventDefault(); document.getElementById('searchInput').focus(); return; }
-  if((e.metaKey || e.ctrlKey) && e.key === 's'){ e.preventDefault(); saveData(); toast({type:'success', title:'Saved'}); return; }
-  if((e.metaKey || e.ctrlKey) && e.key === 'e'){ e.preventDefault(); document.getElementById('exportXlsxBtn').click(); return; }
-  if((e.metaKey || e.ctrlKey) && e.key === 'p'){ e.preventDefault(); document.getElementById('exportReportBtn').click(); return; }
-  if(e.key === '?' && !e.metaKey && !e.ctrlKey){ e.preventDefault(); document.getElementById('shortcutsModal').classList.add('show'); return; }
-  if(e.key === 'g'){ lastKeyPress = 'g'; setTimeout(()=>{ lastKeyPress = null; }, 800); return; }
-  if(lastKeyPress === 'g' && e.key === 'd'){ switchView('dashboard'); lastKeyPress = null; return; }
-  if(lastKeyPress === 'g' && e.key === 'm'){ document.getElementById('mapBtn').click(); lastKeyPress = null; return; }
-  if(e.key === 'Escape'){
-    if(document.getElementById('cmdkBackdrop').classList.contains('show')) closeCmdk();
-    else {
-      closePDFViewer(); closeDrawer();
-      document.getElementById('mapModal').classList.remove('show');
-      document.getElementById('shortcutsModal').classList.remove('show');
-      document.getElementById('emailModal').classList.remove('show');
-      document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
-    }
-  }
-});
+/* Clock */
+function updateClock(){
+  const el = document.getElementById('heroClock');
+  if(el) el.textContent = new Date().toLocaleTimeString('en-GB', {hour12:false});
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-function initApp(){
+/* =========================================================
+   INIT
+   ========================================================= */
+async function initApp(){
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('appRoot').style.display = 'flex';
-  loadData();
 
-  if(!data.length){
-    console.warn('[initApp] Local data is empty');
-    setLiveStatus('No local data', false);
-  } else {
-    window.__lastPushCount = data.length;
-    console.log('[initApp] Loaded ' + data.length + ' rows from localStorage');
-  }
+  /* Theme */
+  const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
 
-  renderAll();
-  setLiveStatus('Live · Connected', true);
-  pullFromSheet(true);
-  startPolling();
+  /* Pinned columns */
+  try{
+    const pinned = JSON.parse(localStorage.getItem(PINNED_KEY) || '[]');
+    pinnedColumns = new Set(pinned);
+  }catch(e){}
+
+  /* Load data + subscribe */
+  await supabaseLoad();
+  subscribeRealtime();
 }
-document.getElementById('loginForm').addEventListener('submit', function(e){
+
+/* Login */
+document.getElementById('loginForm').addEventListener('submit', (e)=>{
   e.preventDefault();
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
@@ -3260,11 +2844,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e){
     document.getElementById('loginError').classList.add('show');
   }
 });
-if(localStorage.getItem(LOGIN_KEY) === '1'){ initApp(); }
 
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(console.error);
-}
+if(localStorage.getItem(LOGIN_KEY) === '1') initApp();
 </script>
 </body>
 </html>
