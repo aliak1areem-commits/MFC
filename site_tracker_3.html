@@ -2656,7 +2656,10 @@ document.getElementById('pdfFileInput').onchange = (e)=>{
 
 document.getElementById('drawerClose').onclick = closeDrawer;
 document.getElementById('drawerBackdrop').onclick = closeDrawer;
-document.getElementById('pdfViewerClose').onclick = closePDFViewer;
+document.getElementById('pdfViewerClose').onclick = function(){
+  document.getElementById('pdfViewerModal').classList.remove('show');
+  document.getElementById('pdfViewerFrame').src = '';
+};
 document.getElementById('pdfViewerModal').addEventListener('click', e=>{
   if(e.target.id === 'pdfViewerModal') closePDFViewer();
 });
