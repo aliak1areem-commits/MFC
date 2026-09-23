@@ -950,32 +950,63 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
    COLUMNS
    ========================================================= */
 const COLUMNS = [
-  "SiteID","Gov","Photo Report","FLM Feedback","Saif Tool","Team",
-  "Nokia Comments","Extra Scope","Main Scope","Details of request","Date","States",
-  "Payment to subcon","Amount to subcon","PO","PO2","Pending Payment","Nokia Amount",
-  "SMR Number","SMR Value","SMR File","SMR Drive URL",
-  "Contract Value","Payment Status","Payment Date","Amount Paid","Balance",
-  "Field Engineer","Subcontractor",
+  "SiteID","Gov","Photo Report","Photo Report Reason",
+  "FLM Feedback","FLM Rejection Reason",
+  "Saif Tool","Team",
+  "Nokia Comments","Nokia Rejection Reason",
+  "Extra Scope","Main Scope","FTK Status","Details of request","Date",
+  "States","Status Rejection Reason",
+  "PO","PO2","Pending Payment",
+  "Nokia Price","Subcon Price","Paid Amount","Balance",
+  "Payment Status","Payment Date",
+  "Transport & Crane","Total Cost",
+  "SMR Number","SMR File","SMR Drive URL",
   "LAT","Long","Dismantle","Snags 1","Snags 2","Snags 3"
 ];
-const NUM_COLS   = ["Amount to subcon","Nokia Amount","SMR Value","Contract Value","Amount Paid","Balance"];
+const NUM_COLS = ["Nokia Price","Subcon Price","Paid Amount","Balance","Transport & Crane","Total Cost","Pending Payment"];
 const CALC_COLS  = ["Balance"];
 const WIDE_COLS  = ["Team","Nokia Comments","Extra Scope","Snags 1","Snags 2","Field Engineer","Subcontractor","SMR Drive URL"];
 const BADGE_COLS = ["FLM Feedback","Saif Tool","States","Payment Status"];
 
 /* DB mapping */
 const DB_MAP = {
-  "SiteID":"site_id","Gov":"gov","Photo Report":"photo_report","FLM Feedback":"flm_feedback",
-  "Saif Tool":"saif_tool","Team":"team","Nokia Comments":"nokia_comments","Extra Scope":"extra_scope",
-  "Main Scope":"main_scope","Details of request":"details_of_request","Date":"date_field","States":"states",
-  "Payment to subcon":"payment_to_subcon","Amount to subcon":"amount_to_subcon","PO":"po","PO2":"po2",
-  "Pending Payment":"pending_payment","Nokia Amount":"nokia_amount","SMR Number":"smr_number",
-  "SMR Value":"smr_value","SMR File":"smr_file","SMR Drive URL":"smr_drive_url",
-  "Contract Value":"contract_value","Payment Status":"payment_status","Payment Date":"payment_date",
-  "Amount Paid":"amount_paid","Balance":"balance",
-  "Field Engineer":"field_engineer","Subcontractor":"subcontractor",
-  "LAT":"lat","Long":"long","Dismantle":"dismantle",
-  "Snags 1":"snags_1","Snags 2":"snags_2","Snags 3":"snags_3"
+  "SiteID":"site_id",
+  "Gov":"gov",
+  "Photo Report":"photo_report",
+  "Photo Report Reason":"photo_report_reason",
+  "FLM Feedback":"flm_feedback",
+  "FLM Rejection Reason":"flm_rejection_reason",
+  "Saif Tool":"saif_tool",
+  "Team":"team",
+  "Nokia Comments":"nokia_comments",
+  "Nokia Rejection Reason":"nokia_rejection_reason",
+  "Extra Scope":"extra_scope",
+  "Main Scope":"main_scope",
+  "FTK Status":"ftk_status",
+  "Details of request":"details_of_request",
+  "Date":"date_field",
+  "States":"states",
+  "Status Rejection Reason":"status_rejection_reason",
+  "PO":"po",
+  "PO2":"po2",
+  "Pending Payment":"pending_payment",
+  "Nokia Price":"nokia_price",
+  "Subcon Price":"subcon_price",
+  "Paid Amount":"paid_amount",
+  "Balance":"balance",
+  "Payment Status":"payment_status",
+  "Payment Date":"payment_date",
+  "Transport & Crane":"transport_crane",
+  "Total Cost":"total_cost",
+  "SMR Number":"smr_number",
+  "SMR File":"smr_file",
+  "SMR Drive URL":"smr_drive_url",
+  "LAT":"lat",
+  "Long":"long",
+  "Dismantle":"dismantle",
+  "Snags 1":"snags_1",
+  "Snags 2":"snags_2",
+  "Snags 3":"snags_3"
 };
 const DB_REVERSE = {};
 Object.entries(DB_MAP).forEach(([k,v]) => DB_REVERSE[v] = k);
@@ -1415,8 +1446,8 @@ function getFilteredSorted(){
 }
 
 function computeBalance(row){
-  const total = parseFloat(row['Amount to subcon']) || 0;
-  const paid  = parseFloat(row['Amount Paid']) || 0;
+  const total = parseFloat(row['Subcon Price']) || 0;
+  const paid  = parseFloat(row['Paid Amount']) || 0;
   return total - paid;
 }
 
@@ -1434,11 +1465,23 @@ function renderBody(){
 
   let firstNewCell = null;
 
-  rows.forEach(({r,i})=>{
+    rows.forEach(({r,i})=>{
     const tr = document.createElement('tr');
     if(r.__key && r.__key === newRowKey) tr.classList.add('new-row');
 
+    // فحص الأعمدة الشرطية (FTK Status)
+    const conditionalSkip = {};
+    Object.entries(CONDITIONAL_COLS).forEach(([condCol, rule]) => {
+      if(col === condCol && r[rule.dependsOn] !== rule.value){
+        conditionalSkip[col] = true;
+      }
+    });
+
     COLUMNS.forEach((col)=>{
+      // تخطي الأعمدة الشرطية إذا لم يتحقق الشرط
+      if(conditionalSkip[col]) return;
+      
+      const td = document.createElement('td');
       const td = document.createElement('td');
       let val = r[col] || '';
       td.setAttribute('data-label', col);
