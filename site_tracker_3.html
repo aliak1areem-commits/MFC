@@ -815,10 +815,65 @@ tr.row-rejected td:first-child{
   direction: ltr;
   text-align: left;
 }
+  /* =========================================================
+   ⭐ GLASS BACKGROUND — خلفية زجاجية متحركة
+   ========================================================= */
+
+body{
+  background:#050510 !important;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* طبقة الخلفية المتحركة */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(900px 600px at 15% 10%, rgba(139,92,246,.35), transparent 60%),
+    radial-gradient(800px 500px at 85% 20%, rgba(236,72,153,.25), transparent 60%),
+    radial-gradient(900px 600px at 50% 95%, rgba(59,130,246,.30), transparent 60%),
+    radial-gradient(600px 400px at 95% 90%, rgba(16,185,129,.20), transparent 60%),
+    linear-gradient(135deg, #050510 0%, #0a0a20 50%, #050510 100%);
+  z-index:-3;
+  animation:bgMove 20s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes bgMove{
+  0%{transform:scale(1) rotate(0deg);}
+  100%{transform:scale(1.15) rotate(3deg);}
+}
+
+/* Canvas الجسيمات */
+#particles{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+}
+
+/* توهج Ambient */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(400px 400px at 20% 30%, rgba(139,92,246,.10), transparent 70%),
+    radial-gradient(300px 300px at 80% 70%, rgba(236,72,153,.08), transparent 70%);
+  z-index:-1;
+  animation:float 15s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes float{
+  0%{transform:translate(0,0);}
+  100%{transform:translate(-30px,20px);}
+}
 </style>
 </head>
 <body>
-
+<!-- Particles Canvas -->
+<canvas id="particles"></canvas>
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
@@ -4788,6 +4843,52 @@ async function initApp(){
 
   await supabaseLoad();
   subscribeRealtime();
+  /* =========================================================
+   ⭐ PARTICLE EFFECTS — الجسيمات المتحركة
+   ========================================================= */
+(function(){
+  const canvas = document.getElementById('particles');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for(let i=0; i<50; i++){
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 2 + 0.5,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      alpha: Math.random() * 0.5 + 0.2
+    });
+  }
+
+  function animate(){
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if(p.x < 0 || p.x > W) p.vx *= -1;
+      if(p.y < 0 || p.y > H) p.vy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(165,180,252,' + p.alpha + ')';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = 'rgba(139,92,246,.8)';
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
 
   console.log('%c✅ MFC Site Tracker v11 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
   console.log('%c👤 User: ' + (currentUser?.full_name || 'Unknown'), 'color:#3b82f6;font-size:12px');
