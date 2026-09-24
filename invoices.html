@@ -323,15 +323,16 @@ code.inline{background:var(--ice);padding:1px 6px;border-radius:5px;font-family:
   <!-- ===================== MAIN ===================== -->
   <main class="main">
     <div class="topbar">
-      <div>
-        <h2 id="pageTitle">Import Purchase Order Data</h2>
-        <p id="pageSub">Paste or upload the raw PO export file from AP eConnect (All Items export)</p>
-      </div>
-      <div class="session-controls">
-        <button class="btn-secondary" id="btnAutoRestoreInfo" title="Restore last working session">↺ Restore Last Session</button>
-        <button class="btn-primary" id="btnSaveSessionTop">💾 Save Session Now</button>
-      </div>
-    </div>
+  <div>
+    <h2 id="pageTitle">Import Purchase Order Data</h2>
+    <p id="pageSub">Paste or upload the raw PO export file from AP eConnect (All Items export)</p>
+  </div>
+  <div class="session-controls">
+    <button class="btn-ghost" onclick="window.location.href='index.html'" style="background:transparent;color:#5A6B87;border:1px solid #D7DEEA;">← Back to Site Tracker</button>
+    <button class="btn-secondary" id="btnAutoRestoreInfo" title="Restore last working session">↺ Restore Last Session</button>
+    <button class="btn-primary" id="btnSaveSessionTop">💾 Save Session Now</button>
+  </div>
+</div>
 
     <!-- STEP 1 -->
     <section class="section active" id="sec1">
