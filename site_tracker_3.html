@@ -673,6 +673,7 @@ tr.row-progress td:first-child{
 tr.row-rejected td:first-child{
   box-shadow: inset 4px 0 0 var(--red-500);
 }
+  
 </style>
 </head>
 <body>
@@ -716,7 +717,10 @@ tr.row-rejected td:first-child{
         <button class="icon-btn-hero" id="settingsBtn" title="Settings">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
-        <div class="avatar" id="avatarBtn" title="Signed in as MFC">MFC</div>
+        <button class="icon-btn-hero" id="usersBtn" title="Users Management" style="display:none;">
+  👥
+</button>
+<div class="avatar" id="avatarBtn" title="Signed in">MFC</div>
       </div>
     </div>
   </header>
@@ -1072,6 +1076,99 @@ tr.row-rejected td:first-child{
     <div class="modal-actions">
       <button class="btn btn-outline" id="emailReportCancel">إلغاء</button>
       <button class="btn btn-primary" id="emailReportOpen">📧 فتح Outlook</button>
+    </div>
+  </div>
+</div>
+  <!-- USERS LIST MODAL -->
+<div class="modal-backdrop" id="usersModal">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3>👥 Users Management</h3>
+      <p>إدارة المستخدمين والصلاحيات</p>
+    </div>
+    <div class="modal-body">
+      <div id="currentUserBar" style="background:var(--bg-subtle);padding:12px 16px;border-radius:10px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;" id="userAvatarInitials">--</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;" id="userInfoName">--</div>
+          <div style="font-size:12px;color:var(--text-dim);" id="userInfoRole">--</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="addUserBtn">+ Add User</button>
+      </div>
+
+      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead style="background:var(--bg-subtle);">
+            <tr>
+              <th style="padding:12px;text-align:left;font-size:11px;color:var(--text-dim);text-transform:uppercase;">User</th>
+              <th style="padding:12px;text-align:left;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Email</th>
+              <th style="padding:12px;text-align:left;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Role</th>
+              <th style="padding:12px;text-align:center;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Active</th>
+              <th style="padding:12px;text-align:left;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Last Login</th>
+              <th style="padding:12px;text-align:center;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:16px;padding:12px;background:var(--bg-subtle);border-radius:10px;font-size:12px;line-height:1.8;">
+        <b>🔐 الأدوار:</b><br>
+        <span style="color:var(--red-600);font-weight:700;">Admin</span> — كل الصلاحيات<br>
+        <span style="color:var(--amber-600);font-weight:700;">Manager</span> — إضافة، تعديل، تصدير<br>
+        <span style="color:var(--blue-600);font-weight:700;">Viewer</span> — قراءة فقط
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="usersClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER EDIT MODAL -->
+<div class="modal-backdrop" id="userEditModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-head">
+      <h3 id="userEditTitle">Add User</h3>
+      <p id="userEditSub">أدخل بيانات المستخدم</p>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr;">
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Full Name</label>
+          <input type="text" id="userEditName" placeholder="Ali Ahmed" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+        </div>
+        <div style="margin-top:12px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Username</label>
+          <input type="text" id="userEditUsername" placeholder="ali" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+        </div>
+        <div style="margin-top:12px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Password</label>
+          <input type="text" id="userEditPassword" placeholder="••••••" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;font-family:monospace;">
+        </div>
+        <div style="margin-top:12px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Email</label>
+          <input type="email" id="userEditEmail" placeholder="ali@mfc.com" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+        </div>
+        <div style="margin-top:12px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Role</label>
+          <select id="userEditRole" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+            <option value="admin">🔴 Admin — كل الصلاحيات</option>
+            <option value="manager">🟡 Manager — إضافة وتعديل</option>
+            <option value="viewer" selected>🔵 Viewer — قراءة فقط</option>
+          </select>
+        </div>
+        <div style="margin-top:12px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="userEditActive" checked>
+            <span>Active (يستطيع تسجيل الدخول)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="userEditCancel">Cancel</button>
+      <button class="btn btn-primary" id="userEditSave">💾 Save</button>
     </div>
   </div>
 </div>
@@ -2035,10 +2132,10 @@ function renderBody(){
 
     const tdAct = document.createElement('td');
     tdAct.style.textAlign = 'center';
-    tdAct.innerHTML = `
+        tdAct.innerHTML = `
       <div class="row-actions">
         <button class="btn btn-ghost btn-icon btn-sm" data-act="open" data-i="${i}" title="Details">🔍</button>
-        <button class="btn btn-ghost btn-icon btn-sm" data-act="del" data-i="${i}" title="Delete" style="color:var(--red-500);">✕</button>
+        ${can('delete') ? `<button class="btn btn-ghost btn-icon btn-sm" data-act="del" data-i="${i}" title="Delete" style="color:var(--red-500);">✕</button>` : ''}
       </div>`;
     tr.appendChild(tdAct);
     body.appendChild(tr);
@@ -3229,6 +3326,38 @@ function openSettings(){
 /* =========================================================
    EVENT BINDINGS
    ========================================================= */
+  /* ---- Users Management Events ---- */
+document.getElementById('usersBtn').onclick = () => {
+  document.getElementById('usersModal').classList.add('show');
+  const u = currentUser;
+  if (u) {
+    document.getElementById('userAvatarInitials').textContent = 
+      (u.full_name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('userInfoName').textContent = u.full_name;
+    document.getElementById('userInfoRole').textContent = u.role.toUpperCase() + ' · @' + u.username;
+  }
+  loadUsers();
+};
+
+document.getElementById('usersClose').onclick = () => {
+  document.getElementById('usersModal').classList.remove('show');
+};
+
+document.getElementById('addUserBtn').onclick = () => openUserEditModal(null);
+document.getElementById('userEditCancel').onclick = () => {
+  document.getElementById('userEditModal').classList.remove('show');
+};
+document.getElementById('userEditSave').onclick = saveUser;
+
+document.getElementById('usersModal').onclick = (e) => {
+  if (e.target.id === 'usersModal') e.target.classList.remove('show');
+};
+document.getElementById('userEditModal').onclick = (e) => {
+  if (e.target.id === 'userEditModal') e.target.classList.remove('show');
+};
+
+const logoutBtnEl = document.getElementById('logoutBtn');
+if (logoutBtnEl) logoutBtnEl.onclick = logoutUser;
 
 /* ---- Search ---- */
 document.getElementById('searchInput').addEventListener('input', ()=>{
@@ -3656,6 +3785,293 @@ function updateClock(){
 }
 setInterval(updateClock, 1000);
 updateClock();
+  /* =========================================================
+   USERS & PERMISSIONS SYSTEM
+   ========================================================= */
+
+let currentUser = null;
+
+/* ---- Permissions Matrix ---- */
+const PERMISSIONS = {
+  admin: {
+    view: true, edit: true, add: true, delete: true,
+    importPDF: true, export: true, sendEmail: true,
+    manageUsers: true, viewAudit: true, settings: true
+  },
+  manager: {
+    view: true, edit: true, add: true, delete: false,
+    importPDF: true, export: true, sendEmail: true,
+    manageUsers: false, viewAudit: true, settings: false
+  },
+  viewer: {
+    view: true, edit: false, add: false, delete: false,
+    importPDF: false, export: true, sendEmail: false,
+    manageUsers: false, viewAudit: false, settings: false
+  }
+};
+
+function can(permission) {
+  if (!currentUser) return false;
+  const role = currentUser.role || 'viewer';
+  return PERMISSIONS[role]?.[permission] === true;
+}
+
+/* ---- Load/Save User ---- */
+function loadCurrentUser() {
+  try {
+    const saved = localStorage.getItem('mfc_current_user');
+    if (saved) {
+      currentUser = JSON.parse(saved);
+      updateUserDisplay();
+      applyPermissions();
+    }
+  } catch(e){ console.error(e); }
+}
+
+function saveCurrentUser(user) {
+  currentUser = user;
+  localStorage.setItem('mfc_current_user', JSON.stringify(user));
+  updateUserDisplay();
+  applyPermissions();
+}
+
+function updateUserDisplay() {
+  if (!currentUser) return;
+  const initials = (currentUser.full_name || 'U')
+    .split(' ').map(w => w[0]).join('').slice(0,3).toUpperCase();
+  
+  const avatar = document.getElementById('avatarBtn');
+  if (avatar) {
+    avatar.textContent = initials;
+    avatar.title = `${currentUser.full_name} (${currentUser.role})`;
+  }
+
+  const usersBtn = document.getElementById('usersBtn');
+  if (usersBtn) {
+    usersBtn.style.display = can('manageUsers') ? 'flex' : 'none';
+  }
+}
+
+function applyPermissions() {
+  if (!currentUser) return;
+  const toggle = (id, show) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? '' : 'none';
+  };
+
+  toggle('addRowBtn', can('add'));
+  toggle('importPDFQuickBtn', can('importPDF'));
+  toggle('emailReportBtn', can('sendEmail'));
+  toggle('bnAddSite', can('add'));
+  toggle('exportCsvBtn', can('export'));
+  toggle('exportXlsxBtn', can('export'));
+  toggle('exportReportBtn', can('export'));
+  toggle('backupBtn', can('export'));
+  toggle('resetBtn', can('delete'));
+
+  const settingsBtn = document.getElementById('settingsBtn');
+  if (settingsBtn) settingsBtn.style.display = can('settings') ? '' : 'none';
+
+  document.body.classList.toggle('readonly-mode', !can('edit'));
+}
+
+/* ---- Login ---- */
+async function loginUser(username, password) {
+  try {
+    const { data: rows, error } = await db
+      .from('mfc_users')
+      .select('*')
+      .eq('username', username)
+      .eq('password', password)
+      .eq('active', true)
+      .limit(1);
+
+    if (error) throw error;
+    if (!rows || rows.length === 0) return null;
+
+    const user = rows[0];
+    await db.from('mfc_users')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', user.id);
+
+    await logActivity('login', '', '', '', '');
+    return user;
+  } catch(e) {
+    console.error('Login error:', e);
+    return null;
+  }
+}
+
+/* ---- Log Activity ---- */
+async function logActivity(action, siteId, field, oldVal, newVal) {
+  if (!currentUser) return;
+  try {
+    await db.from('mfc_activity_log').insert([{
+      user_id: currentUser.id,
+      username: currentUser.username,
+      action: action,
+      site_id: siteId || '',
+      field: field || '',
+      old_value: String(oldVal || '').substring(0, 200),
+      new_value: String(newVal || '').substring(0, 200)
+    }]);
+  } catch(e) { console.warn('Log failed:', e); }
+}
+
+/* ---- Users Management ---- */
+async function loadUsers() {
+  if (!can('manageUsers')) return;
+  try {
+    const { data: users, error } = await db
+      .from('mfc_users')
+      .select('*')
+      .order('id', { ascending: true });
+    if (error) throw error;
+    renderUsersTable(users || []);
+  } catch(e) {
+    toast({type:'error', title:'Load failed', message: e.message});
+  }
+}
+
+function renderUsersTable(users) {
+  const tbody = document.getElementById('usersTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = users.map(u => {
+    const roleColor = u.role === 'admin' ? 'red' : u.role === 'manager' ? 'amber' : 'blue';
+    const lastLogin = u.last_login ? new Date(u.last_login).toLocaleString('en-GB', {hour12:false}) : '—';
+    return `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:12px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">
+              ${(u.full_name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
+            </div>
+            <div>
+              <div style="font-weight:700;">${escapeHtml(u.full_name)}</div>
+              <div style="font-size:11px;color:var(--text-dim);font-family:monospace;">@${escapeHtml(u.username)}</div>
+            </div>
+          </div>
+        </td>
+        <td style="padding:12px;font-size:12px;">${escapeHtml(u.email || '—')}</td>
+        <td style="padding:12px;">
+          <span style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:var(--${roleColor}-50);color:var(--${roleColor}-600);">
+            ${u.role.toUpperCase()}
+          </span>
+        </td>
+        <td style="padding:12px;text-align:center;">${u.active ? '✅' : '❌'}</td>
+        <td style="padding:12px;font-size:11px;color:var(--text-dim);font-family:monospace;">${escapeHtml(lastLogin)}</td>
+        <td style="padding:12px;text-align:center;">
+          <button class="btn btn-ghost btn-sm" data-edit-user="${u.id}" title="Edit">✏️</button>
+          ${u.id !== currentUser.id ? `<button class="btn btn-ghost btn-sm" data-delete-user="${u.id}" title="Delete" style="color:var(--red-500);">🗑️</button>` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  tbody.querySelectorAll('[data-edit-user]').forEach(btn => {
+    btn.onclick = () => openUserEditModal(parseInt(btn.dataset.editUser));
+  });
+  tbody.querySelectorAll('[data-delete-user]').forEach(btn => {
+    btn.onclick = () => deleteUser(parseInt(btn.dataset.deleteUser));
+  });
+}
+
+let editingUserId = null;
+
+async function openUserEditModal(userId = null) {
+  editingUserId = userId;
+  const modal = document.getElementById('userEditModal');
+  const title = document.getElementById('userEditTitle');
+  const sub = document.getElementById('userEditSub');
+
+  if (userId) {
+    title.textContent = 'Edit User';
+    sub.textContent = 'تعديل بيانات المستخدم';
+    const { data: users } = await db.from('mfc_users').select('*').eq('id', userId).single();
+    if (users) {
+      document.getElementById('userEditName').value = users.full_name || '';
+      document.getElementById('userEditUsername').value = users.username || '';
+      document.getElementById('userEditPassword').value = users.password || '';
+      document.getElementById('userEditEmail').value = users.email || '';
+      document.getElementById('userEditRole').value = users.role || 'viewer';
+      document.getElementById('userEditActive').checked = users.active !== false;
+    }
+  } else {
+    title.textContent = 'Add User';
+    sub.textContent = 'إضافة مستخدم جديد';
+    document.getElementById('userEditName').value = '';
+    document.getElementById('userEditUsername').value = '';
+    document.getElementById('userEditPassword').value = '';
+    document.getElementById('userEditEmail').value = '';
+    document.getElementById('userEditRole').value = 'viewer';
+    document.getElementById('userEditActive').checked = true;
+  }
+  modal.classList.add('show');
+  setTimeout(() => document.getElementById('userEditName').focus(), 200);
+}
+
+async function saveUser() {
+  const name = document.getElementById('userEditName').value.trim();
+  const username = document.getElementById('userEditUsername').value.trim();
+  const password = document.getElementById('userEditPassword').value;
+  const email = document.getElementById('userEditEmail').value.trim();
+  const role = document.getElementById('userEditRole').value;
+  const active = document.getElementById('userEditActive').checked;
+
+  if (!name || !username || !password) {
+    toast({type:'warning', title:'أكمل الحقول المطلوبة'});
+    return;
+  }
+
+  try {
+    if (editingUserId) {
+      const { error } = await db.from('mfc_users').update({
+        full_name: name, username, password, email, role, active
+      }).eq('id', editingUserId);
+      if (error) throw error;
+      await logActivity('update_user', username, 'role', '', role);
+      toast({type:'success', title:'✅ تم التحديث'});
+    } else {
+      const { error } = await db.from('mfc_users').insert([{
+        full_name: name, username, password, email, role, active
+      }]);
+      if (error) throw error;
+      await logActivity('create_user', username, 'role', '', role);
+      toast({type:'success', title:'✅ تم الإنشاء'});
+    }
+    document.getElementById('userEditModal').classList.remove('show');
+    loadUsers();
+  } catch(e) {
+    if (e.message?.includes('duplicate')) {
+      toast({type:'error', title:'اسم المستخدم موجود'});
+    } else {
+      toast({type:'error', title:'فشل الحفظ', message: e.message});
+    }
+  }
+}
+
+async function deleteUser(userId) {
+  if (!confirm('حذف هذا المستخدم؟')) return;
+  try {
+    const { error } = await db.from('mfc_users').delete().eq('id', userId);
+    if (error) throw error;
+    await logActivity('delete_user', '', '', '', '');
+    toast({type:'success', title:'✅ تم الحذف'});
+    loadUsers();
+  } catch(e) {
+    toast({type:'error', title:'فشل الحذف', message: e.message});
+  }
+}
+
+function logoutUser() {
+  if (!confirm('تسجيل الخروج؟')) return;
+  logActivity('logout', '', '', '', '');
+  localStorage.removeItem(LOGIN_KEY);
+  localStorage.removeItem('mfc_current_user');
+  currentUser = null;
+  location.reload();
+}
 
 /* ---- Clear Filters ---- */
 document.getElementById('clearFiltersEmpty').onclick = ()=>{
@@ -3672,6 +4088,9 @@ document.getElementById('clearFiltersEmpty').onclick = ()=>{
 async function initApp(){
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('appRoot').style.display = 'flex';
+
+  // ⭐ تحميل المستخدم الحالي
+  loadCurrentUser();
 
   const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -3853,12 +4272,23 @@ document.getElementById('reportEmailInput').addEventListener('keydown', (e) => {
 /* =========================================================
    LOGIN
    ========================================================= */
-document.getElementById('loginForm').addEventListener('submit', (e)=>{
+document.getElementById('loginForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
-  if(u === VALID_USER && p === VALID_PASS){
+  const btn = document.querySelector('#loginForm button[type="submit"]');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Checking...';
+
+  const user = await loginUser(u, p);
+
+  btn.disabled = false;
+  btn.textContent = 'Sign In';
+
+  if (user) {
     localStorage.setItem(LOGIN_KEY, '1');
+    saveCurrentUser(user);
     document.getElementById('loginError').classList.remove('show');
     initApp();
   } else {
