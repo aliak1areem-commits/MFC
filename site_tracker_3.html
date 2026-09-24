@@ -781,27 +781,39 @@ tr.row-rejected td:first-child{
   from{opacity:0;transform:translateX(30px);}
   to{opacity:1;transform:translateX(0);}
 }
-  /* ---- إصلاح عرض الرسائل العربية ---- */
+ /* ---- إصلاح عرض الرسائل العربية ---- */
 .chat-message .bubble{
   white-space: normal !important;
   word-wrap: break-word !important;
-  word-break: keep-all !important;
-  overflow-wrap: break-word !important;
-  min-width: 60px !important;
-  max-width: 75% !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  hyphens: none !important;
+  min-width: 80px !important;
+  max-width: 70% !important;
   display: inline-block !important;
+  padding: 10px 14px !important;
+  line-height: 1.6 !important;
   text-align: start !important;
+  font-size: 14px !important;
 }
 
 .chat-message.theirs .bubble{
   direction: rtl;
-  unicode-bidi: plaintext;
+  unicode-bidi: embed;
+  text-align: right;
 }
 
 .chat-message.mine .bubble{
   direction: rtl;
-  unicode-bidi: plaintext;
-  text-align: start;
+  unicode-bidi: embed;
+  text-align: right;
+}
+
+/* للرسائل الإنجليزية */
+.chat-message .bubble:lang(en),
+.chat-message .bubble:not([dir="rtl"]){
+  direction: ltr;
+  text-align: left;
 }
 </style>
 </head>
