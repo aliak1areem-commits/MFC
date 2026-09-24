@@ -1524,17 +1524,17 @@ async function supabaseDelete(id){
 
 async function supabaseLogActivity(action, siteId, field, oldVal, newVal){
   try{
-    // ⭐ استخدم اسم المستخدم الحالي
-    const userName = (typeof currentUser !== 'undefined' && currentUser)
-      ? (currentUser.full_name || currentUser.username || 'Unknown')
-      : 'Unknown';
+    // ⭐ استخدم المستخدم الحالي (رسل، علي، سارة... إلخ)
+    let userName = 'Unknown';
+    let userId = null;
     
-    const userId = (typeof currentUser !== 'undefined' && currentUser)
-      ? currentUser.id
-      : null;
+    if (typeof currentUser !== 'undefined' && currentUser) {
+      userName = currentUser.full_name || currentUser.username || 'Unknown';
+      userId = currentUser.id || null;
+    }
     
     await db.from('activity_log').insert([{
-      user_name: userName,
+      user_name: userName,          // ← ✅ الآن يُسجَّل الاسم الحقيقي
       user_id: userId,
       action: action,
       site_id: siteId || '',
