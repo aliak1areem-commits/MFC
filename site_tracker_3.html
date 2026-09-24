@@ -781,6 +781,28 @@ tr.row-rejected td:first-child{
   from{opacity:0;transform:translateX(30px);}
   to{opacity:1;transform:translateX(0);}
 }
+  /* ---- إصلاح عرض الرسائل العربية ---- */
+.chat-message .bubble{
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
+  min-width: 60px !important;
+  max-width: 75% !important;
+  display: inline-block !important;
+  text-align: start !important;
+}
+
+.chat-message.theirs .bubble{
+  direction: rtl;
+  unicode-bidi: plaintext;
+}
+
+.chat-message.mine .bubble{
+  direction: rtl;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
 </style>
 </head>
 <body>
