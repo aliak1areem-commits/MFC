@@ -3127,15 +3127,35 @@ function renderGantt(){
     return;
   }
 
-  const minDate = new Date(Math.min(...items.map(i=>i.start.getTime())));
-  const maxDate = new Date(Math.max(...items.map(i=>i.end.getTime())));
+  // ⭐ إصلاح: أضف هامش 15 يوم قبل وبعد
+  let minDate = new Date(Math.min(...items.map(i=>i.start.getTime())));
+  let maxDate = new Date(Math.max(...items.map(i=>i.end.getTime())));
+
+  // إذا المجال أقل من 30 يوم، أضف هامش
+  const rawDays = (maxDate - minDate) / 86400000;
+  if(rawDays < 30){
+    minDate = new Date(minDate.getTime() - 15 * 86400000);
+    maxDate = new Date(maxDate.getTime() + 15 * 86400000);
+  }
+
   const totalDays = Math.max(1, Math.ceil((maxDate - minDate)/86400000));
 
-  let html = `<div class="gantt-header"><div class="gantt-label">Site</div><div class="gantt-track" style="display:flex;"><div style="flex:1;text-align:left;">${fmtGanttDate(minDate)}</div><div style="flex:1;text-align:right;">${fmtGanttDate(maxDate)}</div></div></div>`;
+  let html = `<div class="gantt-header">
+    <div class="gantt-label">Site</div>
+    <div class="gantt-track" style="display:flex;">
+      <div style="flex:1;text-align:left;">${fmtGanttDate(minDate)}</div>
+      <div style="flex:1;text-align:right;">${fmtGanttDate(maxDate)}</div>
+    </div>
+  </div>`;
 
   items.sort((a,b)=>a.start - b.start).forEach(it=>{
-    const startPct = ((it.start - minDate)/86400000) / totalDays * 100;
-    const widthPct = Math.max(2, ((it.end - it.start)/86400000) / totalDays * 100);
+    // ⭐ حساب آمن مع حدود
+    const startDays = (it.start - minDate) / 86400000;
+    const durationDays = (it.end - it.start) / 86400000;
+    
+    const startPct = Math.max(0, Math.min(100, (startDays / totalDays) * 100));
+    const widthPct = Math.max(3, Math.min(100 - startPct, (durationDays / totalDays) * 100));
+    
     html += `<div class="gantt-row">
       <div class="gantt-label">${escapeHtml(it.site||'')}</div>
       <div class="gantt-track">
