@@ -123,18 +123,11 @@ svg{display:block;}
 
 #appRoot{display:none;min-height:100vh;flex-direction:column;}
 
-.hero{
-  position:relative;
-  overflow:hidden;
-  background:
-    radial-gradient(900px 400px at 8% -30%, rgba(139,92,246,.4), transparent 60%),
-    radial-gradient(700px 300px at 92% 120%, rgba(236,72,153,.3), transparent 60%),
-    linear-gradient(135deg, rgba(10,10,32,.95) 0%, rgba(15,15,40,.95) 60%, rgba(20,20,50,.95) 100%);
-  backdrop-filter:blur(20px);
-  color:#fff;
-  padding:22px 32px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
+.hero{position:relative;overflow:hidden;
+  background:radial-gradient(900px 400px at 8% -30%, rgba(59,130,246,.35), transparent 60%),
+    radial-gradient(700px 300px at 92% 120%, rgba(16,185,129,.22), transparent 60%),
+    linear-gradient(135deg, #050d1a 0%, #0a1a30 60%, #0c1f3d 100%);
+  color:#fff;padding:22px 32px;border-bottom:1px solid rgba(255,255,255,.06);}
 .hero-inner{display:flex;align-items:center;gap:20px;max-width:1800px;margin:0 auto;}
 .hero-brand{display:flex;align-items:center;gap:16px;}
 .hero-logo{width:52px;height:52px;border-radius:14px;flex:none;
@@ -433,7 +426,7 @@ td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emera
 .cmdk-empty{padding:40px 20px;text-align:center;color:var(--text-dim);font-size:13px;}
 
 .chat-fab{position:fixed;bottom:24px;right:24px;z-index:490;
-    width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#ec4899);
+  width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);
   color:#fff;display:flex;align-items:center;justify-content:center;
   box-shadow:0 8px 24px rgba(59,130,246,.4);cursor:pointer;transition:var(--transition);}
 .chat-fab:hover{transform:scale(1.05);}
@@ -823,25 +816,25 @@ tr.row-rejected td:first-child{
   text-align: left;
 }
   /* =========================================================
-   ⭐ GLASS BACKGROUND — خلفية زجاجية متحركة
+   ⭐ GLASS HOME PRO THEME — إضافة كاملة
+   الصق هذا الكود قبل </style>
    ========================================================= */
 
+/* 1. الخلفية الداكنة المتحركة */
 body{
   background:#050510 !important;
   position:relative;
   overflow-x:hidden;
 }
-
-/* طبقة الخلفية المتحركة */
 body::before{
   content:"";
   position:fixed;
   inset:0;
   background:
-    radial-gradient(900px 600px at 15% 10%, rgba(139,92,246,.35), transparent 60%),
-    radial-gradient(800px 500px at 85% 20%, rgba(236,72,153,.25), transparent 60%),
-    radial-gradient(900px 600px at 50% 95%, rgba(59,130,246,.30), transparent 60%),
-    radial-gradient(600px 400px at 95% 90%, rgba(16,185,129,.20), transparent 60%),
+    radial-gradient(900px 600px at 15% 10%, rgba(139,92,246,.45), transparent 60%),
+    radial-gradient(800px 500px at 85% 20%, rgba(236,72,153,.35), transparent 60%),
+    radial-gradient(900px 600px at 50% 95%, rgba(59,130,246,.40), transparent 60%),
+    radial-gradient(600px 400px at 95% 90%, rgba(16,185,129,.30), transparent 60%),
     linear-gradient(135deg, #050510 0%, #0a0a20 50%, #050510 100%);
   z-index:-3;
   animation:bgMove 20s ease-in-out infinite alternate;
@@ -851,23 +844,13 @@ body::before{
   0%{transform:scale(1) rotate(0deg);}
   100%{transform:scale(1.15) rotate(3deg);}
 }
-
-/* Canvas الجسيمات */
-#particles{
-  position:fixed;
-  inset:0;
-  z-index:-2;
-  pointer-events:none;
-}
-
-/* توهج Ambient */
 body::after{
   content:"";
   position:fixed;
   inset:0;
   background:
-    radial-gradient(400px 400px at 20% 30%, rgba(139,92,246,.10), transparent 70%),
-    radial-gradient(300px 300px at 80% 70%, rgba(236,72,153,.08), transparent 70%);
+    radial-gradient(400px 400px at 20% 30%, rgba(139,92,246,.12), transparent 70%),
+    radial-gradient(300px 300px at 80% 70%, rgba(236,72,153,.10), transparent 70%);
   z-index:-1;
   animation:float 15s ease-in-out infinite alternate;
   pointer-events:none;
@@ -876,47 +859,47 @@ body::after{
   0%{transform:translate(0,0);}
   100%{transform:translate(-30px,20px);}
 }
-  /* =========================================================
-   ⭐ GLASS EFFECT — الكروت الزجاجية
-   ========================================================= */
 
-/* الكروت الرئيسية */
+/* 2. Canvas الجسيمات */
+#particles{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+}
+
+/* 3. الكروت الزجاجية */
 .kpi-group,
 .chart-card,
 .toolbar,
 .table-card,
 .gantt-wrap,
-.card,
-.kpi-group{
-  background:rgba(255,255,255,.04) !important;
-  backdrop-filter:blur(20px) saturate(180%);
-  -webkit-backdrop-filter:blur(20px) saturate(180%);
-  border:1px solid rgba(255,255,255,.1) !important;
-  box-shadow:
-    0 8px 32px rgba(0,0,0,.3),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
+.card{
+  background:rgba(255,255,255,.06) !important;
+  backdrop-filter:blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter:blur(20px) saturate(180%) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  box-shadow:0 8px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.1) !important;
   position:relative;
   overflow:hidden;
 }
-
-/* خط الإضاءة العلوي */
 .kpi-group::before,
 .chart-card::before,
 .toolbar::before,
-.table-card::before,
-.gantt-wrap::before{
+.table-card::before{
   content:"";
   position:absolute;
   top:0;left:0;right:0;
   height:1px;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
   pointer-events:none;
 }
 
-/* الجداول الزجاجية */
+/* 4. الجداول الزجاجية */
 table.dt tbody td{
   background:transparent !important;
-  border-bottom:1px solid rgba(255,255,255,.05) !important;
+  border-bottom:1px solid rgba(255,255,255,.06) !important;
+  color:#fff !important;
 }
 table.dt tbody tr:nth-child(even) td{
   background:rgba(255,255,255,.02) !important;
@@ -927,32 +910,33 @@ table.dt tbody tr:hover td{
 table.dt thead th{
   background:rgba(255,255,255,.05) !important;
   border-bottom:1px solid rgba(255,255,255,.1) !important;
-  color:rgba(255,255,255,.7) !important;
+  color:rgba(255,255,255,.75) !important;
 }
 .table-head-bar{
   background:rgba(255,255,255,.03) !important;
   border-bottom:1px solid rgba(255,255,255,.08) !important;
 }
 
-/* KPI Cards الداخلية */
+/* 5. KPI Cards الداخلية */
 .kpi{
-  background:rgba(255,255,255,.03) !important;
-  border:1px solid rgba(255,255,255,.06) !important;
-  border-radius:10px;
+  background:rgba(255,255,255,.04) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
 }
 .kpi:hover{
-  background:rgba(139,92,246,.1) !important;
+  background:rgba(139,92,246,.12) !important;
   border-color:rgba(139,92,246,.4) !important;
-  box-shadow:0 8px 24px rgba(139,92,246,.25) !important;
+  box-shadow:0 8px 24px rgba(139,92,246,.3) !important;
   transform:translateY(-2px);
 }
+.kpi-label{color:rgba(255,255,255,.6) !important;}
+.kpi-value{color:#fff !important;}
 
-/* الأزرار الرئيسية */
+/* 6. الأزرار */
 .btn-primary{
   background:linear-gradient(135deg, #8b5cf6, #ec4899) !important;
   border:none !important;
-  box-shadow:0 4px 16px rgba(139,92,246,.4) !important;
   color:#fff !important;
+  box-shadow:0 4px 16px rgba(139,92,246,.4) !important;
 }
 .btn-primary:hover:not(:disabled){
   box-shadow:0 8px 24px rgba(139,92,246,.6) !important;
@@ -966,10 +950,8 @@ table.dt thead th{
 .btn-accent:hover:not(:disabled){
   box-shadow:0 8px 24px rgba(6,182,212,.5) !important;
 }
-
-/* الأزرار الشفافة */
 .btn-outline{
-  background:rgba(255,255,255,.05) !important;
+  background:rgba(255,255,255,.06) !important;
   border-color:rgba(255,255,255,.15) !important;
   color:rgba(255,255,255,.9) !important;
 }
@@ -978,8 +960,10 @@ table.dt thead th{
   border-color:rgba(139,92,246,.5) !important;
   color:#fff !important;
 }
+.btn-ghost{color:rgba(255,255,255,.6) !important;}
+.btn-ghost:hover{background:rgba(255,255,255,.08) !important;color:#fff !important;}
 
-/* الحقول */
+/* 7. الحقول */
 .search-wrap input,
 .form-grid input,
 .form-grid select,
@@ -987,8 +971,8 @@ table.dt thead th{
 .modal-body input,
 .modal-body select,
 .modal-body textarea{
-  background:rgba(255,255,255,.05) !important;
-  border-color:rgba(255,255,255,.1) !important;
+  background:rgba(255,255,255,.06) !important;
+  border-color:rgba(255,255,255,.12) !important;
   color:#fff !important;
 }
 .search-wrap input:focus,
@@ -997,87 +981,56 @@ table.dt thead th{
   border-color:rgba(139,92,246,.6) !important;
   box-shadow:0 0 0 4px rgba(139,92,246,.15) !important;
 }
-.search-wrap input::placeholder{
-  color:rgba(255,255,255,.35) !important;
-}
+.search-wrap input::placeholder{color:rgba(255,255,255,.4) !important;}
 
-/* النوافذ المنبثقة */
+/* 8. النوافذ المنبثقة */
 .modal,
 .drawer{
-  background:rgba(15,15,30,.95) !important;
-  backdrop-filter:blur(24px);
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:0 32px 80px rgba(0,0,0,.6) !important;
+  background:rgba(15,15,30,.98) !important;
+  backdrop-filter:blur(24px) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  color:#fff;
 }
 .modal-head,
 .drawer-head{
-  background:linear-gradient(135deg, rgba(139,92,246,.15), rgba(236,72,153,.1)) !important;
+  background:linear-gradient(135deg, rgba(139,92,246,.2), rgba(236,72,153,.15)) !important;
   border-bottom:1px solid rgba(255,255,255,.1) !important;
 }
+.modal-head h3,
+.modal-head p,
+.drawer-head h3,
+.drawer-head .sub{color:#fff !important;}
 .modal-actions{
-  background:rgba(255,255,255,.02) !important;
+  background:rgba(255,255,255,.03) !important;
   border-top:1px solid rgba(255,255,255,.08) !important;
 }
 
-/* التابات */
+/* 9. التابات */
 .view-tabs{
-  background:rgba(255,255,255,.03) !important;
+  background:rgba(255,255,255,.04) !important;
   border:1px solid rgba(255,255,255,.08) !important;
 }
-.view-tab{
-  color:rgba(255,255,255,.6);
-}
-.view-tab:hover{
-  color:#fff;
-}
+.view-tab{color:rgba(255,255,255,.6) !important;}
+.view-tab:hover{color:#fff !important;}
 .view-tab.active{
-  background:linear-gradient(135deg, rgba(139,92,246,.3), rgba(236,72,153,.2)) !important;
+  background:linear-gradient(135deg, rgba(139,92,246,.35), rgba(236,72,153,.25)) !important;
   color:#fff !important;
-  box-shadow:0 4px 12px rgba(139,92,246,.3) !important;
+  box-shadow:0 4px 12px rgba(139,92,246,.4) !important;
 }
 
-/* الهيدر */
+/* 10. الهيدر */
 .hero{
   background:
-    radial-gradient(900px 400px at 8% -30%, rgba(139,92,246,.4), transparent 60%),
+    radial-gradient(900px 400px at 8% -30%, rgba(139,92,246,.45), transparent 60%),
     radial-gradient(700px 300px at 92% 120%, rgba(236,72,153,.3), transparent 60%),
-    linear-gradient(135deg, rgba(10,10,32,.95) 0%, rgba(15,15,40,.95) 60%, rgba(20,20,50,.95) 100%) !important;
-  backdrop-filter:blur(20px);
+    linear-gradient(135deg, #050510 0%, #0a0a20 60%, #0f0f28 100%) !important;
   border-bottom:1px solid rgba(255,255,255,.08) !important;
 }
 
-/* شاشة تسجيل الدخول */
-.login-overlay{
-  background:
-    radial-gradient(900px 500px at 20% 10%, rgba(139,92,246,.4), transparent 60%),
-    radial-gradient(800px 400px at 90% 90%, rgba(236,72,153,.3), transparent 60%),
-    linear-gradient(135deg, #050510, #0a0a20 70%) !important;
-}
-.login-card{
-  background:rgba(15,15,30,.95) !important;
-  backdrop-filter:blur(24px);
-  border:1px solid rgba(255,255,255,.1);
-  box-shadow:0 32px 80px rgba(0,0,0,.6) !important;
-  color:#fff;
-}
-.login-card h2,
-.login-card p,
-.login-card label{color:#fff !important;}
-.login-card input{
-  background:rgba(255,255,255,.05) !important;
-  border-color:rgba(255,255,255,.1) !important;
-  color:#fff !important;
-}
-.login-card input:focus{
-  border-color:rgba(139,92,246,.6) !important;
-  box-shadow:0 0 0 4px rgba(139,92,246,.2) !important;
-}
-
-/* أيقونات الهيدر */
+/* 11. الأيقونات في الهيدر */
 .icon-btn-hero{
-  background:rgba(255,255,255,.06) !important;
+  background:rgba(255,255,255,.08) !important;
   border-color:rgba(255,255,255,.1) !important;
-  color:#fff;
 }
 .icon-btn-hero:hover{
   background:rgba(139,92,246,.25) !important;
@@ -1085,217 +1038,128 @@ table.dt thead th{
   transform:translateY(-2px);
 }
 
-/* شريط التنقل السفلي */
-.bottom-nav{
+/* 12. شاشة تسجيل الدخول */
+.login-overlay{
+  background:
+    radial-gradient(900px 500px at 20% 10%, rgba(139,92,246,.45), transparent 60%),
+    radial-gradient(800px 400px at 90% 90%, rgba(236,72,153,.35), transparent 60%),
+    linear-gradient(135deg, #050510, #0a0a20 70%) !important;
+}
+.login-card{
   background:rgba(15,15,30,.95) !important;
-  backdrop-filter:blur(20px);
+  backdrop-filter:blur(24px) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  color:#fff !important;
+}
+.login-card h2,
+.login-card p,
+.login-card label{color:#fff !important;}
+.login-card input{
+  background:rgba(255,255,255,.06) !important;
+  border-color:rgba(255,255,255,.12) !important;
+  color:#fff !important;
+}
+.login-card input:focus{
+  border-color:rgba(139,92,246,.6) !important;
+  box-shadow:0 0 0 4px rgba(139,92,246,.2) !important;
+}
+.login-error{background:rgba(239,68,68,.15) !important;color:#f87171 !important;}
+
+/* 13. شريط التنقل السفلي */
+.bottom-nav{
+  background:rgba(15,15,30,.98) !important;
+  backdrop-filter:blur(20px) !important;
   border-top:1px solid rgba(255,255,255,.1) !important;
 }
-.bottom-nav-item{
-  color:rgba(255,255,255,.5);
-}
+.bottom-nav-item{color:rgba(255,255,255,.5) !important;}
 .bottom-nav-item.active{
   background:rgba(139,92,246,.2) !important;
   color:#a5b4fc !important;
 }
-  /* =========================================================
-   ⭐ BADGES — الشارات الملونة
-   ========================================================= */
 
-.badge-green{
-  background:rgba(16,185,129,.15) !important;
-  color:#34d399 !important;
-  border-color:rgba(16,185,129,.4) !important;
+/* 14. Badges */
+.badge-green{background:rgba(16,185,129,.15) !important;color:#34d399 !important;border-color:rgba(16,185,129,.4) !important;}
+.badge-red{background:rgba(239,68,68,.15) !important;color:#f87171 !important;border-color:rgba(239,68,68,.4) !important;}
+.badge-amber{background:rgba(245,158,11,.15) !important;color:#fbbf24 !important;border-color:rgba(245,158,11,.4) !important;}
+.badge-gray{background:rgba(255,255,255,.08) !important;color:rgba(255,255,255,.7) !important;border-color:rgba(255,255,255,.2) !important;}
+
+/* 15. الفلاتر والقوائم */
+.filter-menu,
+.kebab-menu-list,
+.cmdk{
+  background:rgba(15,15,30,.98) !important;
+  backdrop-filter:blur(24px) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
 }
-.badge-red{
-  background:rgba(239,68,68,.15) !important;
-  color:#f87171 !important;
-  border-color:rgba(239,68,68,.4) !important;
+.filter-menu-item:hover,
+.kebab-item:hover,
+.cmdk-item:hover{background:rgba(139,92,246,.15) !important;color:#fff !important;}
+.filter-menu-item.active,
+.cmdk-item.active{background:rgba(139,92,246,.25) !important;color:#a5b4fc !important;}
+
+/* 16. Chat */
+.chat-fab{
+  background:linear-gradient(135deg, #8b5cf6, #ec4899) !important;
+  box-shadow:0 8px 24px rgba(139,92,246,.5) !important;
 }
-.badge-amber{
-  background:rgba(245,158,11,.15) !important;
-  color:#fbbf24 !important;
-  border-color:rgba(245,158,11,.4) !important;
+.chat-panel{
+  background:rgba(15,15,30,.98) !important;
+  backdrop-filter:blur(24px) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
 }
-.badge-gray{
+.chat-head{
+  background:linear-gradient(135deg, rgba(139,92,246,.3), rgba(236,72,153,.2)) !important;
+}
+.chat-msg.bot{
   background:rgba(255,255,255,.06) !important;
-  color:rgba(255,255,255,.6) !important;
-  border-color:rgba(255,255,255,.15) !important;
+  color:#fff !important;
+  border:1px solid rgba(255,255,255,.1) !important;
 }
-
-/* تلوين الحالات في الجدول — بألوان Glass */
-td.status-accepted{
-  background:rgba(16,185,129,.12) !important;
-  color:#34d399 !important;
-  border-left:3px solid #10b981 !important;
+.chat-msg.user{
+  background:linear-gradient(135deg, #8b5cf6, #ec4899) !important;
 }
-td.status-progress{
-  background:rgba(245,158,11,.12) !important;
-  color:#fbbf24 !important;
-  border-left:3px solid #f59e0b !important;
-}
-td.status-rejected{
-  background:rgba(239,68,68,.12) !important;
-  color:#f87171 !important;
-  border-left:3px solid #ef4444 !important;
-}
-td.status-pending{
-  background:rgba(255,255,255,.06) !important;
-  color:rgba(255,255,255,.6) !important;
-  border-left:3px solid rgba(255,255,255,.3) !important;
-}
-td.status-done{
-  background:rgba(16,185,129,.15) !important;
-  color:#10b981 !important;
-  border-left:3px solid #10b981 !important;
-}
-td.status-notdone{
-  background:rgba(239,68,68,.12) !important;
-  color:#f87171 !important;
-  border-left:3px solid #ef4444 !important;
-}
-td.status-shared{
-  background:rgba(16,185,129,.12) !important;
-  color:#34d399 !important;
-  border-left:3px solid #10b981 !important;
-}
-td.status-notshared{
-  background:rgba(239,68,68,.12) !important;
-  color:#f87171 !important;
-  border-left:3px solid #ef4444 !important;
-}
-td.status-paid{
-  background:rgba(16,185,129,.12) !important;
-  color:#34d399 !important;
-  border-left:3px solid #10b981 !important;
-}
-td.status-unpaid{
-  background:rgba(255,255,255,.06) !important;
-  color:rgba(255,255,255,.6) !important;
-  border-left:3px solid rgba(255,255,255,.3) !important;
-}
-
-/* شريط جانبي على الصفوف */
-tr.row-accepted td:first-child{
-  box-shadow:inset 4px 0 0 #10b981 !important;
-}
-tr.row-progress td:first-child{
-  box-shadow:inset 4px 0 0 #f59e0b !important;
-}
-tr.row-rejected td:first-child{
-  box-shadow:inset 4px 0 0 #ef4444 !important;
-}
-
-/* Chat — تحسين الألوان */
 .chat-toast{
-  background:rgba(15,15,30,.95) !important;
+  background:rgba(15,15,30,.98) !important;
   border-inline-start:4px solid #8b5cf6 !important;
 }
 .chat-toast .from{color:#a5b4fc !important;}
+#chatSidebar .chat-item:hover{background:rgba(139,92,246,.08) !important;}
+#chatSidebar .chat-item.active{background:rgba(139,92,246,.15) !important;border-inline-start:3px solid #8b5cf6 !important;}
 
-#chatSidebar .chat-item.active{
-  background:rgba(139,92,246,.15) !important;
-  border-inline-start:3px solid #8b5cf6 !important;
-}
-#chatSidebar .chat-item:hover{
-  background:rgba(139,92,246,.08) !important;
-}
-
-.chat-message.mine .bubble{
-  background:linear-gradient(135deg, #8b5cf6, #ec4899) !important;
-}
-  /* =========================================================
-   ⭐ FINAL POLISH
-   ========================================================= */
-
-/* توهج أفقي للصف عند Hover */
-table.dt tbody tr{
-  transition:all .25s ease;
-}
-table.dt tbody tr:hover{
-  box-shadow:inset 4px 0 0 #8b5cf6;
+/* 17. Toast */
+.toast{
+  background:rgba(15,15,30,.98) !important;
+  backdrop-filter:blur(20px) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  color:#fff !important;
 }
 
-/* تحسين شكل المتصفح (Scrollbar) */
-::-webkit-scrollbar{
-  width:10px;
-  height:10px;
-}
-::-webkit-scrollbar-track{
-  background:rgba(255,255,255,.03);
-}
+/* 18. Scrollbar */
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.02);}
 ::-webkit-scrollbar-thumb{
   background:linear-gradient(180deg, #8b5cf6, #ec4899);
   border-radius:6px;
   border:2px solid #050510;
 }
-::-webkit-scrollbar-thumb:hover{
-  background:linear-gradient(180deg, #a5b4fc, #f0abfc);
-}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg, #a5b4fc, #f0abfc);}
 
-/* تحسين شكل Toast */
-.toast{
-  background:rgba(15,15,30,.95) !important;
-  backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,.1) !important;
-  box-shadow:0 12px 40px rgba(0,0,0,.5) !important;
-}
-.toast.success{border-left-color:#10b981 !important;}
-.toast.error{border-left-color:#ef4444 !important;}
-.toast.warning{border-left-color:#f59e0b !important;}
-.toast.info{border-left-color:#8b5cf6 !important;}
+/* 19. النصوص العامة */
+h1,h2,h3,h4{color:#fff !important;}
+body,.container{color:#e5e7eb !important;}
+.kv{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.08) !important;}
+.kv .k{color:rgba(255,255,255,.5) !important;}
+.kv .v{color:#fff !important;}
+.d-section-title{color:rgba(255,255,255,.6) !important;border-bottom:1px solid rgba(255,255,255,.1) !important;}
+.empty h3{color:#fff !important;}
+.empty p{color:rgba(255,255,255,.6) !important;}
 
-/* تحسين Filter Menu */
-.filter-menu{
-  background:rgba(15,15,30,.98) !important;
-  backdrop-filter:blur(24px);
-  border:1px solid rgba(255,255,255,.12) !important;
-}
-.filter-menu-item:hover{
-  background:rgba(139,92,246,.15) !important;
-  color:#fff !important;
-}
-.filter-menu-item.active{
-  background:rgba(139,92,246,.25) !important;
-  color:#a5b4fc !important;
-}
-
-/* Kebab Menu */
-.kebab-menu-list{
-  background:rgba(15,15,30,.98) !important;
-  backdrop-filter:blur(24px);
-  border:1px solid rgba(255,255,255,.12) !important;
-}
-.kebab-item:hover{
-  background:rgba(139,92,246,.15) !important;
-}
-.kebab-item.danger:hover{
-  background:rgba(239,68,68,.15) !important;
-}
-
-/* Command Palette */
-.cmdk{
-  background:rgba(15,15,30,.98) !important;
-  backdrop-filter:blur(24px);
-  border:1px solid rgba(255,255,255,.12) !important;
-}
-.cmdk-item.active,
-.cmdk-item:hover{
-  background:rgba(139,92,246,.2) !important;
-  color:#fff !important;
-}
-
-/* Live Badge */
-.live-badge{
-  background:rgba(16,185,129,.15) !important;
-  border:1px solid rgba(16,185,129,.4) !important;
-  color:#34d399 !important;
-}
-
-/* Hero Clock */
-.hero-clock{
-  color:rgba(255,255,255,.7) !important;
-  text-shadow:0 0 12px rgba(139,92,246,.5);
+/* 20. الشعار — داخل إطار زجاجي */
+.hero-logo{
+  background:rgba(255,255,255,.08) !important;
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.15);
+  overflow:hidden;
 }
 </style>
 </head>
@@ -1305,7 +1169,7 @@ table.dt tbody tr:hover{
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
-    <img src="logo.png" alt="MFC Logo" style="height:64px;width:auto;margin:0 auto 16px;display:block;filter:drop-shadow(0 4px 16px rgba(139,92,246,.5));">
+    <div class="login-logo">MFC</div>
     <div class="login-company">MFC Company</div>
     <h2>RAN Site Tracker</h2>
     <p>Sign in to access the operations dashboard.</p>
@@ -1325,9 +1189,7 @@ table.dt tbody tr:hover{
   <header class="hero">
     <div class="hero-inner">
       <div class="hero-brand">
-        <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.06);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;padding:6px;">
-  <img src="logo.png" alt="MFC" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(139,92,246,.5));">
-</div>
+        <div class="hero-logo">MFC</div>
         <div class="hero-text">
           <div class="kicker">MFC Company</div>
           <h1>RAN Site Tracker</h1>
@@ -2456,18 +2318,14 @@ function renderStats(){
       {label:'Coverage', value: total ? Math.round(withSMR/total*100)+'%' : '0%'}
     ]}
   ];
- document.getElementById('kpiGroups').innerHTML = groups.map(g=>`
-    <div class="kpi-group" style="background:rgba(255,255,255,.04);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08);">
-      <div class="kpi-group-title" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:11px;font-weight:800;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.8px;">
-        <div style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,.2);color:#a5b4fc;font-size:13px;">${g.icon}</div>
-        ${g.title}
-        <div style="flex:1;height:1px;background:linear-gradient(90deg, rgba(255,255,255,.1), transparent);"></div>
-      </div>
-      <div class="kpi-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+  document.getElementById('kpiGroups').innerHTML = groups.map(g=>`
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">${g.icon}</div>${g.title}</div>
+      <div class="kpi-grid">
         ${g.items.map(it=>`
-          <div class="kpi" style="padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);transition:all .25s;">
-            <div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(it.label)}</div>
-            <div class="mono" style="font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:800;color:${it.danger?'#f87171':'#fff'};">${escapeHtml(String(it.value))}</div>
+          <div class="kpi">
+            <div class="kpi-label">${escapeHtml(it.label)}</div>
+            <div class="kpi-value" style="${it.danger?'color:var(--red-600)':''}">${escapeHtml(String(it.value))}</div>
           </div>
         `).join('')}
       </div>
@@ -2904,7 +2762,7 @@ function renderCharts(){
   data.forEach(r=>{ const k = (r.States || 'Unknown').toString(); states[k] = (states[k]||0)+1; });
   const statusLabels = Object.keys(states);
   const statusValues = Object.values(states);
-  const palette = ['#8b5cf6','#ec4899','#06b6d4','#10b981','#f59e0b','#3b82f6'];
+  const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#14b8a6'];
   const statusColors = statusLabels.map((_,i)=> palette[i % palette.length]);
   destroy('status');
   const ctx1 = document.getElementById('chartStatus');
@@ -2923,7 +2781,7 @@ function renderCharts(){
   const ctx2 = document.getElementById('chartGov');
   if(ctx2) charts.gov = new Chart(ctx2, {
     type:'bar',
-    data:{ labels: govLabels, datasets:[{ data: govValues, backgroundColor:'rgba(139,92,246,.75)', borderRadius:6, maxBarThickness:32 }]},
+    data:{ labels: govLabels, datasets:[{ data: govValues, backgroundColor:'rgba(59,130,246,.75)', borderRadius:6, maxBarThickness:32 }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
       scales:{ x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
@@ -2939,7 +2797,7 @@ function renderCharts(){
     type:'bar',
     data:{ labels:['Nokia','Subcon','Paid','Total Cost'],
       datasets:[{ data: [totalNokia, totalSubcon, totalPaid, totalCost].map(v => v/1e6),
-        backgroundColor:['#8b5cf6','#ec4899','#06b6d4','#10b981'], borderRadius:6, maxBarThickness:48 }]},
+        backgroundColor:['#8b5cf6','#3b82f6','#10b981','#f59e0b'], borderRadius:6, maxBarThickness:48 }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
       scales:{ x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10}, callback: v => v + 'M' }, beginAtZero:true } } }
@@ -2960,7 +2818,7 @@ function renderCharts(){
   const ctx4 = document.getElementById('chartMonthly');
   if(ctx4) charts.monthly = new Chart(ctx4, {
     type:'line',
-    data:{ labels: monthKeys, datasets:[{ data: monthVals, borderColor:'#a5b4fc', backgroundColor:'rgba(139,92,246,.25)', fill:true, tension:.35, borderWidth:2, pointRadius:4, pointBackgroundColor:'#8b5cf6' }]},
+    data:{ labels: monthKeys, datasets:[{ data: monthVals, borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,.15)', fill:true, tension:.35, borderWidth:2, pointRadius:4, pointBackgroundColor:'#8b5cf6' }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
       scales:{ x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
@@ -2982,8 +2840,8 @@ function renderCharts(){
     type:'bar',
     data:{ labels: teamLabels,
       datasets:[
-       { label:'Accepted', data: teamDone, backgroundColor:'#8b5cf6', borderRadius:6, maxBarThickness:24 },
-{ label:'Total', data: teamTotal, backgroundColor:'rgba(139,92,246,.3)', borderRadius:6, maxBarThickness:24 }
+        { label:'Accepted', data: teamDone, backgroundColor:'#10b981', borderRadius:6, maxBarThickness:24 },
+        { label:'Total', data: teamTotal, backgroundColor:'rgba(59,130,246,.4)', borderRadius:6, maxBarThickness:24 }
       ]},
     options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
       plugins:{ legend:{ position:'bottom', labels:{ color:textColor, font:{size:10} } } },
@@ -2995,7 +2853,7 @@ function renderCharts(){
   const ctx6 = document.getElementById('chartPayment');
   if(ctx6) charts.payment = new Chart(ctx6, {
     type:'doughnut',
-    data:{ labels:['Paid','Remaining'], datasets:[{ data:[totalPaid, totalSubcon - totalPaid], backgroundColor:['#8b5cf6','rgba(255,255,255,.15)'], borderWidth:0 }]},
+    data:{ labels:['Paid','Remaining'], datasets:[{ data:[totalPaid, totalSubcon - totalPaid], backgroundColor:['#10b981','#e5e7eb'], borderWidth:0 }]},
     options:{ responsive:true, maintainAspectRatio:false, cutout:'70%',
       plugins:{ legend:{ position:'bottom', labels:{ color:textColor, font:{size:11} } } } }
   });
@@ -5277,52 +5135,6 @@ async function initApp(){
 
   await supabaseLoad();
   subscribeRealtime();
-  /* =========================================================
-   ⭐ PARTICLE EFFECTS — الجسيمات المتحركة
-   ========================================================= */
-(function(){
-  const canvas = document.getElementById('particles');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resize(){
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  for(let i=0; i<50; i++){
-    particles.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 2 + 0.5,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      alpha: Math.random() * 0.5 + 0.2
-    });
-  }
-
-  function animate(){
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      if(p.x < 0 || p.x > W) p.vx *= -1;
-      if(p.y < 0 || p.y > H) p.vy *= -1;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(165,180,252,' + p.alpha + ')';
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = 'rgba(139,92,246,.8)';
-      ctx.fill();
-    });
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
 
   console.log('%c✅ MFC Site Tracker v11 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
   console.log('%c👤 User: ' + (currentUser?.full_name || 'Unknown'), 'color:#3b82f6;font-size:12px');
@@ -5848,7 +5660,52 @@ document.getElementById('loginForm').addEventListener('submit', async (e)=>{
 });
 
 if(localStorage.getItem(LOGIN_KEY) === '1') initApp();
+/* =========================================================
+   ⭐ PARTICLE EFFECTS — الجسيمات المتحركة
+   ========================================================= */
+(function(){
+  const canvas = document.getElementById('particles');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
 
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for(let i=0; i<50; i++){
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 2 + 0.5,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      alpha: Math.random() * 0.5 + 0.2
+    });
+  }
+
+  function animate(){
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if(p.x < 0 || p.x > W) p.vx *= -1;
+      if(p.y < 0 || p.y > H) p.vy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(165,180,252,' + p.alpha + ')';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = 'rgba(139,92,246,.8)';
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
 /* =========================================================
    ✅ نهاية الملف
    ========================================================= */
