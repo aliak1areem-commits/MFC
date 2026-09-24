@@ -2266,19 +2266,53 @@ function renderBody(){
       }
 
       if(col === 'Transport & Crane'){
-        td.className = 'num';
-        td.style.cursor = 'text';
-        td.contentEditable = 'true';
-        const rawVal = String(r[col] || '').trim();
-        if(rawVal === '' || rawVal === '0'){
-          td.textContent = rawVal === '0' ? '0' : '';
-        } else {
-          const n = parseFloat(rawVal.replace(/,/g,''));
-          td.textContent = isNaN(n) ? rawVal : n.toLocaleString();
-        }
-        tr.appendChild(td);
-        return;
-      }
+  td.className = 'num';
+  td.style.cursor = 'text';
+  td.contentEditable = 'true';
+  td.setAttribute('data-i', i);   // ⭐ مهم: لتحديد الصف
+  const rawVal = String(r[col] || '').trim();
+  if(rawVal === '' || rawVal === '0'){
+    td.textContent = rawVal === '0' ? '0' : '';
+  } else {
+    const n = parseFloat(rawVal.replace(/,/g,''));
+    td.textContent = isNaN(n) ? rawVal : n.toLocaleString();
+  }
+  
+  // ⭐ حفظ عند blur
+  td.addEventListener('blur', async ()=>{
+    const oldVal = data[i][col];
+    let newVal = td.textContent.trim().replace(/,/g,'');
+    if(oldVal === newVal) return;
+    
+    data[i][col] = newVal;
+    
+    // احسب Total Cost
+    const subcon = parseFloat(data[i]['Subcon Price']) || 0;
+    const transport = parseFloat(newVal) || 0;
+    data[i]['Total Cost'] = String(subcon + transport);
+    
+    try {
+      await supabaseUpdate(data[i]);
+      supabaseLogActivity('update', data[i].SiteID, col, oldVal, newVal);
+      toast({type:'success', title:'✓ تم الحفظ', duration:1500});
+      renderBody();
+    } catch(e) {
+      data[i][col] = oldVal;
+      toast({type:'error', title:'فشل الحفظ', message: e.message});
+    }
+  });
+  
+  // ⭐ Enter للحفظ السريع
+  td.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      td.blur();
+    }
+  });
+  
+  tr.appendChild(td);
+  return;
+}
 
       if(col === 'SMR Drive URL'){
         td.textContent = val ? '🔗 Open' : '';
