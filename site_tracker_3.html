@@ -3951,17 +3951,17 @@ document.addEventListener('keydown', e=>{
   if(e.key === 'g'){ lastKeyPress = 'g'; setTimeout(()=>{ lastKeyPress = null; }, 800); return; }
   if(lastKeyPress === 'g' && e.key === 'd'){ switchView('dashboard'); lastKeyPress = null; return; }
   if(lastKeyPress === 'g' && e.key === 'm'){ openMap(); lastKeyPress = null; return; }
- if(e.key === 'Escape'){
-  if(document.getElementById('cmdkBackdrop').classList.contains('show')) closeCmdk();
-  else {
-    closePDFViewer();
-    closeDrawer();
-    closeMap();
-    closePDFImportModal();
-    document.getElementById('chatModal').classList.remove('show');
-    document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
+  if(e.key === 'Escape'){
+    if(document.getElementById('cmdkBackdrop').classList.contains('show')) closeCmdk();
+    else {
+      closePDFViewer();
+      closeDrawer();
+      closeMap();
+      closePDFImportModal();
+      document.getElementById('chatModal').classList.remove('show');
+      document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
+    }
   }
-}
 });
 
 /* ---- Command Palette Input ---- */
