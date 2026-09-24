@@ -673,7 +673,114 @@ tr.row-progress td:first-child{
 tr.row-rejected td:first-child{
   box-shadow: inset 4px 0 0 var(--red-500);
 }
-  
+  /* =========================================================
+   CHAT SYSTEM
+   ========================================================= */
+#chatMessages::-webkit-scrollbar{width:6px;}
+#chatMessages::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px;}
+
+#chatSidebar .chat-item{
+  padding:12px 14px;
+  cursor:pointer;
+  border-bottom:1px solid var(--border);
+  transition:background .15s;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+#chatSidebar .chat-item:hover{background:rgba(99,102,241,.06);}
+#chatSidebar .chat-item.active{background:rgba(99,102,241,.12);border-inline-start:3px solid var(--primary);}
+
+#chatSidebar .chat-avatar{
+  width:36px;height:36px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:12px;
+  flex:none;
+}
+
+#chatSidebar .chat-unread{
+  background:#ef4444;color:#fff;
+  font-size:10px;font-weight:700;
+  padding:2px 6px;border-radius:10px;
+  min-width:18px;text-align:center;
+}
+
+.chat-message{
+  display:flex;
+  margin-bottom:4px;
+  animation:slideUp .2s ease;
+}
+.chat-message.mine{justify-content:flex-end;}
+.chat-message.theirs{justify-content:flex-start;}
+.chat-message .bubble{
+  max-width:70%;
+  padding:10px 14px;
+  border-radius:14px;
+  font-size:13.5px;
+  line-height:1.5;
+  word-wrap:break-word;
+}
+.chat-message.mine .bubble{
+  background:var(--primary);
+  color:#fff;
+  border-bottom-right-radius:4px;
+}
+.chat-message.theirs .bubble{
+  background:var(--bg-card);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-bottom-left-radius:4px;
+}
+.chat-message .meta{
+  font-size:10.5px;
+  color:var(--text-muted);
+  margin-top:3px;
+  padding:0 4px;
+}
+
+/* Notification Toast للشات */
+.chat-toast{
+  position:fixed;
+  top:80px;
+  right:24px;
+  background:var(--bg-elevated);
+  border:1px solid var(--border);
+  border-inline-start:4px solid var(--primary);
+  border-radius:12px;
+  padding:14px 18px;
+  box-shadow:var(--shadow-xl);
+  z-index:600;
+  min-width:300px;
+  max-width:400px;
+  cursor:pointer;
+  animation:slideInRight .3s ease;
+  transition:all .2s;
+}
+.chat-toast:hover{
+  transform:translateX(-4px);
+  box-shadow:0 12px 40px rgba(99,102,241,.25);
+}
+.chat-toast .from{
+  font-size:11px;font-weight:800;color:var(--primary);
+  text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:4px;
+}
+.chat-toast .msg{
+  font-size:13.5px;color:var(--text);font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+}
+.chat-toast .time{
+  font-size:11px;color:var(--text-muted);
+  margin-top:4px;
+}
+
+@keyframes slideInRight{
+  from{opacity:0;transform:translateX(30px);}
+  to{opacity:1;transform:translateX(0);}
+}
 </style>
 </head>
 <body>
@@ -719,6 +826,10 @@ tr.row-rejected td:first-child{
         </button>
         <button class="icon-btn-hero" id="usersBtn" title="Users Management" style="display:none;">
   👥
+</button>
+        <button class="icon-btn-hero" id="chatBtn" title="المحادثات" style="position:relative;">
+  💬
+  <span id="chatBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center;line-height:1.2;">0</span>
 </button>
 <div class="avatar" id="avatarBtn" title="Signed in">MFC</div>
       </div>
@@ -1169,6 +1280,36 @@ tr.row-rejected td:first-child{
     <div class="modal-actions">
       <button class="btn btn-outline" id="userEditCancel">Cancel</button>
       <button class="btn btn-primary" id="userEditSave">💾 Save</button>
+    </div>
+  </div>
+</div>
+  <!-- CHAT MODAL -->
+<div class="modal-backdrop" id="chatModal">
+  <div class="modal" style="max-width:800px;height:85vh;display:flex;flex-direction:column;padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg-card);flex:none;">
+      <div style="font-size:20px;">💬</div>
+      <h3 style="flex:1;margin:0;font-size:17px;font-weight:800;">المحادثات</h3>
+      <button class="icon-btn-hero" id="chatClose" style="background:var(--bg-subtle);color:var(--text);border-color:var(--border);">✕</button>
+    </div>
+    
+    <div style="display:flex;flex:1;overflow:hidden;">
+      <!-- Sidebar -->
+      <div style="width:220px;border-right:1px solid var(--border);background:var(--bg-subtle);overflow-y:auto;flex:none;">
+        <div id="chatSidebar"></div>
+      </div>
+      
+      <!-- Messages -->
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+        <div id="chatHeader" style="padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;background:var(--bg-card);display:flex;align-items:center;gap:10px;">
+          <span>📢</span>
+          <span>الشات الجماعي</span>
+        </div>
+        <div id="chatMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--bg-base);"></div>
+        <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--bg-card);flex:none;">
+          <input type="text" id="chatMessageInput" placeholder="اكتب رسالة..." style="flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg-subtle);color:var(--text);font-size:13.5px;outline:none;">
+          <button class="btn btn-primary" id="chatSendBtn" style="padding:12px 20px;">➤</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -3359,6 +3500,7 @@ function openSettings(){
    EVENT BINDINGS
    ========================================================= */
   /* ---- Users Management Events ---- */
+  
 document.getElementById('usersBtn').onclick = () => {
   document.getElementById('usersModal').classList.add('show');
   const u = currentUser;
@@ -3390,6 +3532,27 @@ document.getElementById('userEditModal').onclick = (e) => {
 
 const logoutBtnEl = document.getElementById('logoutBtn');
 if (logoutBtnEl) logoutBtnEl.onclick = logoutUser;
+  /* ---- Chat Events ---- */
+document.getElementById('chatBtn').onclick = openChatModal;
+
+document.getElementById('chatClose').onclick = () => {
+  document.getElementById('chatModal').classList.remove('show');
+};
+
+document.getElementById('chatSendBtn').onclick = sendChatMessage;
+
+document.getElementById('chatMessageInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+});
+
+document.getElementById('chatModal').onclick = (e) => {
+  if (e.target.id === 'chatModal') {
+    e.target.classList.remove('show');
+  }
+};
 
 /* ---- Search ---- */
 document.getElementById('searchInput').addEventListener('input', ()=>{
@@ -3949,7 +4112,400 @@ async function logActivity(action, siteId, field, oldVal, newVal) {
     }]);
   } catch(e) { console.warn('Log failed:', e); }
 }
+/* =========================================================
+   CHAT SYSTEM — شات مع إشعارات فورية
+   ========================================================= */
+let chatChannel = null;
+let currentChatRecipient = null; // null = جماعي
+let chatMessages = [];
+let allUsersCache = [];
+let unreadCounts = {}; // { userId: count }
 
+/* ---- جلب كل المستخدمين ---- */
+async function loadAllUsers() {
+  try {
+    const { data, error } = await db
+      .from('mfc_users')
+      .select('id, full_name, username, role, active')
+      .eq('active', true)
+      .order('full_name');
+    if (error) throw error;
+    allUsersCache = (data || []).filter(u => u.id !== currentUser.id);
+  } catch(e) {
+    console.error('Load users failed:', e);
+    allUsersCache = [];
+  }
+}
+
+/* ---- Sidebar ---- */
+async function renderChatSidebar() {
+  const sidebar = document.getElementById('chatSidebar');
+  if (!sidebar) return;
+  
+  await loadAllUsers();
+  
+  // Unread counts
+  await loadUnreadCounts();
+  
+  let html = `
+    <div class="chat-item ${currentChatRecipient === null ? 'active' : ''}" data-recipient="group">
+      <div class="chat-avatar" style="background:linear-gradient(135deg,#6366f1,#06b6d4);">📢</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:13px;">الشات الجماعي</div>
+        <div style="font-size:11px;color:var(--text-dim);">كل الفريق</div>
+      </div>
+    </div>
+  `;
+  
+  allUsersCache.forEach(u => {
+    const initials = (u.full_name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const unread = unreadCounts[u.id] || 0;
+    const roleColor = u.role === 'admin' ? '#dc2626' : u.role === 'manager' ? '#d97706' : '#2563eb';
+    
+    html += `
+      <div class="chat-item ${currentChatRecipient === u.id ? 'active' : ''}" data-recipient="${u.id}">
+        <div class="chat-avatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);position:relative;">
+          ${initials}
+          <span style="position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;background:#10b981;border:2px solid var(--bg-subtle);border-radius:50%;"></span>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(u.full_name)}</div>
+          <div style="font-size:11px;color:${roleColor};font-weight:600;">${u.role}</div>
+        </div>
+        ${unread > 0 ? `<span class="chat-unread">${unread}</span>` : ''}
+      </div>
+    `;
+  });
+  
+  sidebar.innerHTML = html;
+  
+  // Bind clicks
+  sidebar.querySelectorAll('.chat-item').forEach(item => {
+    item.onclick = async () => {
+      const recipient = item.dataset.recipient;
+      currentChatRecipient = recipient === 'group' ? null : parseInt(recipient);
+      
+      // Update active
+      sidebar.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      
+      // Update header
+      updateChatHeader();
+      
+      // Mark as read
+      if (currentChatRecipient !== null) {
+        await markMessagesAsRead(currentChatRecipient);
+        unreadCounts[currentChatRecipient] = 0;
+        renderChatSidebar();
+      }
+      
+      await loadChatMessages();
+    };
+  });
+}
+
+/* ---- Header ---- */
+function updateChatHeader() {
+  const header = document.getElementById('chatHeader');
+  if (!header) return;
+  
+  if (currentChatRecipient === null) {
+    header.innerHTML = `<span>📢</span><span>الشات الجماعي</span>`;
+  } else {
+    const user = allUsersCache.find(u => u.id === currentChatRecipient);
+    const initials = user ? (user.full_name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?';
+    header.innerHTML = `
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${initials}</div>
+      <span>${user ? escapeHtml(user.full_name) : 'محادثة'}</span>
+      <span style="font-size:11px;color:var(--text-dim);font-weight:400;margin-inline-start:auto;">${user ? user.role : ''}</span>
+    `;
+  }
+}
+
+/* ---- Unread Counts ---- */
+async function loadUnreadCounts() {
+  try {
+    const { data, error } = await db
+      .from('mfc_messages')
+      .select('sender_id')
+      .eq('recipient_id', currentUser.id)
+      .eq('is_read', false);
+    if (error) throw error;
+    
+    unreadCounts = {};
+    (data || []).forEach(m => {
+      unreadCounts[m.sender_id] = (unreadCounts[m.sender_id] || 0) + 1;
+    });
+    
+    updateChatBadge();
+  } catch(e) {
+    console.warn('Load unread failed:', e);
+  }
+}
+
+/* ---- جلب الرسائل ---- */
+async function loadChatMessages() {
+  try {
+    let query = db.from('mfc_messages').select('*');
+    
+    if (currentChatRecipient === null) {
+      query = query.is('recipient_id', null);
+    } else {
+      query = query.or(`and(sender_id.eq.${currentUser.id},recipient_id.eq.${currentChatRecipient}),and(sender_id.eq.${currentChatRecipient},recipient_id.eq.${currentUser.id})`);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: true }).limit(200);
+    
+    if (error) throw error;
+    chatMessages = data || [];
+    renderChatMessages();
+  } catch(e) {
+    console.error('Load messages failed:', e);
+  }
+}
+
+/* ---- عرض الرسائل ---- */
+function renderChatMessages() {
+  const container = document.getElementById('chatMessages');
+  if (!container) return;
+  
+  if (!chatMessages.length) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;color:var(--text-dim);">
+        <div style="font-size:56px;opacity:.3;margin-bottom:12px;">💬</div>
+        <div style="font-size:14px;">لا توجد رسائل بعد</div>
+        <div style="font-size:12px;margin-top:6px;">ابدأ المحادثة بكتابة رسالة</div>
+      </div>
+    `;
+    return;
+  }
+  
+  let lastDate = '';
+  let html = '';
+  
+  chatMessages.forEach(m => {
+    const isMe = m.sender_id === currentUser.id;
+    const time = new Date(m.created_at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+    const date = new Date(m.created_at).toLocaleDateString('en-GB');
+    
+    // Date separator
+    if (date !== lastDate) {
+      lastDate = date;
+      html += `<div style="text-align:center;margin:16px 0 8px;"><span style="background:var(--bg-subtle);color:var(--text-dim);font-size:10.5px;font-weight:700;padding:4px 12px;border-radius:10px;">${date}</span></div>`;
+    }
+    
+    const roleColor = m.sender_role === 'admin' ? '#dc2626' : m.sender_role === 'manager' ? '#d97706' : '#2563eb';
+    
+    html += `
+      <div class="chat-message ${isMe ? 'mine' : 'theirs'}">
+        <div>
+          ${!isMe ? `<div class="meta" style="color:${roleColor};font-weight:700;">${escapeHtml(m.sender_name)}</div>` : ''}
+          <div class="bubble">${escapeHtml(m.message)}</div>
+          <div class="meta" style="${isMe ? 'text-align:right;' : ''}">${time} ${isMe && m.is_read ? '✓✓' : ''}</div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  container.scrollTop = container.scrollHeight;
+}
+
+/* ---- إرسال رسالة ---- */
+async function sendChatMessage() {
+  const input = document.getElementById('chatMessageInput');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  try {
+    await db.from('mfc_messages').insert([{
+      sender_id: currentUser.id,
+      sender_name: currentUser.full_name || currentUser.username,
+      sender_role: currentUser.role,
+      recipient_id: currentChatRecipient,
+      message: text
+    }]);
+    
+    input.value = '';
+  } catch(e) {
+    toast({type:'error', title:'فشل الإرسال', message: e.message});
+  }
+}
+
+/* ---- Mark as Read ---- */
+async function markMessagesAsRead(senderId) {
+  try {
+    await db.from('mfc_messages')
+      .update({ is_read: true, read_at: new Date().toISOString() })
+      .eq('sender_id', senderId)
+      .eq('recipient_id', currentUser.id)
+      .eq('is_read', false);
+  } catch(e) {}
+}
+
+/* ---- Realtime Subscription ---- */
+function subscribeChat() {
+  if (chatChannel) {
+    try { db.removeChannel(chatChannel); } catch(e){}
+  }
+  
+  chatChannel = db
+    .channel('chat-realtime')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'mfc_messages' },
+      (payload) => handleNewMessage(payload.new))
+    .on('postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'mfc_messages' },
+      (payload) => handleMessageUpdate(payload.new))
+    .subscribe((status) => {
+      console.log('[Chat Realtime]', status);
+    });
+}
+
+/* ---- Handle New Message ---- */
+async function handleNewMessage(msg) {
+  console.log('[Chat] New message:', msg);
+  
+  // تجاهل رسائلي
+  if (msg.sender_id === currentUser.id) {
+    if (document.getElementById('chatModal').classList.contains('show')) {
+      loadChatMessages();
+    }
+    return;
+  }
+  
+  // هل الرسالة تخصني؟
+  const isForMe = msg.recipient_id === currentUser.id || msg.recipient_id === null;
+  if (!isForMe) return;
+  
+  // فحص إذا الشات مفتوح على نفس المحادثة
+  const chatOpen = document.getElementById('chatModal').classList.contains('show');
+  const sameChat = (msg.recipient_id === null && currentChatRecipient === null) ||
+                   (msg.recipient_id === currentUser.id && currentChatRecipient === msg.sender_id);
+  
+  if (chatOpen && sameChat) {
+    // الشات مفتوح → أضف الرسالة فوراً
+    await loadChatMessages();
+    if (msg.recipient_id === currentUser.id) {
+      await markMessagesAsRead(msg.sender_id);
+    }
+  } else {
+    // أظهر إشعار
+    showChatNotification(msg);
+    
+    // حدّث العداد
+    if (msg.recipient_id === currentUser.id) {
+      unreadCounts[msg.sender_id] = (unreadCounts[msg.sender_id] || 0) + 1;
+    }
+    updateChatBadge();
+    
+    // حدّث الـ sidebar إذا كان مفتوح
+    if (chatOpen) {
+      renderChatSidebar();
+    }
+  }
+}
+
+/* ---- Handle Message Update (mark as read) ---- */
+function handleMessageUpdate(msg) {
+  if (msg.sender_id === currentUser.id && document.getElementById('chatModal').classList.contains('show')) {
+    const idx = chatMessages.findIndex(m => m.id === msg.id);
+    if (idx >= 0) {
+      chatMessages[idx].is_read = msg.is_read;
+      renderChatMessages();
+    }
+  }
+}
+
+/* ---- Show Chat Notification ---- */
+function showChatNotification(msg) {
+  // احذف أي إشعار قديم
+  document.querySelectorAll('.chat-toast').forEach(el => el.remove());
+  
+  const toast = document.createElement('div');
+  toast.className = 'chat-toast';
+  toast.innerHTML = `
+    <div class="from">💬 ${escapeHtml(msg.sender_name)}</div>
+    <div class="msg">${escapeHtml(msg.message)}</div>
+    <div class="time">${new Date(msg.created_at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}</div>
+  `;
+  
+  toast.onclick = () => {
+    openChatModal();
+    if (msg.recipient_id === currentUser.id) {
+      // افتح الشات الفردي
+      setTimeout(() => {
+        const items = document.querySelectorAll('.chat-item');
+        items.forEach(i => {
+          if (parseInt(i.dataset.recipient) === msg.sender_id) {
+            i.click();
+          }
+        });
+      }, 300);
+    }
+    toast.remove();
+  };
+  
+  document.body.appendChild(toast);
+  
+  // صوت تنبيه
+  playNotificationSound();
+  
+  // احذف بعد 8 ثوان
+  setTimeout(() => {
+    if (toast.parentNode) toast.remove();
+  }, 8000);
+}
+
+/* ---- Sound ---- */
+function playNotificationSound() {
+  try {
+    // استخدم Web Audio API لتوليد صوت بسيط
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 800;
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } catch(e) {
+    // تجاهل إذا المتصفح لا يدعم
+  }
+}
+
+/* ---- Badge ---- */
+function updateChatBadge() {
+  const badge = document.getElementById('chatBadge');
+  if (!badge) return;
+  
+  const totalUnread = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
+  
+  if (totalUnread > 0) {
+    badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+/* ---- Open Chat ---- */
+async function openChatModal() {
+  document.getElementById('chatModal').classList.add('show');
+  
+  // حدّد الجماعي افتراضياً
+  if (currentChatRecipient === undefined) {
+    currentChatRecipient = null;
+  }
+  
+  await renderChatSidebar();
+  updateChatHeader();
+  await loadChatMessages();
+  
+  setTimeout(() => document.getElementById('chatMessageInput').focus(), 200);
+}
 /* ---- Users Management ---- */
 async function loadUsers() {
   if (!can('manageUsers')) return;
@@ -4124,6 +4680,13 @@ async function initApp(){
   // ⭐ تحميل المستخدم الحالي
   loadCurrentUser();
 
+  // ⭐ ابدأ Realtime Chat + Unread Counts
+  if (currentUser) {
+    subscribeChat();
+    setTimeout(() => loadUnreadCounts(), 1000);
+    console.log('%c💬 Chat Realtime started for: ' + (currentUser.full_name || currentUser.username), 'color:#6366f1;font-weight:bold;font-size:12px');
+  }
+
   const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
 
@@ -4135,9 +4698,9 @@ async function initApp(){
   await supabaseLoad();
   subscribeRealtime();
 
-  console.log('%c✅ MFC Site Tracker v10 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
-  console.log('%c📊 ' + data.length + ' sites loaded', 'color:#3b82f6;font-size:12px');
-  console.log('%c⌨️  Shortcuts: Ctrl+K (palette), Ctrl+N (new), Ctrl+F (search), Ctrl+E (excel), Ctrl+P (pdf)', 'color:#6b7280;font-size:11px');
+  console.log('%c✅ MFC Site Tracker v11 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
+  console.log('%c👤 User: ' + (currentUser?.full_name || 'Unknown'), 'color:#3b82f6;font-size:12px');
+  console.log('%c🔐 Role: ' + (currentUser?.role || 'N/A'), 'color:#8b5cf6;font-size:12px');
 }
 /* =========================================================
    EMAIL REPORT — يفتح Outlook مباشرة
