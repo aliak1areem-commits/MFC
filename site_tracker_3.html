@@ -1442,7 +1442,8 @@ const COLUMNS = [
   "Transport & Crane","Total Cost",
   "SMR Number","SMR File","SMR Drive URL",
   "LAT","Long","Dismantle",
-  "Snags 1","Snags 2","Snags 3"
+  "Snags 1","Snags 2","Snags 3",
+  "Subcontractor","Field Engineer"                  // ← ⭐ تأكد أنهم موجودين
 ];
 
 const NUM_COLS = [
@@ -1487,7 +1488,9 @@ const DB_MAP = {
   "Transport & Crane":"transport_crane","Total Cost":"total_cost",
   "SMR Number":"smr_number","SMR File":"smr_file","SMR Drive URL":"smr_drive_url",
   "LAT":"lat","Long":"long","Dismantle":"dismantle",
-  "Snags 1":"snags_1","Snags 2":"snags_2","Snags 3":"snags_3"
+  "Snags 1":"snags_1","Snags 2":"snags_2","Snags 3":"snags_3",
+  "Subcontractor":"subcontractor",                    // ← ⭐ تأكد أن هذا موجود
+  "Field Engineer":"field_engineer"                  // ← ⭐ اختياري
 };
 const DB_REVERSE = {};
 Object.entries(DB_MAP).forEach(([k,v]) => DB_REVERSE[v] = k);
