@@ -853,6 +853,9 @@ tr.row-rejected td:first-child{
   💬
   <span id="chatBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center;line-height:1.2;">0</span>
 </button>
+<button class="icon-btn-hero" id="logoutBtnHero" title="تسجيل الخروج" style="background:rgba(239,68,68,.15);color:#ef4444;border-color:rgba(239,68,68,.3);">
+  🚪
+</button>
 <div class="avatar" id="avatarBtn" title="Signed in">MFC</div>
       </div>
     </div>
@@ -3554,10 +3557,15 @@ document.getElementById('userEditModal').onclick = (e) => {
 
 const logoutBtnEl = document.getElementById('logoutBtn');
 if (logoutBtnEl) logoutBtnEl.onclick = logoutUser;
+  /* ---- Logout من Hero ---- */
+const logoutHeroBtn = document.getElementById('logoutBtnHero');
+if (logoutHeroBtn) {
+  logoutHeroBtn.onclick = logoutUser;
+}
   /* ---- Chat Events ---- */
 document.getElementById('chatBtn').onclick = openChatModal;
 
-document.getElementById('chatClose').onclick = () => {
+document.getElementById('chatModalClose').onclick = () => {
   document.getElementById('chatModal').classList.remove('show');
 };
 
@@ -3943,16 +3951,17 @@ document.addEventListener('keydown', e=>{
   if(e.key === 'g'){ lastKeyPress = 'g'; setTimeout(()=>{ lastKeyPress = null; }, 800); return; }
   if(lastKeyPress === 'g' && e.key === 'd'){ switchView('dashboard'); lastKeyPress = null; return; }
   if(lastKeyPress === 'g' && e.key === 'm'){ openMap(); lastKeyPress = null; return; }
-  if(e.key === 'Escape'){
-    if(document.getElementById('cmdkBackdrop').classList.contains('show')) closeCmdk();
-    else {
-      closePDFViewer();
-      closeDrawer();
-      closeMap();
-      closePDFImportModal();
-      document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
-    }
+ if(e.key === 'Escape'){
+  if(document.getElementById('cmdkBackdrop').classList.contains('show')) closeCmdk();
+  else {
+    closePDFViewer();
+    closeDrawer();
+    closeMap();
+    closePDFImportModal();
+    document.getElementById('chatModal').classList.remove('show');
+    document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));
   }
+}
 });
 
 /* ---- Command Palette Input ---- */
