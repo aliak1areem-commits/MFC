@@ -426,7 +426,7 @@ td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emera
 .cmdk-empty{padding:40px 20px;text-align:center;color:var(--text-dim);font-size:13px;}
 
 .chat-fab{position:fixed;bottom:24px;right:24px;z-index:490;
-  width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+    width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#ec4899);
   color:#fff;display:flex;align-items:center;justify-content:center;
   box-shadow:0 8px 24px rgba(59,130,246,.4);cursor:pointer;transition:var(--transition);}
 .chat-fab:hover{transform:scale(1.05);}
@@ -1090,6 +1090,112 @@ table.dt thead th{
 .bottom-nav-item.active{
   background:rgba(139,92,246,.2) !important;
   color:#a5b4fc !important;
+}
+  /* =========================================================
+   ⭐ BADGES — الشارات الملونة
+   ========================================================= */
+
+.badge-green{
+  background:rgba(16,185,129,.15) !important;
+  color:#34d399 !important;
+  border-color:rgba(16,185,129,.4) !important;
+}
+.badge-red{
+  background:rgba(239,68,68,.15) !important;
+  color:#f87171 !important;
+  border-color:rgba(239,68,68,.4) !important;
+}
+.badge-amber{
+  background:rgba(245,158,11,.15) !important;
+  color:#fbbf24 !important;
+  border-color:rgba(245,158,11,.4) !important;
+}
+.badge-gray{
+  background:rgba(255,255,255,.06) !important;
+  color:rgba(255,255,255,.6) !important;
+  border-color:rgba(255,255,255,.15) !important;
+}
+
+/* تلوين الحالات في الجدول — بألوان Glass */
+td.status-accepted{
+  background:rgba(16,185,129,.12) !important;
+  color:#34d399 !important;
+  border-left:3px solid #10b981 !important;
+}
+td.status-progress{
+  background:rgba(245,158,11,.12) !important;
+  color:#fbbf24 !important;
+  border-left:3px solid #f59e0b !important;
+}
+td.status-rejected{
+  background:rgba(239,68,68,.12) !important;
+  color:#f87171 !important;
+  border-left:3px solid #ef4444 !important;
+}
+td.status-pending{
+  background:rgba(255,255,255,.06) !important;
+  color:rgba(255,255,255,.6) !important;
+  border-left:3px solid rgba(255,255,255,.3) !important;
+}
+td.status-done{
+  background:rgba(16,185,129,.15) !important;
+  color:#10b981 !important;
+  border-left:3px solid #10b981 !important;
+}
+td.status-notdone{
+  background:rgba(239,68,68,.12) !important;
+  color:#f87171 !important;
+  border-left:3px solid #ef4444 !important;
+}
+td.status-shared{
+  background:rgba(16,185,129,.12) !important;
+  color:#34d399 !important;
+  border-left:3px solid #10b981 !important;
+}
+td.status-notshared{
+  background:rgba(239,68,68,.12) !important;
+  color:#f87171 !important;
+  border-left:3px solid #ef4444 !important;
+}
+td.status-paid{
+  background:rgba(16,185,129,.12) !important;
+  color:#34d399 !important;
+  border-left:3px solid #10b981 !important;
+}
+td.status-unpaid{
+  background:rgba(255,255,255,.06) !important;
+  color:rgba(255,255,255,.6) !important;
+  border-left:3px solid rgba(255,255,255,.3) !important;
+}
+
+/* شريط جانبي على الصفوف */
+tr.row-accepted td:first-child{
+  box-shadow:inset 4px 0 0 #10b981 !important;
+}
+tr.row-progress td:first-child{
+  box-shadow:inset 4px 0 0 #f59e0b !important;
+}
+tr.row-rejected td:first-child{
+  box-shadow:inset 4px 0 0 #ef4444 !important;
+}
+
+/* Chat — تحسين الألوان */
+.chat-toast{
+  background:rgba(15,15,30,.95) !important;
+  border-inline-start:4px solid #8b5cf6 !important;
+}
+.chat-toast .from{color:#a5b4fc !important;}
+
+#chatSidebar .chat-item.active{
+  background:rgba(139,92,246,.15) !important;
+  border-inline-start:3px solid #8b5cf6 !important;
+}
+#chatSidebar .chat-item:hover{
+  background:rgba(139,92,246,.08) !important;
+}
+
+.chat-message.mine .bubble{
+  background:linear-gradient(135deg, #8b5cf6, #ec4899) !important;
 }
 </style>
 </head>
@@ -2692,7 +2798,7 @@ function renderCharts(){
   data.forEach(r=>{ const k = (r.States || 'Unknown').toString(); states[k] = (states[k]||0)+1; });
   const statusLabels = Object.keys(states);
   const statusValues = Object.values(states);
-  const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#14b8a6'];
+  const palette = ['#8b5cf6','#ec4899','#06b6d4','#10b981','#f59e0b','#3b82f6'];
   const statusColors = statusLabels.map((_,i)=> palette[i % palette.length]);
   destroy('status');
   const ctx1 = document.getElementById('chartStatus');
@@ -2711,7 +2817,7 @@ function renderCharts(){
   const ctx2 = document.getElementById('chartGov');
   if(ctx2) charts.gov = new Chart(ctx2, {
     type:'bar',
-    data:{ labels: govLabels, datasets:[{ data: govValues, backgroundColor:'rgba(59,130,246,.75)', borderRadius:6, maxBarThickness:32 }]},
+    data:{ labels: govLabels, datasets:[{ data: govValues, backgroundColor:'rgba(139,92,246,.75)', borderRadius:6, maxBarThickness:32 }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
       scales:{ x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
@@ -2727,7 +2833,7 @@ function renderCharts(){
     type:'bar',
     data:{ labels:['Nokia','Subcon','Paid','Total Cost'],
       datasets:[{ data: [totalNokia, totalSubcon, totalPaid, totalCost].map(v => v/1e6),
-        backgroundColor:['#8b5cf6','#3b82f6','#10b981','#f59e0b'], borderRadius:6, maxBarThickness:48 }]},
+        backgroundColor:['#8b5cf6','#ec4899','#06b6d4','#10b981'], borderRadius:6, maxBarThickness:48 }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
       scales:{ x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10}, callback: v => v + 'M' }, beginAtZero:true } } }
@@ -2748,7 +2854,7 @@ function renderCharts(){
   const ctx4 = document.getElementById('chartMonthly');
   if(ctx4) charts.monthly = new Chart(ctx4, {
     type:'line',
-    data:{ labels: monthKeys, datasets:[{ data: monthVals, borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,.15)', fill:true, tension:.35, borderWidth:2, pointRadius:4, pointBackgroundColor:'#8b5cf6' }]},
+    data:{ labels: monthKeys, datasets:[{ data: monthVals, borderColor:'#a5b4fc', backgroundColor:'rgba(139,92,246,.25)', fill:true, tension:.35, borderWidth:2, pointRadius:4, pointBackgroundColor:'#8b5cf6' }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
       scales:{ x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
@@ -2770,8 +2876,8 @@ function renderCharts(){
     type:'bar',
     data:{ labels: teamLabels,
       datasets:[
-        { label:'Accepted', data: teamDone, backgroundColor:'#10b981', borderRadius:6, maxBarThickness:24 },
-        { label:'Total', data: teamTotal, backgroundColor:'rgba(59,130,246,.4)', borderRadius:6, maxBarThickness:24 }
+       { label:'Accepted', data: teamDone, backgroundColor:'#8b5cf6', borderRadius:6, maxBarThickness:24 },
+{ label:'Total', data: teamTotal, backgroundColor:'rgba(139,92,246,.3)', borderRadius:6, maxBarThickness:24 }
       ]},
     options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
       plugins:{ legend:{ position:'bottom', labels:{ color:textColor, font:{size:10} } } },
@@ -2783,7 +2889,7 @@ function renderCharts(){
   const ctx6 = document.getElementById('chartPayment');
   if(ctx6) charts.payment = new Chart(ctx6, {
     type:'doughnut',
-    data:{ labels:['Paid','Remaining'], datasets:[{ data:[totalPaid, totalSubcon - totalPaid], backgroundColor:['#10b981','#e5e7eb'], borderWidth:0 }]},
+    data:{ labels:['Paid','Remaining'], datasets:[{ data:[totalPaid, totalSubcon - totalPaid], backgroundColor:['#8b5cf6','rgba(255,255,255,.15)'], borderWidth:0 }]},
     options:{ responsive:true, maintainAspectRatio:false, cutout:'70%',
       plugins:{ legend:{ position:'bottom', labels:{ color:textColor, font:{size:11} } } } }
   });
