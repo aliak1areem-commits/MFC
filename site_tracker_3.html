@@ -1524,8 +1524,18 @@ async function supabaseDelete(id){
 
 async function supabaseLogActivity(action, siteId, field, oldVal, newVal){
   try{
+    // ⭐ استخدم اسم المستخدم الحالي
+    const userName = (typeof currentUser !== 'undefined' && currentUser)
+      ? (currentUser.full_name || currentUser.username || 'Unknown')
+      : 'Unknown';
+    
+    const userId = (typeof currentUser !== 'undefined' && currentUser)
+      ? currentUser.id
+      : null;
+    
     await db.from('activity_log').insert([{
-      user_name: 'MFC',
+      user_name: userName,
+      user_id: userId,
       action: action,
       site_id: siteId || '',
       field: field || '',
@@ -2954,14 +2964,36 @@ async function loadActivity(){
       list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-dim);">No activity yet.</div>';
       return;
     }
-    list.innerHTML = rows.map(r=>{
+     list.innerHTML = rows.map(r=>{
       const action = (r.action || 'update').toLowerCase();
       const icon = action.includes('delete') ? '🗑' : action.includes('add') ? '➕' : '✎';
       const ts = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
+      
+      // ⭐ لون حسب المستخدم
+      const userName = r.user_name || 'Unknown';
+      let userColor = '#6366f1'; // افتراضي - بنفسجي
+      let userBg = 'rgba(99,102,241,.1)';
+      
+      if (userName.toLowerCase().includes('mfc') || userName.toLowerCase().includes('admin')) {
+        userColor = '#dc2626';
+        userBg = 'rgba(220,38,38,.1)';
+      } else if (userName.toLowerCase().includes('ali') || userName.toLowerCase().includes('manager')) {
+        userColor = '#d97706';
+        userBg = 'rgba(217,119,6,.1)';
+      } else if (userName.toLowerCase().includes('sara') || userName.toLowerCase().includes('viewer')) {
+        userColor = '#2563eb';
+        userBg = 'rgba(37,99,235,.1)';
+      }
+      
       return `<div class="activity-item">
-        <div class="activity-icon">${icon}</div>
+        <div class="activity-icon" style="background:${userBg};color:${userColor};">${icon}</div>
         <div class="activity-content">
-          <div class="activity-text"><b>${escapeHtml(r.user_name||'user')}</b> ${escapeHtml(action)} ${r.site_id ? `site <b>${escapeHtml(r.site_id)}</b>` : ''} ${r.field ? `· <b>${escapeHtml(r.field)}</b>` : ''}</div>
+          <div class="activity-text">
+            <b style="color:${userColor};">${escapeHtml(userName)}</b> 
+            ${escapeHtml(action)} 
+            ${r.site_id ? `site <b>${escapeHtml(r.site_id)}</b>` : ''} 
+            ${r.field ? `· <b>${escapeHtml(r.field)}</b>` : ''}
+          </div>
           <div class="activity-meta"><span>${escapeHtml(ts)}</span></div>
         </div>
       </div>`;
