@@ -3548,20 +3548,26 @@ function answerQuestion(q){
    VIEW SWITCHING
    ========================================================= */
 function switchView(view){
-  ['dashboard','sites','gantt','activity'].forEach(v=>{
-    document.getElementById('view-'+v).style.display = v === view ? 'block' : 'none';
+  // ⭐ 1. أخفِ كل التابات
+  ['dashboard','sites','gantt','activity','contractors'].forEach(v=>{
+    const el = document.getElementById('view-'+v);
+    if(el) el.style.display = v === view ? 'block' : 'none';
   });
+  
+  // ⭐ 2. حدّث الأزرار النشطة
   document.querySelectorAll('.view-tab').forEach(t=>{
     t.classList.toggle('active', t.dataset.view === view);
   });
   document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
     t.classList.toggle('active', t.dataset.view === view);
   });
+  
+  // ⭐ 3. استدعِ الدالة المناسبة
   if(view === 'dashboard') setTimeout(renderCharts, 50);
   if(view === 'gantt') renderGantt();
   if(view === 'activity') loadActivity();
+  if(view === 'contractors') renderContractors();   // ← الأهم
 }
-
 /* =========================================================
    SETTINGS
    ========================================================= */
