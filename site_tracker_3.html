@@ -123,11 +123,18 @@ svg{display:block;}
 
 #appRoot{display:none;min-height:100vh;flex-direction:column;}
 
-.hero{position:relative;overflow:hidden;
-  background:radial-gradient(900px 400px at 8% -30%, rgba(59,130,246,.35), transparent 60%),
-    radial-gradient(700px 300px at 92% 120%, rgba(16,185,129,.22), transparent 60%),
-    linear-gradient(135deg, #050d1a 0%, #0a1a30 60%, #0c1f3d 100%);
-  color:#fff;padding:22px 32px;border-bottom:1px solid rgba(255,255,255,.06);}
+.hero{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(900px 400px at 8% -30%, rgba(139,92,246,.4), transparent 60%),
+    radial-gradient(700px 300px at 92% 120%, rgba(236,72,153,.3), transparent 60%),
+    linear-gradient(135deg, rgba(10,10,32,.95) 0%, rgba(15,15,40,.95) 60%, rgba(20,20,50,.95) 100%);
+  backdrop-filter:blur(20px);
+  color:#fff;
+  padding:22px 32px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
 .hero-inner{display:flex;align-items:center;gap:20px;max-width:1800px;margin:0 auto;}
 .hero-brand{display:flex;align-items:center;gap:16px;}
 .hero-logo{width:52px;height:52px;border-radius:14px;flex:none;
@@ -1197,6 +1204,99 @@ tr.row-rejected td:first-child{
 .chat-message.mine .bubble{
   background:linear-gradient(135deg, #8b5cf6, #ec4899) !important;
 }
+  /* =========================================================
+   ⭐ FINAL POLISH
+   ========================================================= */
+
+/* توهج أفقي للصف عند Hover */
+table.dt tbody tr{
+  transition:all .25s ease;
+}
+table.dt tbody tr:hover{
+  box-shadow:inset 4px 0 0 #8b5cf6;
+}
+
+/* تحسين شكل المتصفح (Scrollbar) */
+::-webkit-scrollbar{
+  width:10px;
+  height:10px;
+}
+::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.03);
+}
+::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg, #8b5cf6, #ec4899);
+  border-radius:6px;
+  border:2px solid #050510;
+}
+::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg, #a5b4fc, #f0abfc);
+}
+
+/* تحسين شكل Toast */
+.toast{
+  background:rgba(15,15,30,.95) !important;
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.1) !important;
+  box-shadow:0 12px 40px rgba(0,0,0,.5) !important;
+}
+.toast.success{border-left-color:#10b981 !important;}
+.toast.error{border-left-color:#ef4444 !important;}
+.toast.warning{border-left-color:#f59e0b !important;}
+.toast.info{border-left-color:#8b5cf6 !important;}
+
+/* تحسين Filter Menu */
+.filter-menu{
+  background:rgba(15,15,30,.98) !important;
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.12) !important;
+}
+.filter-menu-item:hover{
+  background:rgba(139,92,246,.15) !important;
+  color:#fff !important;
+}
+.filter-menu-item.active{
+  background:rgba(139,92,246,.25) !important;
+  color:#a5b4fc !important;
+}
+
+/* Kebab Menu */
+.kebab-menu-list{
+  background:rgba(15,15,30,.98) !important;
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.12) !important;
+}
+.kebab-item:hover{
+  background:rgba(139,92,246,.15) !important;
+}
+.kebab-item.danger:hover{
+  background:rgba(239,68,68,.15) !important;
+}
+
+/* Command Palette */
+.cmdk{
+  background:rgba(15,15,30,.98) !important;
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.12) !important;
+}
+.cmdk-item.active,
+.cmdk-item:hover{
+  background:rgba(139,92,246,.2) !important;
+  color:#fff !important;
+}
+
+/* Live Badge */
+.live-badge{
+  background:rgba(16,185,129,.15) !important;
+  border:1px solid rgba(16,185,129,.4) !important;
+  color:#34d399 !important;
+}
+
+/* Hero Clock */
+.hero-clock{
+  color:rgba(255,255,255,.7) !important;
+  text-shadow:0 0 12px rgba(139,92,246,.5);
+}
 </style>
 </head>
 <body>
@@ -1225,7 +1325,9 @@ tr.row-rejected td:first-child{
   <header class="hero">
     <div class="hero-inner">
       <div class="hero-brand">
-        <img src="logo.png" alt="MFC Logo" style="height:52px;width:auto;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(139,92,246,.5));">
+        <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.06);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;padding:6px;">
+  <img src="logo.png" alt="MFC" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(139,92,246,.5));">
+</div>
         <div class="hero-text">
           <div class="kicker">MFC Company</div>
           <h1>RAN Site Tracker</h1>
@@ -2354,14 +2456,18 @@ function renderStats(){
       {label:'Coverage', value: total ? Math.round(withSMR/total*100)+'%' : '0%'}
     ]}
   ];
-  document.getElementById('kpiGroups').innerHTML = groups.map(g=>`
-    <div class="kpi-group">
-      <div class="kpi-group-title"><div class="kpi-group-icon">${g.icon}</div>${g.title}</div>
-      <div class="kpi-grid">
+ document.getElementById('kpiGroups').innerHTML = groups.map(g=>`
+    <div class="kpi-group" style="background:rgba(255,255,255,.04);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08);">
+      <div class="kpi-group-title" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:11px;font-weight:800;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.8px;">
+        <div style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,.2);color:#a5b4fc;font-size:13px;">${g.icon}</div>
+        ${g.title}
+        <div style="flex:1;height:1px;background:linear-gradient(90deg, rgba(255,255,255,.1), transparent);"></div>
+      </div>
+      <div class="kpi-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         ${g.items.map(it=>`
-          <div class="kpi">
-            <div class="kpi-label">${escapeHtml(it.label)}</div>
-            <div class="kpi-value" style="${it.danger?'color:var(--red-600)':''}">${escapeHtml(String(it.value))}</div>
+          <div class="kpi" style="padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);transition:all .25s;">
+            <div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(it.label)}</div>
+            <div class="mono" style="font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:800;color:${it.danger?'#f87171':'#fff'};">${escapeHtml(String(it.value))}</div>
           </div>
         `).join('')}
       </div>
