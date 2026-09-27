@@ -880,6 +880,7 @@ tr.row-rejected td:first-child{
 <button class="view-tab" data-view="gantt">📅 Timeline</button>
 <button class="view-tab" data-view="activity">⚡ Activity</button>
 <button class="view-tab" data-view="contractors">👷 Contractors</button>
+      <button class="view-tab" data-view="finance">💰 Finance</button>
 <a href="https://aliak1areem-commits.github.io/mfc-invoice-system/" target="_blank" rel="noopener" class="view-tab" style="background:linear-gradient(135deg,#F2A900,#d99500);color:#fff;border-color:#d99500;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">📄 Invoices</a>
     </div>
 
@@ -996,6 +997,56 @@ tr.row-rejected td:first-child{
     </div>
   </div>
 </div>
+        <!-- FINANCE VIEW -->
+    <div id="view-finance" style="display:none;">
+      <div class="kpi-groups" id="financeKPIs" style="margin-bottom:20px;"></div>
+
+      <div class="table-card">
+        <div class="table-head-bar">
+          <div class="table-count">
+            💰 <span id="expensesCount">0</span> Expenses
+            <span id="expensesTotalDisplay" style="color:var(--primary);font-weight:700;margin-inline-start:8px;"></span>
+          </div>
+          <div class="table-actions">
+            <select id="financeCategoryFilter" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-subtle);color:var(--text);font-size:12.5px;cursor:pointer;">
+              <option value="">All Categories</option>
+              <option>Printing</option>
+              <option>Transport</option>
+              <option>Equipment</option>
+              <option>Salaries</option>
+              <option>Rent</option>
+              <option>Utilities</option>
+              <option>Materials</option>
+              <option>Maintenance</option>
+              <option>Other</option>
+            </select>
+            <button class="btn btn-outline btn-sm" id="exportExpensesBtn">📊 Export Excel</button>
+            <button class="btn btn-primary btn-sm" id="addExpenseBtn">+ Add Expense</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="dt" id="expensesTable">
+            <thead>
+              <tr>
+                <th style="padding:12px 14px;">Date</th>
+                <th style="padding:12px 14px;">Description / الوصف</th>
+                <th style="padding:12px 14px;">Category</th>
+                <th style="padding:12px 14px;text-align:end;">Amount (IQD)</th>
+                <th style="padding:12px 14px;text-align:center;">Status</th>
+                <th style="padding:12px 14px;">Notes / ملاحظات</th>
+                <th style="padding:12px 14px;text-align:center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="expensesBody"></tbody>
+          </table>
+          <div class="empty" id="expensesEmpty" style="display:none;">
+            <div class="empty-icon">💰</div>
+            <h3>No expenses yet</h3>
+            <p>اضغط "Add Expense" لتسجيل أول مصروف عام.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ACTIVITY VIEW -->
     <div id="view-activity" style="display:none;">
@@ -1382,6 +1433,68 @@ tr.row-rejected td:first-child{
           <button class="btn btn-primary" id="chatSendBtn" style="padding:12px 20px;">➤</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+  <!-- EXPENSE MODAL -->
+<div class="modal-backdrop" id="expenseModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-head">
+      <h3 id="expenseModalTitle">💰 Add Expense</h3>
+      <p id="expenseModalSub">سجّل مصروف عام (غير مرتبط بموقع معين)</p>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr;">
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Description / الوصف *</label>
+          <input type="text" id="expenseDesc" placeholder="مثال: طباعة ليبل المشروع" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+        </div>
+
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Amount (IQD) *</label>
+            <input type="number" id="expenseAmount" placeholder="900000" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Date</label>
+            <input type="date" id="expenseDate" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Category</label>
+            <select id="expenseCategory" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+              <option>Printing</option>
+              <option>Transport</option>
+              <option>Equipment</option>
+              <option>Salaries</option>
+              <option>Rent</option>
+              <option>Utilities</option>
+              <option>Materials</option>
+              <option>Maintenance</option>
+              <option selected>Other</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Payment Status</label>
+            <select id="expenseStatus" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;">
+              <option value="Unpaid">🔴 Unpaid</option>
+              <option value="Paid">🟢 Paid</option>
+              <option value="In Progress">🟡 In Progress</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Notes / ملاحظات إضافية (بالعربي)</label>
+          <textarea id="expenseNotes" rows="3" placeholder="اكتب أي تفاصيل إضافية..." style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="expenseCancel">Cancel</button>
+      <button class="btn btn-primary" id="expenseSave">💾 Save</button>
     </div>
   </div>
 </div>
@@ -1936,6 +2049,10 @@ function renderStats(){
     const totalTransport = data.reduce((s,r)=> s + (parseFloat(r['Transport & Crane'])||0), 0);
   const totalCost   = data.reduce((s,r)=> s + (parseFloat(r['Total Cost'])||0), 0);
   const totalBalance = totalSubcon - totalPaid;
+    // ⭐ مصاريف عامة (Finance)
+  const generalExpenses = (typeof expenses !== 'undefined' ? expenses : [])
+    .reduce((s,e) => s + (parseFloat(e.amount)||0), 0);
+  const grandTotalCost = totalCost + generalExpenses;
 
   const withSMR = data.filter(r=>r.smr?.number || r.driveFileId).length;
   const smrItems = data.reduce((s,r)=> s + (r.smr?.items?.length || 0), 0);
@@ -1957,8 +2074,14 @@ function renderStats(){
     {title:'Financials', icon:'💰', items:[
       {label:'Nokia Price', value: fmtShort(totalNokia)},
       {label:'Subcon Price', value: fmtShort(totalSubcon)},
-      {label:'Transport', value: fmtShort(totalTransport)},
-      {label:'Total Cost', value: fmtShort(totalCost)}
+      {label:'Site Costs', value: fmtShort(totalCost)},
+      {label:'General Expenses', value: fmtShort(generalExpenses)}
+    ]},
+    {title:'Grand Total', icon:'🧾', items:[
+      {label:'Total Out', value: fmtShort(grandTotalCost), danger:true},
+      {label:'Paid', value: fmtShort(totalPaid)},
+      {label:'Balance', value: fmtShort(totalBalance), danger: totalBalance>0},
+      {label:'Profit (Nokia - All)', value: fmtShort(totalNokia - grandTotalCost)}
     ]},
     {title:'Payments', icon:'💳', items:[
       {label:'Paid', value: fmtShort(totalPaid)},
@@ -3604,8 +3727,7 @@ function answerQuestion(q){
    ========================================================= */
 function switchView(view){
   // ⭐ 1. أخفِ كل التابات
-  ['dashboard','sites','gantt','activity','contractors'].forEach(v=>{
-    const el = document.getElementById('view-'+v);
+['dashboard','sites','gantt','activity','contractors','finance'].forEach(v=>{    const el = document.getElementById('view-'+v);
     if(el) el.style.display = v === view ? 'block' : 'none';
   });
   
@@ -3621,7 +3743,8 @@ function switchView(view){
   if(view === 'dashboard') setTimeout(renderCharts, 50);
   if(view === 'gantt') renderGantt();
   if(view === 'activity') loadActivity();
-  if(view === 'contractors') renderContractors();   // ← الأهم
+  if(view === 'contractors') renderContractors(); 
+    if(view === 'finance') { renderFinanceKPIs(); renderExpenses(); }// ← الأهم
 }
 /* =========================================================
    SETTINGS
@@ -4815,7 +4938,269 @@ document.getElementById('clearFiltersEmpty').onclick = ()=>{
   renderBody();
   renderFilterChips();
 };
+/* =========================================================
+   FINANCE — GENERAL EXPENSES
+   ========================================================= */
+let expenses = [];
+let editingExpenseId = null;
 
+async function loadExpenses() {
+  try {
+    const { data: rows, error } = await db
+      .from('mfc_expenses')
+      .select('*')
+      .order('expense_date', { ascending: false })
+      .order('id', { ascending: false });
+    if (error) throw error;
+    expenses = rows || [];
+    renderFinanceKPIs();
+    renderExpenses();
+  } catch(e) {
+    console.error('Load expenses failed:', e);
+    expenses = [];
+    renderFinanceKPIs();
+    renderExpenses();
+  }
+}
+
+function getFilteredExpenses() {
+  const catFilter = document.getElementById('financeCategoryFilter')?.value || '';
+  return expenses.filter(e => !catFilter || e.category === catFilter);
+}
+
+function renderFinanceKPIs() {
+  const total = expenses.reduce((s,e) => s + (parseFloat(e.amount)||0), 0);
+  const paid = expenses.filter(e => e.payment_status === 'Paid')
+                      .reduce((s,e) => s + (parseFloat(e.amount)||0), 0);
+  const unpaid = expenses.filter(e => e.payment_status === 'Unpaid')
+                        .reduce((s,e) => s + (parseFloat(e.amount)||0), 0);
+
+  const now = new Date();
+  const thisMonth = expenses.filter(e => {
+    if (!e.expense_date) return false;
+    const d = new Date(e.expense_date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).reduce((s,e) => s + (parseFloat(e.amount)||0), 0);
+
+  const siteSubcon = data.reduce((s,r) => s + (parseFloat(r['Subcon Price'])||0), 0);
+  const siteTransport = data.reduce((s,r) => s + (parseFloat(r['Transport & Crane'])||0), 0);
+  const siteCost = siteSubcon + siteTransport;
+
+  const el = document.getElementById('financeKPIs');
+  if (!el) return;
+
+  el.innerHTML = `
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">💰</div>General Expenses</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Total Expenses</div><div class="kpi-value">${fmtShort(total)}</div></div>
+        <div class="kpi"><div class="kpi-label">This Month</div><div class="kpi-value">${fmtShort(thisMonth)}</div></div>
+        <div class="kpi"><div class="kpi-label">Paid</div><div class="kpi-value" style="color:var(--emerald-700)">${fmtShort(paid)}</div></div>
+        <div class="kpi"><div class="kpi-label">Unpaid</div><div class="kpi-value" style="color:var(--red-600)">${fmtShort(unpaid)}</div></div>
+      </div>
+    </div>
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">🏗️</div>Combined Overview</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Site Cost</div><div class="kpi-value">${fmtShort(siteCost)}</div></div>
+        <div class="kpi"><div class="kpi-label">General Expenses</div><div class="kpi-value">${fmtShort(total)}</div></div>
+        <div class="kpi"><div class="kpi-label">Grand Total</div><div class="kpi-value" style="color:var(--primary)">${fmtShort(siteCost + total)}</div></div>
+        <div class="kpi"><div class="kpi-label">Expenses / Site Cost</div><div class="kpi-value">${siteCost ? Math.round(total/siteCost*100) : 0}%</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderExpenses() {
+  const tbody = document.getElementById('expensesBody');
+  const empty = document.getElementById('expensesEmpty');
+  if (!tbody) return;
+
+  const rows = getFilteredExpenses();
+
+  document.getElementById('expensesCount').textContent = rows.length;
+  const totalSum = rows.reduce((s,e) => s + (parseFloat(e.amount)||0), 0);
+  document.getElementById('expensesTotalDisplay').textContent =
+    rows.length ? `· ${totalSum.toLocaleString()} IQD` : '';
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = rows.map(e => {
+    let statusCls = 'badge-gray';
+    const st = (e.payment_status || '').toLowerCase();
+    if (st === 'paid') statusCls = 'badge-green';
+    else if (st === 'unpaid') statusCls = 'badge-red';
+    else if (st === 'in progress') statusCls = 'badge-amber';
+
+    const catColors = {
+      'Printing':'#6366f1','Transport':'#3b82f6','Equipment':'#8b5cf6',
+      'Salaries':'#059669','Rent':'#dc2626','Utilities':'#d97706',
+      'Materials':'#0891b2','Maintenance':'#7c3aed','Other':'#6b7280'
+    };
+    const cColor = catColors[e.category] || '#6b7280';
+
+    return `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;">
+          ${e.expense_date || '—'}
+        </td>
+        <td style="padding:12px 14px;font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(e.description||'')}">
+          ${escapeHtml(e.description || '')}
+        </td>
+        <td style="padding:12px 14px;">
+          <span style="padding:3px 10px;border-radius:999px;background:${cColor}15;color:${cColor};font-size:11.5px;font-weight:700;">
+            ${escapeHtml(e.category || 'Other')}
+          </span>
+        </td>
+        <td style="padding:12px 14px;text-align:end;font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--red-600);">
+          ${(parseFloat(e.amount)||0).toLocaleString()}
+        </td>
+        <td style="padding:12px 14px;text-align:center;">
+          <span class="badge ${statusCls}">${escapeHtml(e.payment_status || 'Unpaid')}</span>
+        </td>
+        <td style="padding:12px 14px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-dim);font-size:12.5px;" title="${escapeHtml(e.notes||'')}">
+          ${escapeHtml(e.notes || '—')}
+        </td>
+        <td style="padding:12px 14px;text-align:center;">
+          <button class="btn btn-ghost btn-icon btn-sm" data-exp-edit="${e.id}" title="Edit" style="color:var(--primary);">✏️</button>
+          <button class="btn btn-ghost btn-icon btn-sm" data-exp-del="${e.id}" title="Delete" style="color:var(--red-500);">🗑️</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  tbody.querySelectorAll('[data-exp-edit]').forEach(btn => {
+    btn.onclick = () => openExpenseModal(parseInt(btn.dataset.expEdit));
+  });
+  tbody.querySelectorAll('[data-exp-del]').forEach(btn => {
+    btn.onclick = () => deleteExpense(parseInt(btn.dataset.expDel));
+  });
+}
+
+function openExpenseModal(id = null) {
+  editingExpenseId = id;
+  const modal = document.getElementById('expenseModal');
+  const title = document.getElementById('expenseModalTitle');
+  const sub = document.getElementById('expenseModalSub');
+
+  if (id) {
+    const e = expenses.find(x => x.id === id);
+    if (!e) return;
+    title.textContent = '✏️ Edit Expense';
+    sub.textContent = 'تعديل بيانات المصروف';
+    document.getElementById('expenseDesc').value = e.description || '';
+    document.getElementById('expenseAmount').value = e.amount || '';
+    document.getElementById('expenseDate').value = e.expense_date || '';
+    document.getElementById('expenseCategory').value = e.category || 'Other';
+    document.getElementById('expenseStatus').value = e.payment_status || 'Unpaid';
+    document.getElementById('expenseNotes').value = e.notes || '';
+  } else {
+    title.textContent = '💰 Add Expense';
+    sub.textContent = 'سجّل مصروف عام (غير مرتبط بموقع معين)';
+    document.getElementById('expenseDesc').value = '';
+    document.getElementById('expenseAmount').value = '';
+    document.getElementById('expenseDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('expenseCategory').value = 'Other';
+    document.getElementById('expenseStatus').value = 'Unpaid';
+    document.getElementById('expenseNotes').value = '';
+  }
+
+  modal.classList.add('show');
+  setTimeout(() => document.getElementById('expenseDesc').focus(), 200);
+}
+
+async function saveExpense() {
+  const description = document.getElementById('expenseDesc').value.trim();
+  const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
+  const expense_date = document.getElementById('expenseDate').value || null;
+  const category = document.getElementById('expenseCategory').value;
+  const payment_status = document.getElementById('expenseStatus').value;
+  const notes = document.getElementById('expenseNotes').value.trim();
+
+  if (!description) {
+    toast({type:'warning', title:'أدخل الوصف'});
+    return;
+  }
+  if (amount <= 0) {
+    toast({type:'warning', title:'أدخل مبلغ صحيح'});
+    return;
+  }
+
+  const payload = {
+    description, amount, expense_date, category, payment_status, notes,
+    created_by: currentUser?.full_name || currentUser?.username || 'Unknown'
+  };
+
+  try {
+    if (editingExpenseId) {
+      const { error } = await db.from('mfc_expenses')
+        .update(payload).eq('id', editingExpenseId);
+      if (error) throw error;
+      toast({type:'success', title:'✅ تم التحديث'});
+    } else {
+      const { error } = await db.from('mfc_expenses').insert([payload]);
+      if (error) throw error;
+      toast({type:'success', title:'✅ تم حفظ المصروف'});
+    }
+    document.getElementById('expenseModal').classList.remove('show');
+    await loadExpenses();
+    renderStats(); // تحديث الداشبورد
+  } catch(e) {
+    toast({type:'error', title:'فشل الحفظ', message: e.message});
+  }
+}
+
+async function deleteExpense(id) {
+  if (!confirm('حذف هذا المصروف؟')) return;
+  try {
+    const { error } = await db.from('mfc_expenses').delete().eq('id', id);
+    if (error) throw error;
+    toast({type:'success', title:'✅ تم الحذف'});
+    await loadExpenses();
+    renderStats();
+  } catch(e) {
+    toast({type:'error', title:'فشل الحذف', message: e.message});
+  }
+}
+
+function exportExpenses() {
+  const rows = getFilteredExpenses();
+  if (!rows.length) {
+    toast({type:'warning', title:'لا توجد بيانات'});
+    return;
+  }
+  const exportData = rows.map(e => ({
+    'Date': e.expense_date || '',
+    'Description': e.description || '',
+    'Category': e.category || '',
+    'Amount (IQD)': e.amount || 0,
+    'Payment Status': e.payment_status || '',
+    'Notes': e.notes || '',
+    'Created By': e.created_by || ''
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Expenses');
+  XLSX.writeFile(wb, 'MFC_Expenses_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  toast({type:'success', title:'✅ تم التصدير'});
+}
+
+/* ---- Event Bindings ---- */
+document.getElementById('addExpenseBtn').onclick = () => openExpenseModal(null);
+document.getElementById('expenseCancel').onclick = () => {
+  document.getElementById('expenseModal').classList.remove('show');
+};
+document.getElementById('expenseSave').onclick = saveExpense;
+document.getElementById('exportExpensesBtn').onclick = exportExpenses;
+document.getElementById('financeCategoryFilter').onchange = renderExpenses;
+document.getElementById('expenseModal').onclick = (e) => {
+  if (e.target.id === 'expenseModal') e.target.classList.remove('show');
+};
 /* =========================================================
    INIT APP
    ========================================================= */
@@ -4841,8 +5226,9 @@ async function initApp(){
     pinnedColumns = new Set(pinned);
   }catch(e){}
 
-  await supabaseLoad();
+   await supabaseLoad();
   subscribeRealtime();
+  await loadExpenses();   // ⭐ تحميل المصاريف العامة
 
   console.log('%c✅ MFC Site Tracker v11 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
   console.log('%c👤 User: ' + (currentUser?.full_name || 'Unknown'), 'color:#3b82f6;font-size:12px');
