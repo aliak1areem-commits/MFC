@@ -2598,20 +2598,49 @@ function renderCharts(){
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10} }, beginAtZero:true } } }
   });
 
-  const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Price'])||0), 0);
+   const totalNokia  = data.reduce((s,r)=> s + (parseFloat(r['Nokia Price'])||0), 0);
   const totalSubcon = data.reduce((s,r)=> s + (parseFloat(r['Subcon Price'])||0), 0);
   const totalPaid   = data.reduce((s,r)=> s + (parseFloat(r['Paid Amount'])||0), 0);
-  const totalCost   = data.reduce((s,r)=> s + (parseFloat(r['Total Cost'])||0), 0);
+  const totalSiteCost = data.reduce((s,r)=> s + (parseFloat(r['Total Cost'])||0), 0);
+
+  // ⭐ مصاريف عامة من تاب Finance
+  const generalExpenses = (typeof expenses !== 'undefined' ? expenses : [])
+    .reduce((s,e) => s + (parseFloat(e.amount)||0), 0);
+
+  const totalCostAll = totalSiteCost + generalExpenses;
+
   destroy('finance');
   const ctx3 = document.getElementById('chartFinance');
   if(ctx3) charts.finance = new Chart(ctx3, {
     type:'bar',
-    data:{ labels:['Nokia','Subcon','Paid','Total Cost'],
-      datasets:[{ data: [totalNokia, totalSubcon, totalPaid, totalCost].map(v => v/1e6),
-        backgroundColor:['#8b5cf6','#3b82f6','#10b981','#f59e0b'], borderRadius:6, maxBarThickness:48 }]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
-      scales:{ x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
-        y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10}, callback: v => v + 'M' }, beginAtZero:true } } }
+    data:{
+      labels:['Nokia','Subcon','Paid','Site Cost','General Exp.','Grand Total'],
+      datasets:[{
+        data: [totalNokia, totalSubcon, totalPaid, totalSiteCost, generalExpenses, totalCostAll].map(v => v/1e6),
+        backgroundColor:['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ef4444','#0ea5e9'],
+        borderRadius:6,
+        maxBarThickness:48
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label: (ctx) => {
+              const raw = ctx.raw * 1e6;
+              return ' ' + raw.toLocaleString() + ' IQD';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{ color:textColor, font:{size:10} } },
+        y:{ grid:{ color:gridColor }, ticks:{ color:textColor, font:{size:10}, callback: v => v + 'M' }, beginAtZero:true }
+      }
+    }
   });
 
   const monthMap = {};
