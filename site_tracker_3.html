@@ -4982,14 +4982,15 @@ async function loadExpenses() {
       .order('id', { ascending: false });
     if (error) throw error;
     expenses = rows || [];
-    renderFinanceKPIs();
-    renderExpenses();
   } catch(e) {
     console.error('Load expenses failed:', e);
     expenses = [];
-    renderFinanceKPIs();
-    renderExpenses();
   }
+  // ⭐ حدّث كل الواجهات بعد ما تنزل البيانات
+  renderFinanceKPIs();
+  renderExpenses();
+  renderStats();      // ← Dashboard KPIs
+  renderCharts();     // ← Dashboard Charts
 }
 
 function getFilteredExpenses() {
