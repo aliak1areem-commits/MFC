@@ -1790,9 +1790,7 @@ function dbRowToSite(row){
   if(!site["Show on Map"]) site["Show on Map"] = "Yes";
   // ⭐ تحميل الأعمدة المخصصة
   site.custom_data = row.custom_data || {};
-  
-  site._id = row.id;
-  site.smr = {
+
   site._id = row.id;
   site.smr = {
     number: row.smr_number || site["SMR Number"] || "",
