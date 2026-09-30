@@ -1519,6 +1519,14 @@ tr.row-rejected td:first-child{
           <option value="date">📅 تاريخ (Date)</option>
         </select>
       </div>
+            <div style="margin-top:12px;">
+        <label style="font-size:11.5px;font-weight:600;color:var(--text-dim);text-transform:uppercase;">موضع العمود</label>
+        <select id="colNewPosition" style="width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;margin-top:6px;">
+          <option value="end">➡️ في النهاية (افتراضي)</option>
+          <option value="start">⬅️ في البداية (بعد SiteID)</option>
+          <option value="before-actions">⬅️ قبل عمود Actions</option>
+        </select>
+      </div>
       <div id="existingCols" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
         <div style="font-size:11.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">الأعمدة المضافة مسبقاً</div>
         <div id="existingColsList" style="font-size:13px;color:var(--text-dim);">—</div>
@@ -1780,7 +1788,11 @@ function dbRowToSite(row){
   site["Total Cost"] = String(subcon + transport);
   // اترك Transport & Crane كما هو (لا تعطيه قيمة افتراضية)
   if(!site["Show on Map"]) site["Show on Map"] = "Yes";
-
+  // ⭐ تحميل الأعمدة المخصصة
+  site.custom_data = row.custom_data || {};
+  
+  site._id = row.id;
+  site.smr = {
   site._id = row.id;
   site.smr = {
     number: row.smr_number || site["SMR Number"] || "",
@@ -1803,6 +1815,8 @@ function dbRowToSite(row){
 
 function siteToDbRow(site){
   const row = {};
+  // ⭐ حفظ الأعمدة المخصصة
+  row.custom_data = site.custom_data || {};
   COLUMNS.forEach(col => {
     const dbCol = DB_MAP[col];
     if(!dbCol) return;
@@ -2156,6 +2170,9 @@ function renderHead(){
   headRow.appendChild(thChk);
 
   COLUMNS.forEach((col)=>{
+    let pinnedOffset = 40; // 40px لعمود الـ checkbox
+  
+  COLUMNS.forEach((col)=>{
     const hasData = data.some(r => r[col]);
     if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
 
@@ -2168,6 +2185,17 @@ function renderHead(){
     const th = document.createElement('th');
     th.className = NUM_COLS.includes(col) ? 'num' : '';
     const isPinned = pinnedColumns.has(col);
+    
+    // ⭐ فعّل التثبيت الحقيقي
+    if(isPinned){
+      th.style.position = 'sticky';
+      th.style.left = pinnedOffset + 'px';
+      th.style.zIndex = '10';
+      th.style.background = 'var(--bg-subtle)';
+      th.style.boxShadow = '2px 0 4px rgba(0,0,0,.06)';
+      pinnedOffset += 120; // عرض تقريبي للعمود
+    }
+    
     th.innerHTML = escapeHtml(col) +
       (sortState.col===col ? `<span class="arrow">${sortState.dir===1?'▲':'▼'}</span>` : '') +
       `<span class="pin ${isPinned?'active':''}">📌</span>`;
@@ -2186,11 +2214,12 @@ function renderHead(){
     };
     headRow.appendChild(th);
   });
-  // ⭐ أعمدة مخصصة
-  customColumns.forEach(cf => {
+   // ⭐ أعمدة مخصصة (مرتبة حسب field_order)
+  const sortedCustomCols = [...customColumns].sort((a,b) => (a.field_order||0) - (b.field_order||0));
+  sortedCustomCols.forEach(cf => {
     const th = document.createElement('th');
     th.textContent = cf.field_name;
-    th.style.cssText = 'padding:12px 14px;background:rgba(37,99,235,.06);border-inline-start:2px solid var(--primary);';
+    th.style.cssText = 'padding:12px 14px;background:var(--bg-subtle);border-bottom:2px solid var(--primary);';
     th.title = 'عمود مخصص — انقر مرتين للتحرير';
     headRow.appendChild(th);
   });
@@ -2366,6 +2395,8 @@ function renderBody(){
     else if(statusLower === 'in progress') tr.classList.add('row-progress');
     else if(statusLower === 'rejected') tr.classList.add('row-rejected');
 
+    let pinnedOffsetBody = 40;
+    
     COLUMNS.forEach((col)=>{
       const hasData = data.some(x => x[col]);
       if(HIDDEN_BY_DEFAULT.includes(col) && !hasData) return;
@@ -2375,7 +2406,18 @@ function renderBody(){
         if(r[rule.dependsOn] !== rule.value) return;
       }
 
-          const td = document.createElement('td');
+      const td = document.createElement('td');
+      
+      // ⭐ فعّل التثبيت الحقيقي للخلايا
+      if(pinnedColumns.has(col)){
+        td.style.position = 'sticky';
+        td.style.left = pinnedOffsetBody + 'px';
+        td.style.zIndex = '3';
+        td.style.background = 'var(--bg-card)';
+        td.style.boxShadow = '2px 0 4px rgba(0,0,0,.04)';
+        pinnedOffsetBody += 120;
+      }
+      
       let val = r[col] || '';
       td.setAttribute('data-label', col);
       // ⭐ أضف tooltip للخلايا الطويلة
@@ -2552,12 +2594,13 @@ function renderBody(){
 
       tr.appendChild(td);
     });
-    // ⭐ خلايا الأعمدة المخصصة
-    customColumns.forEach(cf => {
+       // ⭐ خلايا الأعمدة المخصصة
+    const sortedCustomColsBody = [...customColumns].sort((a,b) => (a.field_order||0) - (b.field_order||0));
+    sortedCustomColsBody.forEach(cf => {
       const td = document.createElement('td');
       const val = (r.custom_data && r.custom_data[cf.field_name]) || '';
       td.setAttribute('data-label', cf.field_name);
-      td.style.cssText = 'padding:11px 14px;background:rgba(37,99,235,.03);border-inline-start:2px solid var(--primary);cursor:text;';
+      td.style.cssText = 'padding:11px 14px;background:transparent;cursor:text;';
       
       if (cf.field_type === 'number') {
         td.className = 'num';
@@ -5356,6 +5399,7 @@ function renderExistingColumns() {
 async function addCustomColumn() {
   const name = document.getElementById('colNewName').value.trim();
   const type = document.getElementById('colNewType').value;
+  const position = document.getElementById('colNewPosition')?.value || 'end';
 
   if (!name) {
     toast({type:'warning', title:'أدخل اسم العمود'});
@@ -5367,10 +5411,15 @@ async function addCustomColumn() {
   }
 
   try {
+       // ⭐ احسب field_order حسب الموضع
+    let order = customColumns.length;
+    if (position === 'start') order = -1000;
+    else if (position === 'before-actions') order = 999999;
+    
     const { error } = await db.from('mfc_custom_fields').insert([{
       field_name: name,
       field_type: type,
-      field_order: customColumns.length
+      field_order: order
     }]);
     if (error) throw error;
 
