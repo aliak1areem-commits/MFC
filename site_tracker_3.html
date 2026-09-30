@@ -2186,6 +2186,14 @@ function renderHead(){
     };
     headRow.appendChild(th);
   });
+  // ⭐ أعمدة مخصصة
+  customColumns.forEach(cf => {
+    const th = document.createElement('th');
+    th.textContent = cf.field_name;
+    th.style.cssText = 'padding:12px 14px;background:rgba(37,99,235,.06);border-inline-start:2px solid var(--primary);';
+    th.title = 'عمود مخصص — انقر مرتين للتحرير';
+    headRow.appendChild(th);
+  });
 
   const thAct = document.createElement('th');
   thAct.textContent = 'Actions';
@@ -2542,6 +2550,41 @@ function renderBody(){
         });
       }
 
+      tr.appendChild(td);
+    });
+    // ⭐ خلايا الأعمدة المخصصة
+    customColumns.forEach(cf => {
+      const td = document.createElement('td');
+      const val = (r.custom_data && r.custom_data[cf.field_name]) || '';
+      td.setAttribute('data-label', cf.field_name);
+      td.style.cssText = 'padding:11px 14px;background:rgba(37,99,235,.03);border-inline-start:2px solid var(--primary);cursor:text;';
+      
+      if (cf.field_type === 'number') {
+        td.className = 'num';
+        const n = parseFloat(val);
+        td.textContent = isNaN(n) ? '' : n.toLocaleString();
+      } else if (cf.field_type === 'date') {
+        td.textContent = val || '';
+      } else {
+        td.textContent = val;
+      }
+      
+      td.contentEditable = 'true';
+      td.addEventListener('blur', async () => {
+        const oldVal = (r.custom_data && r.custom_data[cf.field_name]) || '';
+        let newVal = td.textContent.trim();
+        if (cf.field_type === 'number') newVal = newVal.replace(/,/g, '');
+        if (oldVal === newVal) return;
+        await saveCustomCell(r, cf.field_name, newVal);
+        if (cf.field_type === 'number') {
+          const n = parseFloat(newVal);
+          td.textContent = isNaN(n) ? '' : n.toLocaleString();
+        }
+      });
+      td.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); td.blur(); }
+      });
+      
       tr.appendChild(td);
     });
 
@@ -5263,6 +5306,127 @@ document.getElementById('financeCategoryFilter').onchange = renderExpenses;
 document.getElementById('expenseModal').onclick = (e) => {
   if (e.target.id === 'expenseModal') e.target.classList.remove('show');
 };
+  /* =========================================================
+   CUSTOM COLUMNS — إضافة أعمدة جديدة
+   ========================================================= */
+let customColumns = [];
+
+/* تحميل الأعمدة من Supabase */
+async function loadCustomColumns() {
+  try {
+    const { data: rows, error } = await db
+      .from('mfc_custom_fields')
+      .select('*')
+      .eq('is_active', true)
+      .order('field_order', { ascending: true });
+    if (error) throw error;
+    customColumns = rows || [];
+    console.log('[Columns] Loaded', customColumns.length);
+  } catch(e) {
+    console.error('[Columns] Load failed:', e);
+    customColumns = [];
+  }
+}
+
+/* فتح النافذة */
+function openAddColumnModal() {
+  document.getElementById('addColumnModal').classList.add('show');
+  document.getElementById('colNewName').value = '';
+  document.getElementById('colNewType').value = 'text';
+  renderExistingColumns();
+  setTimeout(() => document.getElementById('colNewName').focus(), 200);
+}
+
+/* عرض الأعمدة الموجودة */
+function renderExistingColumns() {
+  const list = document.getElementById('existingColsList');
+  if (!customColumns.length) {
+    list.innerHTML = '—';
+    return;
+  }
+  list.innerHTML = customColumns.map(c => `
+    <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--blue-50);color:var(--primary);font-size:12px;font-weight:600;margin:3px 3px 3px 0;">
+      ${escapeHtml(c.field_name)}
+      <span style="cursor:pointer;font-weight:800;" onclick="deleteCustomColumn(${c.id})" title="حذف">✕</span>
+    </span>
+  `).join('');
+}
+
+/* إضافة عمود جديد */
+async function addCustomColumn() {
+  const name = document.getElementById('colNewName').value.trim();
+  const type = document.getElementById('colNewType').value;
+
+  if (!name) {
+    toast({type:'warning', title:'أدخل اسم العمود'});
+    return;
+  }
+  if (customColumns.some(c => c.field_name === name)) {
+    toast({type:'warning', title:'الاسم موجود مسبقاً'});
+    return;
+  }
+
+  try {
+    const { error } = await db.from('mfc_custom_fields').insert([{
+      field_name: name,
+      field_type: type,
+      field_order: customColumns.length
+    }]);
+    if (error) throw error;
+
+    await loadCustomColumns();
+    document.getElementById('addColumnModal').classList.remove('show');
+    renderAll();
+    toast({type:'success', title:'✅ تم إضافة العمود: ' + name});
+  } catch(e) {
+    toast({type:'error', title:'فشل الإضافة', message: e.message});
+  }
+}
+
+/* حذف عمود */
+window.deleteCustomColumn = async function(id) {
+  if (!confirm('حذف هذا العمود؟ (لن تُحذف البيانات، فقط يختفي من الجدول)')) return;
+  try {
+    await db.from('mfc_custom_fields').update({ is_active: false }).eq('id', id);
+    await loadCustomColumns();
+    renderExistingColumns();
+    renderAll();
+    toast({type:'success', title:'تم حذف العمود'});
+  } catch(e) {
+    toast({type:'error', title:'فشل الحذف', message: e.message});
+  }
+};
+
+/* حفظ قيمة خلية مخصصة */
+async function saveCustomCell(site, fieldName, value) {
+  site.custom_data = site.custom_data || {};
+  site.custom_data[fieldName] = value;
+  try {
+    await supabaseUpdate(site);
+    toast({type:'success', title:'✓', duration:1000});
+  } catch(e) {
+    toast({type:'error', title:'فشل الحفظ', message: e.message});
+  }
+}
+
+/* ربط الأزرار */
+document.addEventListener('DOMContentLoaded', function() {
+  const addBtn = document.getElementById('addColumnBtn');
+  if (addBtn) addBtn.onclick = openAddColumnModal;
+
+  const cancelBtn = document.getElementById('addColumnCancel');
+  if (cancelBtn) cancelBtn.onclick = () => {
+    document.getElementById('addColumnModal').classList.remove('show');
+  };
+
+  const saveBtn = document.getElementById('addColumnSave');
+  if (saveBtn) saveBtn.onclick = addCustomColumn;
+
+  const modal = document.getElementById('addColumnModal');
+  if (modal) modal.onclick = (e) => {
+    if (e.target.id === 'addColumnModal') e.target.classList.remove('show');
+  };
+});
 /* =========================================================
    INIT APP
    ========================================================= */
@@ -5288,7 +5452,8 @@ async function initApp(){
     pinnedColumns = new Set(pinned);
   }catch(e){}
 
-   await supabaseLoad();
+    await loadCustomColumns();
+  await supabaseLoad();
   subscribeRealtime();
   await loadExpenses();   // ⭐ تحميل المصاريف العامة
 
