@@ -5476,6 +5476,10 @@ async function initApp(){
 
   console.log('%c✅ MFC Site Tracker v11 Ready', 'color:#10b981;font-weight:bold;font-size:14px');
   console.log('%c👤 User: ' + (currentUser?.full_name || 'Unknown'), 'color:#3b82f6;font-size:12px');
+    // ⭐ ربط أزرار إضافة العمود
+  bindAddColumnEvents();
+  setTimeout(bindAddColumnEvents, 500);
+  setTimeout(bindAddColumnEvents, 1500);
   console.log('%c🔐 Role: ' + (currentUser?.role || 'N/A'), 'color:#8b5cf6;font-size:12px');
 }
 /* =========================================================
