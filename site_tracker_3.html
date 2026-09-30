@@ -2167,8 +2167,6 @@ function renderHead(){
   thChk.onclick = (e) => e.stopPropagation();
   headRow.appendChild(thChk);
 
-  COLUMNS.forEach((col)=>{
-    let pinnedOffset = 40; // 40px لعمود الـ checkbox
   
   COLUMNS.forEach((col)=>{
     const hasData = data.some(r => r[col]);
