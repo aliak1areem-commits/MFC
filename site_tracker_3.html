@@ -2166,6 +2166,7 @@ function renderHead(){
   thChk.innerHTML = '<input type="checkbox" class="col-checkbox" id="headSelectAll" title="Select all">';
   thChk.onclick = (e) => e.stopPropagation();
   headRow.appendChild(thChk);
+  let pinnedOffset = 40;   // ⭐ السطر الناقص
 
   
   COLUMNS.forEach((col)=>{
