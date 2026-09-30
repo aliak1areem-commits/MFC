@@ -5410,9 +5410,43 @@ async function saveCustomCell(site, fieldName, value) {
 }
 
 /* ربط الأزرار */
-document.addEventListener('DOMContentLoaded', function() {
+/* ربط مباشر بدون انتظار DOMContentLoaded */
+function bindAddColumnEvents() {
   const addBtn = document.getElementById('addColumnBtn');
-  if (addBtn) addBtn.onclick = openAddColumnModal;
+  if (addBtn && !addBtn._bound) {
+    addBtn._bound = true;
+    addBtn.onclick = openAddColumnModal;
+    console.log('[v12] addColumnBtn bound ✅');
+  }
+
+  const cancelBtn = document.getElementById('addColumnCancel');
+  if (cancelBtn && !cancelBtn._bound) {
+    cancelBtn._bound = true;
+    cancelBtn.onclick = function() {
+      document.getElementById('addColumnModal').classList.remove('show');
+    };
+  }
+
+  const saveBtn = document.getElementById('addColumnSave');
+  if (saveBtn && !saveBtn._bound) {
+    saveBtn._bound = true;
+    saveBtn.onclick = addCustomColumn;
+    console.log('[v12] addColumnSave bound ✅');
+  }
+
+  const modal = document.getElementById('addColumnModal');
+  if (modal && !modal._bound) {
+    modal._bound = true;
+    modal.onclick = function(e) {
+      if (e.target.id === 'addColumnModal') e.target.classList.remove('show');
+    };
+  }
+}
+
+/* شغّلها فوراً + بعد كل render */
+bindAddColumnEvents();
+setTimeout(bindAddColumnEvents, 500);
+setTimeout(bindAddColumnEvents, 1500);
 
   const cancelBtn = document.getElementById('addColumnCancel');
   if (cancelBtn) cancelBtn.onclick = () => {
