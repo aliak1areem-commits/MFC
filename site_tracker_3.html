@@ -913,6 +913,7 @@ tr.row-rejected td:first-child{
           <div style="flex:1;"></div>
           <button class="btn btn-outline" id="mapBtn">🗺️ Map</button>
           <button class="btn btn-primary" id="addRowBtn">+ Add Site</button>
+          <button class="btn btn-outline" id="addColumnBtn">➕ إضافة عمود</button>
           <button class="btn btn-accent" id="importPDFQuickBtn">📄 Import SMR</button>
           <div class="kebab-menu">
             <button class="btn btn-outline btn-icon" id="kebabBtn">⋯</button>
@@ -1495,6 +1496,37 @@ tr.row-rejected td:first-child{
     <div class="modal-actions">
       <button class="btn btn-outline" id="expenseCancel">Cancel</button>
       <button class="btn btn-primary" id="expenseSave">💾 Save</button>
+    </div>
+  </div>
+</div>
+  <!-- ADD COLUMN MODAL -->
+<div class="modal-backdrop" id="addColumnModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-head">
+      <h3>➕ إضافة عمود جديد</h3>
+      <p>سيظهر العمود في الجدول ويُحفظ في Supabase</p>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:14px;">
+        <label style="font-size:11.5px;font-weight:600;color:var(--text-dim);text-transform:uppercase;">اسم العمود</label>
+        <input type="text" id="colNewName" placeholder="مثال: نوع البرج، رقم العقد..." style="width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;margin-top:6px;">
+      </div>
+      <div>
+        <label style="font-size:11.5px;font-weight:600;color:var(--text-dim);text-transform:uppercase;">نوع البيانات</label>
+        <select id="colNewType" style="width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:13px;margin-top:6px;">
+          <option value="text">📝 نص (Text)</option>
+          <option value="number">🔢 رقم (Number)</option>
+          <option value="date">📅 تاريخ (Date)</option>
+        </select>
+      </div>
+      <div id="existingCols" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
+        <div style="font-size:11.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">الأعمدة المضافة مسبقاً</div>
+        <div id="existingColsList" style="font-size:13px;color:var(--text-dim);">—</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="addColumnCancel">إلغاء</button>
+      <button class="btn btn-primary" id="addColumnSave">💾 إضافة</button>
     </div>
   </div>
 </div>
