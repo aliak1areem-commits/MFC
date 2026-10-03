@@ -1074,6 +1074,7 @@ tr.row-rejected td:first-child{
         <option value="">All Subcontractors</option>
       </select>
       <div style="flex:1;"></div>
+      <button class="btn btn-outline" id="mllEnrichBtn">🌍 Import Coordinates</button>
       <button class="btn btn-outline" id="mllMapBtn">🗺️ Map View</button>
       <button class="btn btn-accent" id="mllImportBtn">📥 Import Excel</button>
       <button class="btn btn-primary" id="mllAddBtn">+ Add Link</button>
@@ -1093,19 +1094,27 @@ tr.row-rejected td:first-child{
       <table class="dt" id="mllTable">
         <thead>
           <tr>
-            <th style="padding:12px 14px;">MLL Link ID</th>
-            <th style="padding:12px 14px;">Site A</th>
-            <th style="padding:12px 14px;">Site B</th>
-            <th style="padding:12px 14px;">Solution</th>
-            <th style="padding:12px 14px;">HW Action</th>
-            <th style="padding:12px 14px;">City</th>
-            <th style="padding:12px 14px;text-align:center;">Distance (km)</th>
-            <th style="padding:12px 14px;text-align:center;">Azimuth</th>
-            <th style="padding:12px 14px;">SMR</th>
-            <th style="padding:12px 14px;">Subcontractor</th>
-            <th style="padding:12px 14px;text-align:center;">Status</th>
-            <th style="padding:12px 14px;">Notes</th>
-            <th style="padding:12px 14px;text-align:center;">Actions</th>
+            <thead>
+  <tr>
+    <th style="padding:12px 14px;">MLL Link ID</th>
+    <th style="padding:12px 14px;">Site A</th>
+    <th style="padding:12px 14px;">LAT A</th>
+    <th style="padding:12px 14px;">Long A</th>
+    <th style="padding:12px 14px;">Site B</th>
+    <th style="padding:12px 14px;">LAT B</th>
+    <th style="padding:12px 14px;">Long B</th>
+    <th style="padding:12px 14px;">Solution</th>
+    <th style="padding:12px 14px;">HW Action</th>
+    <th style="padding:12px 14px;">City</th>
+    <th style="padding:12px 14px;text-align:center;">Distance (km)</th>
+    <th style="padding:12px 14px;text-align:center;">Azimuth</th>
+    <th style="padding:12px 14px;">SMR</th>
+    <th style="padding:12px 14px;">Subcontractor</th>
+    <th style="padding:12px 14px;text-align:center;">Status</th>
+    <th style="padding:12px 14px;">Notes</th>
+    <th style="padding:12px 14px;text-align:center;">Actions</th>
+  </tr>
+</thead>
           </tr>
         </thead>
         <tbody id="mllBody"></tbody>
@@ -5645,7 +5654,129 @@ function bindAddColumnEvents() {
     };
   }
 }
+/* ============================================================
+   Enrich MLL Links with Coordinates from Big File
+   ============================================================ */
+window.enrichMLLWithCoords = async function() {
+  console.log('%c🌍 Enriching MLL Links with Coordinates', 'color:#8b5cf6;font-weight:bold;font-size:16px');
 
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.csv,.xlsx,.xls';
+
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const coordMap = new Map();
+
+      if (file.name.toLowerCase().endsWith('.csv')) {
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).filter(l => l.trim());
+        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        const idxCode = headers.findIndex(h => /site|code|id/i.test(h));
+        const idxLat = headers.findIndex(h => /lat/i.test(h));
+        const idxLng = headers.findIndex(h => /long|lng|lon/i.test(h));
+
+        for (let i = 1; i < lines.length; i++) {
+          const cells = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+          const code = cells[idxCode];
+          const lat = parseFloat(cells[idxLat]);
+          const lng = parseFloat(cells[idxLng]);
+          if (code && !isNaN(lat) && !isNaN(lng)) {
+            coordMap.set(String(code), { lat, lng });
+          }
+        }
+      } else {
+        const buf = await file.arrayBuffer();
+        const wb = XLSX.read(buf, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+        json.forEach(r => {
+          const keys = Object.keys(r);
+          const kCode = keys.find(k => /site|code|id/i.test(k));
+          const kLat = keys.find(k => /lat/i.test(k));
+          const kLng = keys.find(k => /long|lng|lon/i.test(k));
+          if (!kCode || !kLat || !kLng) return;
+          const code = String(r[kCode]).trim();
+          const lat = parseFloat(r[kLat]);
+          const lng = parseFloat(r[kLng]);
+          if (code && !isNaN(lat) && !isNaN(lng)) {
+            coordMap.set(code, { lat, lng });
+          }
+        });
+      }
+
+      console.log(`📋 ${coordMap.size} coordinates loaded`);
+
+      const updates = [];
+      let withCoords = 0, missingA = 0, missingB = 0;
+
+      for (const link of microwaveLinks) {
+        const a = coordMap.get(String(link.site_a));
+        const b = coordMap.get(String(link.site_b));
+
+        const update = { id: link.id };
+
+        if (a) {
+          update.lat_a = a.lat;
+          update.long_a = a.lng;
+        } else missingA++;
+
+        if (b) {
+          update.lat_b = b.lat;
+          update.long_b = b.lng;
+        } else missingB++;
+
+        if (a && b) withCoords++;
+
+        if (a || b) updates.push(update);
+      }
+
+      console.log(`✅ ${withCoords} links with full coords`);
+      console.log(`⚠️ Missing A: ${missingA} | Missing B: ${missingB}`);
+      console.log(`📤 Updating ${updates.length} links...`);
+
+      const BATCH = 20;
+      for (let i = 0; i < updates.length; i += BATCH) {
+        const batch = updates.slice(i, i + BATCH);
+        await Promise.all(
+          batch.map(u => {
+            const { id, ...fields } = u;
+            return db.from('mfc_microwave_links').update(fields).eq('id', id);
+          })
+        );
+        console.log(`📤 Batch ${Math.floor(i/BATCH) + 1}: ${batch.length} updated`);
+      }
+
+      console.log('%c✅ Done!', 'color:#10b981;font-weight:bold;font-size:16px');
+
+      if (typeof loadMicrowaveLinks === 'function') {
+        await loadMicrowaveLinks();
+      }
+      if (typeof toast === 'function') {
+        toast({
+          type: 'success',
+          title: `✅ تم تحديث ${updates.length} لنك`,
+          message: `${withCoords} لنك كامل الإحداثيات`,
+          duration: 8000
+        });
+      }
+
+      input.remove();
+    } catch (err) {
+      console.error('❌', err);
+      alert('فشل: ' + err.message);
+      input.remove();
+    }
+  };
+
+  document.body.appendChild(input);
+  input.click();
+  console.log('%c📁 اختر ملف الإحداثيات الكبير', 'color:#8b5cf6;font-weight:bold;');
+};
 
 /* =========================================================
    INIT APP
@@ -5726,12 +5857,23 @@ function azimuthDeg(lat1, lon1, lat2, lon2){
 }
 
 /* ---- Get site coords from main data ---- */
-function getSiteCoords(siteCode){
+/* جلب إحداثيات موقع — من Sites أو من MLL مباشرة */
+function getSiteCoords(siteCode, mllLink = null, side = 'a'){
+  // 1. جرّب Sites أولاً
   const s = data.find(r => String(r.SiteID) === String(siteCode));
-  if(!s) return null;
-  const lat = parseFloat(s.LAT), lng = parseFloat(s.Long);
-  if(isNaN(lat) || isNaN(lng)) return null;
-  return { lat, lng, site: s };
+  if(s){
+    const lat = parseFloat(s.LAT), lng = parseFloat(s.Long);
+    if(!isNaN(lat) && !isNaN(lng)) return { lat, lng, site: s, source: 'sites' };
+  }
+
+  // 2. جرّب MLL (lat_a/long_a أو lat_b/long_b)
+  if(mllLink){
+    const lat = parseFloat(side === 'a' ? mllLink.lat_a : mllLink.lat_b);
+    const lng = parseFloat(side === 'a' ? mllLink.long_a : mllLink.long_b);
+    if(!isNaN(lat) && !isNaN(lng)) return { lat, lng, site: null, source: 'mll' };
+  }
+
+  return null;
 }
 
 /* ---- Load from Supabase ---- */
@@ -5757,11 +5899,14 @@ async function loadMicrowaveLinks(){
 /* ---- Recalc distances for all rows ---- */
 function recalcAllDistances(){
   microwaveLinks.forEach(link => {
-    const a = getSiteCoords(link.site_a);
-    const b = getSiteCoords(link.site_b);
+    const a = getSiteCoords(link.site_a, link, 'a');
+    const b = getSiteCoords(link.site_b, link, 'b');
     if(a && b){
       link.distance_km = haversineKm(a.lat, a.lng, b.lat, b.lng);
       link.azimuth_deg = azimuthDeg(a.lat, a.lng, b.lat, b.lng);
+    } else {
+      link.distance_km = null;
+      link.azimuth_deg = null;
     }
   });
 }
@@ -5851,42 +5996,77 @@ function renderMLLTable(){
   const tbody = document.getElementById('mllBody');
   if(!tbody) return;
 
+  // ⭐ احسب المسافات أولاً
+  recalcAllDistances();
+
   const rows = getFilteredMLL();
   document.getElementById('mllCount').textContent = microwaveLinks.length;
   document.getElementById('mllFilteredCount').textContent =
     rows.length !== microwaveLinks.length ? `· ${rows.length} filtered` : '';
 
   if(!rows.length){
-    tbody.innerHTML = `<tr><td colspan="13" style="padding:60px;text-align:center;color:var(--text-dim);">
+    tbody.innerHTML = `<tr><td colspan="17" style="padding:60px;text-align:center;color:var(--text-dim);">
       📡 No links. Click "Import Excel" or "+ Add Link".
     </td></tr>`;
     return;
   }
 
   tbody.innerHTML = rows.map(l => {
+    // ⭐ جلب SMR والـ Contractor من Sites (إذا موجودين)
+    const siteA = data.find(s => String(s.SiteID) === String(l.site_a));
+    const siteB = data.find(s => String(s.SiteID) === String(l.site_b));
+
+    const smrDisplay = l.smr_number
+      || siteA?.smr?.number
+      || siteB?.smr?.number
+      || '—';
+
+    const subDisplay = l.subcontractor
+      || siteA?.Subcontractor
+      || siteB?.Subcontractor
+      || '—';
+
     const statusCls = l.status === 'Done' ? 'badge-green'
       : l.status === 'In Progress' ? 'badge-amber'
       : l.status === 'Rejected' ? 'badge-red' : 'badge-gray';
 
     const dist = l.distance_km != null
       ? `${l.distance_km} km`
-      : '<span style="color:var(--text-muted)">—</span>';
+      : '<span style="color:var(--text-muted)" title="Lat/Long missing">—</span>';
     const az = l.azimuth_deg != null
       ? `${l.azimuth_deg}°`
       : '<span style="color:var(--text-muted)">—</span>';
 
+    // ⭐ عرض الإحداثيات — قابلة للتحرير
+    const latA = l.lat_a != null ? Number(l.lat_a).toFixed(6) : '';
+    const lngA = l.long_a != null ? Number(l.long_a).toFixed(6) : '';
+    const latB = l.lat_b != null ? Number(l.lat_b).toFixed(6) : '';
+    const lngB = l.long_b != null ? Number(l.long_b).toFixed(6) : '';
+
     return `
       <tr style="border-bottom:1px solid var(--border);">
         <td style="padding:11px 14px;font-family:monospace;font-weight:700;color:var(--primary);">${escapeHtml(l.mll_link_id)}</td>
-        <td style="padding:11px 14px;font-family:monospace;">${escapeHtml(l.site_a)}</td>
-        <td style="padding:11px 14px;font-family:monospace;">${escapeHtml(l.site_b)}</td>
+        <td style="padding:11px 14px;font-family:monospace;font-weight:600;">${escapeHtml(l.site_a)}</td>
+        <td contenteditable="true" data-mll-field="lat_a" data-mll-id="${l.id}"
+            style="padding:11px 14px;font-family:monospace;font-size:11.5px;background:rgba(59,130,246,.05);cursor:text;"
+            title="قابل للتحرير — اضغط Enter للحفظ">${latA || '—'}</td>
+        <td contenteditable="true" data-mll-field="long_a" data-mll-id="${l.id}"
+            style="padding:11px 14px;font-family:monospace;font-size:11.5px;background:rgba(59,130,246,.05);cursor:text;"
+            title="قابل للتحرير — اضغط Enter للحفظ">${lngA || '—'}</td>
+        <td style="padding:11px 14px;font-family:monospace;font-weight:600;">${escapeHtml(l.site_b)}</td>
+        <td contenteditable="true" data-mll-field="lat_b" data-mll-id="${l.id}"
+            style="padding:11px 14px;font-family:monospace;font-size:11.5px;background:rgba(139,92,246,.05);cursor:text;"
+            title="قابل للتحرير — اضغط Enter للحفظ">${latB || '—'}</td>
+        <td contenteditable="true" data-mll-field="long_b" data-mll-id="${l.id}"
+            style="padding:11px 14px;font-family:monospace;font-size:11.5px;background:rgba(139,92,246,.05);cursor:text;"
+            title="قابل للتحرير — اضغط Enter للحفظ">${lngB || '—'}</td>
         <td style="padding:11px 14px;">${escapeHtml(l.solution||'—')}</td>
         <td style="padding:11px 14px;">${escapeHtml(l.hw_action||'—')}</td>
         <td style="padding:11px 14px;">${escapeHtml(l.city||'—')}</td>
         <td style="padding:11px 14px;text-align:center;font-family:monospace;font-weight:700;color:var(--emerald-700);">${dist}</td>
         <td style="padding:11px 14px;text-align:center;font-family:monospace;">${az}</td>
-        <td style="padding:11px 14px;font-family:monospace;font-size:12px;">${escapeHtml(l.smr_number||'—')}</td>
-        <td style="padding:11px 14px;">${escapeHtml(l.subcontractor||'—')}</td>
+        <td style="padding:11px 14px;font-family:monospace;font-size:12px;">${escapeHtml(smrDisplay)}</td>
+        <td style="padding:11px 14px;">${escapeHtml(subDisplay)}</td>
         <td style="padding:11px 14px;text-align:center;"><span class="badge ${statusCls}">${escapeHtml(l.status||'Pending')}</span></td>
         <td style="padding:11px 14px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(l.notes||'')}">${escapeHtml(l.notes||'—')}</td>
         <td style="padding:11px 14px;text-align:center;">
@@ -5897,11 +6077,51 @@ function renderMLLTable(){
     `;
   }).join('');
 
+  // ⭐ ربط الأزرار
   tbody.querySelectorAll('[data-mll-edit]').forEach(b => {
     b.onclick = () => openMLLEdit(parseInt(b.dataset.mllEdit));
   });
   tbody.querySelectorAll('[data-mll-del]').forEach(b => {
     b.onclick = () => deleteMLL(parseInt(b.dataset.mllDel));
+  });
+
+  // ⭐ ربط الحفظ عند تحرير الإحداثيات
+  tbody.querySelectorAll('[data-mll-field]').forEach(td => {
+    td.addEventListener('blur', async () => {
+      const id = parseInt(td.dataset.mllId);
+      const field = td.dataset.mllField;
+      const newVal = td.textContent.trim();
+      const numVal = newVal === '—' || newVal === '' ? null : parseFloat(newVal);
+
+      if (numVal !== null && isNaN(numVal)) {
+        toast({type:'warning', title:'قيمة غير صحيحة', duration:2000});
+        return;
+      }
+
+      try {
+        const { error } = await db
+          .from('mfc_microwave_links')
+          .update({ [field]: numVal })
+          .eq('id', id);
+        if (error) throw error;
+
+        const link = microwaveLinks.find(x => x.id === id);
+        if (link) link[field] = numVal;
+
+        toast({type:'success', title:'✓ تم الحفظ', duration:1200});
+        renderMLLTable();
+        renderMLLKPIs();
+      } catch(e) {
+        toast({type:'error', title:'فشل الحفظ', message: e.message});
+      }
+    });
+
+    td.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        td.blur();
+      }
+    });
   });
 }
 
@@ -5924,24 +6144,23 @@ function openMLLEdit(id = null){
     document.getElementById('mllFieldStatus').value = l.status || 'Pending';
     document.getElementById('mllFieldEngineer').value = l.field_engineer || '';
     document.getElementById('mllFieldNotes').value = l.notes || '';
+
+    // ⭐ الإحداثيات الجديدة
+    document.getElementById('mllFieldLatA').value = l.lat_a || '';
+    document.getElementById('mllFieldLongA').value = l.long_a || '';
+    document.getElementById('mllFieldLatB').value = l.lat_b || '';
+    document.getElementById('mllFieldLongB').value = l.long_b || '';
   } else {
     title.textContent = '📡 Add Microwave Link';
     ['mllFieldLinkId','mllFieldCity','mllFieldSolution','mllFieldHwAction',
-     'mllFieldSMR','mllFieldSub','mllFieldEngineer','mllFieldNotes'].forEach(id => {
+     'mllFieldSMR','mllFieldSub','mllFieldEngineer','mllFieldNotes',
+     'mllFieldLatA','mllFieldLongA','mllFieldLatB','mllFieldLongB'].forEach(id => {
       document.getElementById(id).value = '';
     });
     document.getElementById('mllFieldStatus').value = 'Pending';
   }
   modal.classList.add('show');
 }
-
-async function saveMLL(){
-  const linkId = document.getElementById('mllFieldLinkId').value.trim();
-  if(!linkId) return toast({type:'warning', title:'أدخل MLL Link ID'});
-
-  const parts = linkId.split('_');
-  if(parts.length !== 2) return toast({type:'warning', title:'الصيغة يجب أن تكون XXXX_YYYY'});
-
   const payload = {
     mll_link_id: linkId,
     site_a: parts[0],
@@ -5953,7 +6172,13 @@ async function saveMLL(){
     subcontractor: document.getElementById('mllFieldSub').value.trim(),
     status: document.getElementById('mllFieldStatus').value,
     field_engineer: document.getElementById('mllFieldEngineer').value.trim(),
-    notes: document.getElementById('mllFieldNotes').value.trim()
+    notes: document.getElementById('mllFieldNotes').value.trim(),
+
+    // ⭐ الإحداثيات
+    lat_a: parseFloat(document.getElementById('mllFieldLatA').value) || null,
+    long_a: parseFloat(document.getElementById('mllFieldLongA').value) || null,
+    lat_b: parseFloat(document.getElementById('mllFieldLatB').value) || null,
+    long_b: parseFloat(document.getElementById('mllFieldLongB').value) || null
   };
 
   try{
@@ -6020,8 +6245,8 @@ function drawMLLMap(){
   let drawn = 0;
 
   rows.forEach(l => {
-    const a = getSiteCoords(l.site_a);
-    const b = getSiteCoords(l.site_b);
+      const a = getSiteCoords(l.site_a, l, 'a');
+    const b = getSiteCoords(l.site_b, l, 'b');
     if(!a || !b) return;
 
     const color = colorFor(l.status);
@@ -6251,33 +6476,19 @@ function bindMLLEvents(){
     }
   });
 
+  // ⭐ Enrich Coordinates
+  const enrichBtn = $('mllEnrichBtn');
+  if(enrichBtn && !enrichBtn._bound){
+    enrichBtn._bound = true;
+    enrichBtn.onclick = () => {
+      console.log('[MLL] Enrich clicked');
+      window.enrichMLLWithCoords();
+    };
+  }
+
   console.log('%c📡 MLL Events Bound ✅', 'color:#10b981;font-weight:bold;font-size:12px');
 }
-/* ---- Event Bindings ---- */
-function bindMLLEvents(){
-  const $ = id => document.getElementById(id);
-  if($('mllImportBtn')) $('mllImportBtn').onclick = openMLLImport;
-  if($('mllAddBtn')) $('mllAddBtn').onclick = () => openMLLEdit(null);
-  if($('mllExportBtn')) $('mllExportBtn').onclick = exportMLL;
-  if($('mllMapBtn')) $('mllMapBtn').onclick = openMLLMap;
-  if($('mllMapClose')) $('mllMapClose').onclick = () => {
-    $('mllMapModal').classList.remove('show');
-    if(mllLeaflet){ mllLeaflet.remove(); mllLeaflet = null; }
-  };
-  if($('mllEditCancel')) $('mllEditCancel').onclick = () => $('mllEditModal').classList.remove('show');
-  if($('mllEditSave')) $('mllEditSave').onclick = saveMLL;
 
-  ['mllSearch','mllCityFilter','mllSolutionFilter','mllStatusFilter','mllSubFilter']
-    .forEach(id => {
-      const el = $(id);
-      if(el) el.oninput = el.onchange = renderMLLTable;
-    });
-
-  ['mllMapCity','mllMapStatus'].forEach(id => {
-    const el = $(id);
-    if(el) el.onchange = drawMLLMap;
-  });
-}
 /* =========================================================
    EMAIL REPORT — يفتح Outlook مباشرة
    ========================================================= */
