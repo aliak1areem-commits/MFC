@@ -1145,6 +1145,50 @@ tr.row-rejected td:first-child{
       <div style="flex:1;"></div>
       <span id="mllMapCount" style="font-size:12px;color:var(--text-dim);font-family:monospace;"></span>
     </div>
+    <!-- ⭐ شريط التحكم بالليبل -->
+<div id="mllLabelControls" style="padding:10px 20px;background:linear-gradient(90deg,#0a1a30,#102544);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+  <label style="font-size:12px;font-weight:700;color:#8fa3c2;text-transform:uppercase;letter-spacing:.5px;">🏷️ Labels:</label>
+
+  <select id="mllLabelMode" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
+    <option value="siteA">Site A فقط</option>
+    <option value="siteB">Site B فقط</option>
+    <option value="linkId">Link ID فقط</option>
+<option value="short" selected>اسم قصير (رقم فقط)</option>
+    <option value="none">بدون ليبل</option>
+    <option value="hover">عند Hover فقط</option>
+  </select>
+
+  <select id="mllLabelSize" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
+    <option value="7">صغير جداً (7px)</option>
+    <option value="8" selected>صغير (8px)</option>
+    <option value="9">متوسط (9px)</option>
+    <option value="10">كبير قليلاً (10px)</option>
+    <option value="11">كبير (11px)</option>
+  </select>
+
+  <select id="mllLabelColor" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
+    <option value="#1d4ed8" selected>أزرق</option>
+    <option value="#dc2626">أحمر</option>
+    <option value="#059669">أخضر</option>
+    <option value="#d97706">برتقالي</option>
+    <option value="#7c3aed">بنفسجي</option>
+    <option value="#111827">أسود</option>
+    <option value="#ffffff">أبيض</option>
+  </select>
+
+  <select id="mllLabelBg" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
+    <option value="rgba(255,255,255,0.92)" selected>خلفية بيضاء</option>
+    <option value="rgba(255,255,255,0.6)">خلفية شبه شفافة</option>
+    <option value="rgba(10,26,48,0.85)">خلفية داكنة</option>
+    <option value="transparent">بدون خلفية</option>
+  </select>
+
+  <div style="flex:1;"></div>
+
+  <button id="mllLabelReset" class="btn btn-outline btn-sm" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);">
+    🔄 Reset
+  </button>
+</div>
     <div id="mllLeafletMap" style="height:70vh;width:100%;"></div>
     <div class="modal-actions">
       <button class="btn btn-outline" id="mllMapClose">Close</button>
@@ -6261,20 +6305,46 @@ function drawMLLMap(){
     const dist = haversineKm(a.lat, a.lng, b.lat, b.lng);
     const az = azimuthDeg(a.lat, a.lng, b.lat, b.lng);
 
-    // النقطة A
-    L.circleMarker([a.lat, a.lng], {
-      radius: 7, fillColor: color, color: '#fff', weight: 2, fillOpacity: 1
-    }).bindTooltip(`<b>${escapeHtml(l.site_a)}</b><br>${escapeHtml(l.mll_link_id)}`, {
-      permanent: true, direction: 'top', offset: [0, -6], className: 'site-label'
+       // ⭐ النقطة A — ليبل مختصر
+    const markerA = L.circleMarker([a.lat, a.lng], {
+      radius: 6, fillColor: color, color: '#fff', weight: 2, fillOpacity: 1
     }).addTo(mllLayerGroup);
+    
+    // نص الليبل حسب الإعداد
+    const labelTextA = (() => {
+      const mode = window.MLL_LABEL_SETTINGS?.mode || 'short';
+      if (mode === 'none' || mode === 'hover') return null;
+      if (mode === 'linkId') return l.mll_link_id;
+      if (mode === 'siteA') return l.site_a;
+      if (mode === 'short') return l.site_a;
+      return l.site_a;
+    })();
+    
+    if (labelTextA) {
+      markerA.bindTooltip(labelTextA, {
+        permanent: true, direction: 'top', offset: [0, -6], className: 'site-label'
+      });
+    }
 
-    // النقطة B
-    L.circleMarker([b.lat, b.lng], {
-      radius: 7, fillColor: color, color: '#fff', weight: 2, fillOpacity: 1
-    }).bindTooltip(`<b>${escapeHtml(l.site_b)}</b><br>${escapeHtml(l.mll_link_id)}`, {
-      permanent: true, direction: 'top', offset: [0, -6], className: 'site-label'
+    // ⭐ النقطة B — ليبل مختصر
+    const markerB = L.circleMarker([b.lat, b.lng], {
+      radius: 6, fillColor: color, color: '#fff', weight: 2, fillOpacity: 1
     }).addTo(mllLayerGroup);
-
+    
+    const labelTextB = (() => {
+      const mode = window.MLL_LABEL_SETTINGS?.mode || 'short';
+      if (mode === 'none' || mode === 'hover') return null;
+      if (mode === 'linkId') return '';
+      if (mode === 'siteB') return l.site_b;
+      if (mode === 'short') return l.site_b;
+      return l.site_b;
+    })();
+    
+    if (labelTextB) {
+      markerB.bindTooltip(labelTextB, {
+        permanent: true, direction: 'top', offset: [0, -6], className: 'site-label'
+      });
+    }
     // الخط بينهم
     const line = L.polyline([[a.lat, a.lng], [b.lat, b.lng]], {
       color, weight: 3, opacity: 0.85,
@@ -6368,6 +6438,160 @@ function openMLLImport(){
   };
   input.click();
 }
+        /* =========================================================
+   MLL LABEL CONTROLS — التحكم بالليبل
+   ========================================================= */
+
+// ⭐ الإعدادات الافتراضية
+window.MLL_LABEL_SETTINGS = {
+  mode: 'linkId',        // linkId | short | siteA | siteB | none | hover
+  size: 8,
+  color: '#1d4ed8',
+  bg: 'rgba(255,255,255,0.92)'
+};
+
+// ⭐ تطبيق الستايل على الخريطة
+function applyMLLLabelStyle() {
+  const s = window.MLL_LABEL_SETTINGS;
+
+  // احذف الستايل القديم
+  document.querySelectorAll('style[data-mll-labels]').forEach(el => el.remove());
+
+  const style = document.createElement('style');
+  style.setAttribute('data-mll-labels', '1');
+  style.textContent = `
+    .site-label,
+    .leaflet-tooltip.site-label {
+      background: ${s.bg} !important;
+      border: 1px solid ${s.color}40 !important;
+      border-radius: 4px !important;
+      padding: 1px 4px !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: ${s.size}px !important;
+      font-weight: 700 !important;
+      line-height: 1.1 !important;
+      color: ${s.color} !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,.15) !important;
+      white-space: nowrap !important;
+      pointer-events: none !important;
+    }
+    .site-label::before,
+    .leaflet-tooltip-top.site-label::before,
+    .leaflet-tooltip-bottom.site-label::before,
+    .leaflet-tooltip-left.site-label::before,
+    .leaflet-tooltip-right.site-label::before {
+      display: none !important;
+    }
+    .site-label b {
+      font-size: ${s.size}px !important;
+      font-weight: 700 !important;
+      color: ${s.color} !important;
+    }
+    .site-label br { display: none !important; }
+
+    /* وضع hover */
+    ${s.mode === 'hover' ? `
+      .site-label,
+      .leaflet-tooltip.site-label {
+        display: none !important;
+      }
+      .leaflet-interactive:hover ~ .site-label,
+      .leaflet-marker-icon:hover ~ .site-label {
+        display: block !important;
+      }
+    ` : ''}
+
+    /* وضع none */
+    ${s.mode === 'none' ? `
+      .site-label,
+      .leaflet-tooltip.site-label {
+        display: none !important;
+      }
+    ` : ''}
+  `;
+  document.head.appendChild(style);
+}
+
+// ⭐ إعادة رسم الليبل حسب الوضع المختار
+function redrawMLLLabels() {
+  if (!mllLeaflet || !mllLayerGroup) return;
+
+  const s = window.MLL_LABEL_SETTINGS;
+
+  // إذا الوضع none أو hover — لا تحذف الطبقات، بس الستايل يتعامل
+  if (s.mode === 'none' || s.mode === 'hover') {
+    applyMLLLabelStyle();
+    return;
+  }
+
+  // احذف كل الطبقات وأعد رسمها
+  mllLayerGroup.clearLayers();
+  drawMLLMap();
+  applyMLLLabelStyle();
+}
+
+// ⭐ إعداد المستمعين
+function setupMLLLabelControls() {
+  const $ = id => document.getElementById(id);
+
+  const modeEl = $('mllLabelMode');
+  const sizeEl = $('mllLabelSize');
+  const colorEl = $('mllLabelColor');
+  const bgEl = $('mllLabelBg');
+  const resetEl = $('mllLabelReset');
+
+  if (!modeEl || modeEl._bound) return;
+  modeEl._bound = true;
+
+  modeEl.onchange = () => {
+    window.MLL_LABEL_SETTINGS.mode = modeEl.value;
+    redrawMLLLabels();
+    console.log('[MLL Label] Mode:', modeEl.value);
+  };
+
+  sizeEl.onchange = () => {
+    window.MLL_LABEL_SETTINGS.size = parseInt(sizeEl.value);
+    applyMLLLabelStyle();
+    console.log('[MLL Label] Size:', sizeEl.value);
+  };
+
+  colorEl.onchange = () => {
+    window.MLL_LABEL_SETTINGS.color = colorEl.value;
+    applyMLLLabelStyle();
+    console.log('[MLL Label] Color:', colorEl.value);
+  };
+
+  bgEl.onchange = () => {
+    window.MLL_LABEL_SETTINGS.bg = bgEl.value;
+    applyMLLLabelStyle();
+    console.log('[MLL Label] Bg:', bgEl.value);
+  };
+
+  resetEl.onclick = () => {
+    window.MLL_LABEL_SETTINGS = {
+      mode: 'linkId',
+      size: 8,
+      color: '#1d4ed8',
+      bg: 'rgba(255,255,255,0.92)'
+    };
+    modeEl.value = 'linkId';
+    sizeEl.value = '8';
+    colorEl.value = '#1d4ed8';
+    bgEl.value = 'rgba(255,255,255,0.92)';
+    redrawMLLLabels();
+    toast({type:'info', title:'🔄 تم إعادة الضبط', duration:1500});
+  };
+}
+
+// ⭐ استدعِ الإعدادات تلقائياً عند فتح الخريطة
+const _origOpenMLLMap = window.openMLLMap;
+window.openMLLMap = function() {
+  _origOpenMLLMap();
+  setTimeout(() => {
+    setupMLLLabelControls();
+    applyMLLLabelStyle();
+  }, 300);
+};
 
 /* ---- Export ---- */
 function exportMLL(){
