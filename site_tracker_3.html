@@ -6161,6 +6161,14 @@ function openMLLEdit(id = null){
   }
   modal.classList.add('show');
 }
+
+  async function saveMLL(){
+  const linkId = document.getElementById('mllFieldLinkId').value.trim();
+  if(!linkId) return toast({type:'warning', title:'أدخل MLL Link ID'});
+
+  const parts = linkId.split('_');
+  if(parts.length !== 2) return toast({type:'warning', title:'الصيغة يجب أن تكون XXXX_YYYY'});
+
   const payload = {
     mll_link_id: linkId,
     site_a: parts[0],
@@ -6174,14 +6182,13 @@ function openMLLEdit(id = null){
     field_engineer: document.getElementById('mllFieldEngineer').value.trim(),
     notes: document.getElementById('mllFieldNotes').value.trim(),
 
-    // ⭐ الإحداثيات
     lat_a: parseFloat(document.getElementById('mllFieldLatA').value) || null,
     long_a: parseFloat(document.getElementById('mllFieldLongA').value) || null,
     lat_b: parseFloat(document.getElementById('mllFieldLatB').value) || null,
     long_b: parseFloat(document.getElementById('mllFieldLongB').value) || null
   };
 
-  try{
+  try {
     if(editingMllId){
       const { error } = await db.from('mfc_microwave_links').update(payload).eq('id', editingMllId);
       if(error) throw error;
@@ -6193,10 +6200,11 @@ function openMLLEdit(id = null){
     }
     document.getElementById('mllEditModal').classList.remove('show');
     await loadMicrowaveLinks();
-  }catch(e){
+  } catch(e) {
     toast({type:'error', title:'فشل الحفظ', message: e.message});
   }
 }
+
 
 async function deleteMLL(id){
   if(!confirm('حذف هذا اللنك؟')) return;
