@@ -5683,6 +5683,15 @@ async function initApp(){
   bindAddColumnEvents();
   setTimeout(bindAddColumnEvents, 500);
   setTimeout(bindAddColumnEvents, 1500);
+
+  // ⭐ Microwave Links — ربط الأزرار + تحميل البيانات
+  try {
+    await loadMicrowaveLinks();
+  } catch(e) { console.warn('MLL load failed:', e); }
+  bindMLLEvents();
+  setTimeout(bindMLLEvents, 300);
+  setTimeout(bindMLLEvents, 1000);
+
   console.log('%c🔐 Role: ' + (currentUser?.role || 'N/A'), 'color:#8b5cf6;font-size:12px');
 }
   /* =========================================================
@@ -6150,7 +6159,100 @@ function exportMLL(){
   XLSX.writeFile(wb, 'MFC_Microwave_' + new Date().toISOString().slice(0,10) + '.xlsx');
   toast({type:'success', title:'✅ Exported'});
 }
+/* =========================================================
+   MICROWAVE LINKS — Event Bindings
+   ========================================================= */
+function bindMLLEvents(){
+  const $ = id => document.getElementById(id);
 
+  // Import Excel
+  const importBtn = $('mllImportBtn');
+  if(importBtn && !importBtn._bound){
+    importBtn._bound = true;
+    importBtn.onclick = () => {
+      console.log('[MLL] Import clicked');
+      openMLLImport();
+    };
+  }
+
+  // Add Link
+  const addBtn = $('mllAddBtn');
+  if(addBtn && !addBtn._bound){
+    addBtn._bound = true;
+    addBtn.onclick = () => {
+      console.log('[MLL] Add clicked');
+      openMLLEdit(null);
+    };
+  }
+
+  // Export
+  const expBtn = $('mllExportBtn');
+  if(expBtn && !expBtn._bound){
+    expBtn._bound = true;
+    expBtn.onclick = exportMLL;
+  }
+
+  // Map
+  const mapBtn = $('mllMapBtn');
+  if(mapBtn && !mapBtn._bound){
+    mapBtn._bound = true;
+    mapBtn.onclick = openMLLMap;
+  }
+
+  // Map Close
+  const mapClose = $('mllMapClose');
+  if(mapClose && !mapClose._bound){
+    mapClose._bound = true;
+    mapClose.onclick = () => {
+      $('mllMapModal').classList.remove('show');
+      if(mllLeaflet){ mllLeaflet.remove(); mllLeaflet = null; }
+    };
+  }
+
+  // Edit Modal — Cancel
+  const editCancel = $('mllEditCancel');
+  if(editCancel && !editCancel._bound){
+    editCancel._bound = true;
+    editCancel.onclick = () => $('mllEditModal').classList.remove('show');
+  }
+
+  // Edit Modal — Save
+  const editSave = $('mllEditSave');
+  if(editSave && !editSave._bound){
+    editSave._bound = true;
+    editSave.onclick = saveMLL;
+  }
+
+  // Edit Modal — Close on backdrop click
+  const editModal = $('mllEditModal');
+  if(editModal && !editModal._bound){
+    editModal._bound = true;
+    editModal.onclick = (e) => {
+      if(e.target.id === 'mllEditModal') e.target.classList.remove('show');
+    };
+  }
+
+  // Filters
+  ['mllSearch','mllCityFilter','mllSolutionFilter','mllStatusFilter','mllSubFilter']
+    .forEach(id => {
+      const el = $(id);
+      if(el && !el._bound){
+        el._bound = true;
+        el.oninput = el.onchange = renderMLLTable;
+      }
+    });
+
+  // Map Filters
+  ['mllMapCity','mllMapStatus'].forEach(id => {
+    const el = $(id);
+    if(el && !el._bound){
+      el._bound = true;
+      el.onchange = drawMLLMap;
+    }
+  });
+
+  console.log('%c📡 MLL Events Bound ✅', 'color:#10b981;font-weight:bold;font-size:12px');
+}
 /* ---- Event Bindings ---- */
 function bindMLLEvents(){
   const $ = id => document.getElementById(id);
