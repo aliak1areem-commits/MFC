@@ -471,16 +471,19 @@ td.calc{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--emera
 
 .site-label{
   background:rgba(255,255,255,0.95)!important;
-  border:1px solid rgba(37,99,235,.3)!important;
-  border-radius:6px!important;
-  padding:2px 8px!important;
+  border:1px solid rgba(29,78,216,.35)!important;
+  border-radius:3px!important;
+  padding:0px 3px!important;
   font-family:'JetBrains Mono',monospace!important;
-  font-size:11px!important;
+  font-size:7px!important;
   font-weight:700!important;
+  line-height:1.15!important;
   color:#1d4ed8!important;
-  box-shadow:0 2px 6px rgba(0,0,0,.15)!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.12)!important;
   white-space:nowrap!important;
+  pointer-events:none!important;
 }
+.site-label::before{display:none!important;}
 
 .col-checkbox{width:16px;height:16px;cursor:pointer;accent-color:var(--primary);}
 .site-select{width:16px;height:16px;cursor:pointer;accent-color:var(--primary);}
@@ -1128,7 +1131,7 @@ tr.row-rejected td:first-child{
   <div class="modal" style="max-width:1200px;padding:0;overflow:hidden;">
     <div class="modal-head" style="background:var(--navy-900);color:#fff;border:none;">
       <h3 style="color:#fff;">📡 Microwave Links Map</h3>
-      <p style="color:#8fa3c2;">كل خط = لنك · اللون حسب الحالة · المسافة والزاوية تلقائية</p>
+      <p style="color:#8fa3c2;">Each line = 1 link · Color by status · Distance & Azimuth automatic</p>
     </div>
     <div style="padding:10px 20px;background:var(--bg-subtle);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
       <label style="font-size:12.5px;font-weight:600;">Filter:</label>
@@ -1145,42 +1148,43 @@ tr.row-rejected td:first-child{
       <div style="flex:1;"></div>
       <span id="mllMapCount" style="font-size:12px;color:var(--text-dim);font-family:monospace;"></span>
     </div>
-    <!-- ⭐ شريط التحكم بالليبل -->
+ <!-- ⭐ شريط التحكم بالليبل (English) -->
 <div id="mllLabelControls" style="padding:10px 20px;background:linear-gradient(90deg,#0a1a30,#102544);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-  <label style="font-size:12px;font-weight:700;color:#8fa3c2;text-transform:uppercase;letter-spacing:.5px;">🏷️ Labels:</label>
+  <label style="font-size:12px;font-weight:700;color:#8fa3c2;text-transform:uppercase;letter-spacing:.5px;">🏷️ LABELS:</label>
 
-  <select id="mllLabelMode" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
-    <option value="siteA">Site A فقط</option>
-    <option value="siteB">Site B فقط</option>
-    <option value="linkId">Link ID فقط</option>
-<option value="short" selected>اسم قصير (رقم فقط)</option>
-    <option value="none">بدون ليبل</option>
-    <option value="hover">عند Hover فقط</option>
+  <select id="mllLabelMode" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:#1a2540;color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
+    <option value="short" selected>Site Number (short)</option>
+    <option value="linkId">Link ID only</option>
+    <option value="siteA">Site A only</option>
+    <option value="siteB">Site B only</option>
+    <option value="none">No Labels</option>
+    <option value="hover">On Hover only</option>
   </select>
 
-  <select id="mllLabelSize" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
-    <option value="7">صغير جداً (7px)</option>
-    <option value="8" selected>صغير (8px)</option>
-    <option value="9">متوسط (9px)</option>
-    <option value="10">كبير قليلاً (10px)</option>
-    <option value="11">كبير (11px)</option>
+  <select id="mllLabelSize" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:#1a2540;color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
+    <option value="6">Tiny (6px)</option>
+    <option value="7" selected>Very Small (7px)</option>
+    <option value="8">Small (8px)</option>
+    <option value="9">Medium (9px)</option>
+    <option value="10">Large (10px)</option>
+    <option value="11">Very Large (11px)</option>
   </select>
 
-  <select id="mllLabelColor" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
-    <option value="#1d4ed8" selected>أزرق</option>
-    <option value="#dc2626">أحمر</option>
-    <option value="#059669">أخضر</option>
-    <option value="#d97706">برتقالي</option>
-    <option value="#7c3aed">بنفسجي</option>
-    <option value="#111827">أسود</option>
-    <option value="#ffffff">أبيض</option>
+  <select id="mllLabelColor" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:#1a2540;color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
+    <option value="#1d4ed8" selected>Blue</option>
+    <option value="#dc2626">Red</option>
+    <option value="#059669">Green</option>
+    <option value="#d97706">Orange</option>
+    <option value="#7c3aed">Purple</option>
+    <option value="#111827">Black</option>
+    <option value="#ffffff">White</option>
   </select>
 
-  <select id="mllLabelBg" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
-    <option value="rgba(255,255,255,0.92)" selected>خلفية بيضاء</option>
-    <option value="rgba(255,255,255,0.6)">خلفية شبه شفافة</option>
-    <option value="rgba(10,26,48,0.85)">خلفية داكنة</option>
-    <option value="transparent">بدون خلفية</option>
+  <select id="mllLabelBg" style="padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:#1a2540;color:#fff;font-size:12px;cursor:pointer;font-weight:600;">
+    <option value="rgba(255,255,255,0.92)" selected>White BG</option>
+    <option value="rgba(255,255,255,0.6)">Semi-transparent</option>
+    <option value="rgba(10,26,48,0.85)">Dark BG</option>
+    <option value="transparent">No BG</option>
   </select>
 
   <div style="flex:1;"></div>
@@ -1188,12 +1192,6 @@ tr.row-rejected td:first-child{
   <button id="mllLabelReset" class="btn btn-outline btn-sm" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);">
     🔄 Reset
   </button>
-</div>
-    <div id="mllLeafletMap" style="height:70vh;width:100%;"></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" id="mllMapClose">Close</button>
-    </div>
-  </div>
 </div>
 
 <!-- MLL EDIT MODAL -->
@@ -6444,8 +6442,8 @@ function openMLLImport(){
 
 // ⭐ الإعدادات الافتراضية
 window.MLL_LABEL_SETTINGS = {
-  mode: 'linkId',        // linkId | short | siteA | siteB | none | hover
-  size: 8,
+  mode: 'short',         // linkId | short | siteA | siteB | none | hover
+  size: 7,
   color: '#1d4ed8',
   bg: 'rgba(255,255,255,0.92)'
 };
@@ -6569,19 +6567,19 @@ function setupMLLLabelControls() {
 
   resetEl.onclick = () => {
     window.MLL_LABEL_SETTINGS = {
-      mode: 'linkId',
-      size: 8,
+      mode: 'short',
+      size: 7,
       color: '#1d4ed8',
       bg: 'rgba(255,255,255,0.92)'
     };
-    modeEl.value = 'linkId';
-    sizeEl.value = '8';
+    modeEl.value = 'short';
+    sizeEl.value = '7';
     colorEl.value = '#1d4ed8';
     bgEl.value = 'rgba(255,255,255,0.92)';
     redrawMLLLabels();
-    toast({type:'info', title:'🔄 تم إعادة الضبط', duration:1500});
+    toast({type:'info', title:'🔄 Reset done', duration:1500});
   };
-}
+}  // ← ⭐ هذا السطر الناقص — يغلق دالة setupMLLLabelControls
 
 // ⭐ استدعِ الإعدادات تلقائياً عند فتح الخريطة
 const _origOpenMLLMap = window.openMLLMap;
