@@ -881,6 +881,7 @@ tr.row-rejected td:first-child{
 <button class="view-tab" data-view="activity">⚡ Activity</button>
 <button class="view-tab" data-view="contractors">👷 Contractors</button>
       <button class="view-tab" data-view="finance">💰 Finance</button>
+      <button class="view-tab" data-view="microwave">📡 Microwave</button>
 <a href="https://aliak1areem-commits.github.io/mfc-invoice-system/" target="_blank" rel="noopener" class="view-tab" style="background:linear-gradient(135deg,#F2A900,#d99500);color:#fff;border-color:#d99500;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">📄 Invoices</a>
     </div>
 
@@ -1048,6 +1049,161 @@ tr.row-rejected td:first-child{
         </div>
       </div>
     </div>
+    <!-- MICROWAVE VIEW -->
+<div id="view-microwave" style="display:none;">
+  <!-- KPIs -->
+  <div class="kpi-groups" id="mllKPIs" style="margin-bottom:20px;"></div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-row">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="mllSearch" type="text" placeholder="Search link ID, city, subcontractor...">
+      </div>
+      <select id="mllCityFilter" class="btn btn-outline" style="padding:9px 12px;">
+        <option value="">All Cities</option>
+      </select>
+      <select id="mllSolutionFilter" class="btn btn-outline" style="padding:9px 12px;">
+        <option value="">All Solutions</option>
+      </select>
+      <select id="mllStatusFilter" class="btn btn-outline" style="padding:9px 12px;">
+        <option value="">All Status</option>
+      </select>
+      <select id="mllSubFilter" class="btn btn-outline" style="padding:9px 12px;">
+        <option value="">All Subcontractors</option>
+      </select>
+      <div style="flex:1;"></div>
+      <button class="btn btn-outline" id="mllMapBtn">🗺️ Map View</button>
+      <button class="btn btn-accent" id="mllImportBtn">📥 Import Excel</button>
+      <button class="btn btn-primary" id="mllAddBtn">+ Add Link</button>
+      <button class="btn btn-outline" id="mllExportBtn">📊 Export</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-head-bar">
+      <div class="table-count">
+        📡 <span id="mllCount">0</span> Links
+        <span id="mllFilteredCount" style="color:var(--primary);font-weight:700;"></span>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table class="dt" id="mllTable">
+        <thead>
+          <tr>
+            <th style="padding:12px 14px;">MLL Link ID</th>
+            <th style="padding:12px 14px;">Site A</th>
+            <th style="padding:12px 14px;">Site B</th>
+            <th style="padding:12px 14px;">Solution</th>
+            <th style="padding:12px 14px;">HW Action</th>
+            <th style="padding:12px 14px;">City</th>
+            <th style="padding:12px 14px;text-align:center;">Distance (km)</th>
+            <th style="padding:12px 14px;text-align:center;">Azimuth</th>
+            <th style="padding:12px 14px;">SMR</th>
+            <th style="padding:12px 14px;">Subcontractor</th>
+            <th style="padding:12px 14px;text-align:center;">Status</th>
+            <th style="padding:12px 14px;">Notes</th>
+            <th style="padding:12px 14px;text-align:center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="mllBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MLL MAP MODAL -->
+<div class="modal-backdrop" id="mllMapModal">
+  <div class="modal" style="max-width:1200px;padding:0;overflow:hidden;">
+    <div class="modal-head" style="background:var(--navy-900);color:#fff;border:none;">
+      <h3 style="color:#fff;">📡 Microwave Links Map</h3>
+      <p style="color:#8fa3c2;">كل خط = لنك · اللون حسب الحالة · المسافة والزاوية تلقائية</p>
+    </div>
+    <div style="padding:10px 20px;background:var(--bg-subtle);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <label style="font-size:12.5px;font-weight:600;">Filter:</label>
+      <select id="mllMapCity" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);font-size:12.5px;">
+        <option value="">All Cities</option>
+      </select>
+      <select id="mllMapStatus" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);font-size:12.5px;">
+        <option value="">All Status</option>
+        <option>Pending</option>
+        <option>In Progress</option>
+        <option>Done</option>
+        <option>Rejected</option>
+      </select>
+      <div style="flex:1;"></div>
+      <span id="mllMapCount" style="font-size:12px;color:var(--text-dim);font-family:monospace;"></span>
+    </div>
+    <div id="mllLeafletMap" style="height:70vh;width:100%;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="mllMapClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- MLL EDIT MODAL -->
+<div class="modal-backdrop" id="mllEditModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <h3 id="mllEditTitle">📡 Add Microwave Link</h3>
+      <p id="mllEditSub">أدخل بيانات اللنك</p>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">MLL Link ID *</label>
+          <input type="text" id="mllFieldLinkId" placeholder="262_5576" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:monospace;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">City</label>
+          <input type="text" id="mllFieldCity" placeholder="Muthanna" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Solution</label>
+          <input type="text" id="mllFieldSolution" placeholder="NEW K-BAND" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">HW Action</label>
+          <input type="text" id="mllFieldHwAction" placeholder="New 15G" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">SMR Number</label>
+          <input type="text" id="mllFieldSMR" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:monospace;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Subcontractor</label>
+          <input type="text" id="mllFieldSub" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Status</label>
+          <select id="mllFieldStatus" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+            <option value="Pending">🟡 Pending</option>
+            <option value="In Progress">🔵 In Progress</option>
+            <option value="Done">🟢 Done</option>
+            <option value="Rejected">🔴 Rejected</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Field Engineer</label>
+          <input type="text" id="mllFieldEngineer" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Notes</label>
+          <textarea id="mllFieldNotes" rows="3" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:inherit;resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div class="alert alert-info" style="margin-top:14px;font-size:12px;">
+        💡 <b>المسافة والزاوية</b> تُحسب تلقائياً من إحداثيات Lat/Long الموجودة في تبويب Sites. تأكد أن الموقعين موجودين في الجدول الرئيسي.
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="mllEditCancel">Cancel</button>
+      <button class="btn btn-primary" id="mllEditSave">💾 Save</button>
+    </div>
+  </div>
+</div>
 
     <!-- ACTIVITY VIEW -->
     <div id="view-activity" style="display:none;">
@@ -3871,7 +4027,7 @@ function answerQuestion(q){
    ========================================================= */
 function switchView(view){
   // ⭐ 1. أخفِ كل التابات
-['dashboard','sites','gantt','activity','contractors','finance'].forEach(v=>{    const el = document.getElementById('view-'+v);
+['dashboard','sites','gantt','activity','contractors','finance','microwave'].forEach(v=>{    const el = document.getElementById('view-'+v);
     if(el) el.style.display = v === view ? 'block' : 'none';
   });
   
@@ -3889,6 +4045,7 @@ function switchView(view){
   if(view === 'activity') loadActivity();
   if(view === 'contractors') renderContractors(); 
     if(view === 'finance') { renderFinanceKPIs(); renderExpenses(); }// ← الأهم
+if(view === 'microwave'){ renderMLLKPIs(); renderMLLTable(); }
 }
 /* =========================================================
    SETTINGS
@@ -5527,6 +5684,497 @@ async function initApp(){
   setTimeout(bindAddColumnEvents, 500);
   setTimeout(bindAddColumnEvents, 1500);
   console.log('%c🔐 Role: ' + (currentUser?.role || 'N/A'), 'color:#8b5cf6;font-size:12px');
+}
+  /* =========================================================
+   MICROWAVE LINKS — 📡
+   ========================================================= */
+let microwaveLinks = [];
+let editingMllId = null;
+let mllLeaflet = null;
+let mllLayerGroup = null;
+
+/* ---- Haversine Distance (km) ---- */
+function haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon/2)**2;
+  return +(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(3);
+}
+
+/* ---- Azimuth (0-360°) ---- */
+function azimuthDeg(lat1, lon1, lat2, lon2){
+  const toRad = d => d * Math.PI / 180;
+  const toDeg = r => r * 180 / Math.PI;
+  const φ1 = toRad(lat1), φ2 = toRad(lat2);
+  const Δλ = toRad(lon2 - lon1);
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+  return +((toDeg(Math.atan2(y, x)) + 360) % 360).toFixed(1);
+}
+
+/* ---- Get site coords from main data ---- */
+function getSiteCoords(siteCode){
+  const s = data.find(r => String(r.SiteID) === String(siteCode));
+  if(!s) return null;
+  const lat = parseFloat(s.LAT), lng = parseFloat(s.Long);
+  if(isNaN(lat) || isNaN(lng)) return null;
+  return { lat, lng, site: s };
+}
+
+/* ---- Load from Supabase ---- */
+async function loadMicrowaveLinks(){
+  try{
+    const { data: rows, error } = await db
+      .from('mfc_microwave_links')
+      .select('*')
+      .order('id', { ascending: true });
+    if(error) throw error;
+    microwaveLinks = rows || [];
+    console.log('[MLL] Loaded', microwaveLinks.length);
+  }catch(e){
+    console.error('[MLL] Load failed:', e);
+    microwaveLinks = [];
+  }
+  recalcAllDistances();
+  renderMLLFilters();
+  renderMLLKPIs();
+  renderMLLTable();
+}
+
+/* ---- Recalc distances for all rows ---- */
+function recalcAllDistances(){
+  microwaveLinks.forEach(link => {
+    const a = getSiteCoords(link.site_a);
+    const b = getSiteCoords(link.site_b);
+    if(a && b){
+      link.distance_km = haversineKm(a.lat, a.lng, b.lat, b.lng);
+      link.azimuth_deg = azimuthDeg(a.lat, a.lng, b.lat, b.lng);
+    }
+  });
+}
+
+/* ---- KPIs ---- */
+function renderMLLKPIs(){
+  const total = microwaveLinks.length;
+  const done = microwaveLinks.filter(l => l.status === 'Done').length;
+  const inProg = microwaveLinks.filter(l => l.status === 'In Progress').length;
+  const pending = microwaveLinks.filter(l => l.status === 'Pending').length;
+  const totalKm = microwaveLinks.reduce((s,l) => s + (parseFloat(l.distance_km)||0), 0);
+  const avgKm = total ? +(totalKm/total).toFixed(2) : 0;
+  const cities = new Set(microwaveLinks.map(l => l.city).filter(Boolean)).size;
+  const withCoords = microwaveLinks.filter(l => l.distance_km != null).length;
+
+  const el = document.getElementById('mllKPIs');
+  if(!el) return;
+
+  el.innerHTML = `
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">📡</div>Links Overview</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Total Links</div><div class="kpi-value">${total}</div></div>
+        <div class="kpi"><div class="kpi-label">Cities</div><div class="kpi-value">${cities}</div></div>
+        <div class="kpi"><div class="kpi-label">With Coords</div><div class="kpi-value">${withCoords}/${total}</div></div>
+        <div class="kpi"><div class="kpi-label">Total Distance</div><div class="kpi-value">${fmtShort(totalKm)} km</div></div>
+      </div>
+    </div>
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">📊</div>Status</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-value" style="color:var(--emerald-700)">${done}</div></div>
+        <div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-value" style="color:var(--amber-600)">${inProg}</div></div>
+        <div class="kpi"><div class="kpi-label">Pending</div><div class="kpi-value" style="color:var(--gray-500)">${pending}</div></div>
+        <div class="kpi"><div class="kpi-label">Avg Distance</div><div class="kpi-value">${avgKm} km</div></div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---- Filters ---- */
+function renderMLLFilters(){
+  const citySel = document.getElementById('mllCityFilter');
+  const solSel = document.getElementById('mllSolutionFilter');
+  const subSel = document.getElementById('mllSubFilter');
+
+  const cities = [...new Set(microwaveLinks.map(l => l.city).filter(Boolean))].sort();
+  const sols = [...new Set(microwaveLinks.map(l => l.solution).filter(Boolean))].sort();
+  const subs = [...new Set(microwaveLinks.map(l => l.subcontractor).filter(Boolean))].sort();
+
+  if(citySel) citySel.innerHTML = '<option value="">All Cities</option>' +
+    cities.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+  if(solSel) solSel.innerHTML = '<option value="">All Solutions</option>' +
+    sols.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+  if(subSel) subSel.innerHTML = '<option value="">All Subcontractors</option>' +
+    subs.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+
+  const mapCity = document.getElementById('mllMapCity');
+  if(mapCity) mapCity.innerHTML = '<option value="">All Cities</option>' +
+    cities.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+}
+
+/* ---- Filtered Data ---- */
+function getFilteredMLL(){
+  const q = (document.getElementById('mllSearch')?.value || '').toLowerCase();
+  const city = document.getElementById('mllCityFilter')?.value || '';
+  const sol = document.getElementById('mllSolutionFilter')?.value || '';
+  const st = document.getElementById('mllStatusFilter')?.value || '';
+  const sub = document.getElementById('mllSubFilter')?.value || '';
+
+  return microwaveLinks.filter(l => {
+    if(city && l.city !== city) return false;
+    if(sol && l.solution !== sol) return false;
+    if(st && l.status !== st) return false;
+    if(sub && l.subcontractor !== sub) return false;
+    if(q){
+      const hay = [l.mll_link_id, l.city, l.solution, l.hw_action, l.subcontractor, l.smr_number]
+        .join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+/* ---- Render Table ---- */
+function renderMLLTable(){
+  const tbody = document.getElementById('mllBody');
+  if(!tbody) return;
+
+  const rows = getFilteredMLL();
+  document.getElementById('mllCount').textContent = microwaveLinks.length;
+  document.getElementById('mllFilteredCount').textContent =
+    rows.length !== microwaveLinks.length ? `· ${rows.length} filtered` : '';
+
+  if(!rows.length){
+    tbody.innerHTML = `<tr><td colspan="13" style="padding:60px;text-align:center;color:var(--text-dim);">
+      📡 No links. Click "Import Excel" or "+ Add Link".
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(l => {
+    const statusCls = l.status === 'Done' ? 'badge-green'
+      : l.status === 'In Progress' ? 'badge-amber'
+      : l.status === 'Rejected' ? 'badge-red' : 'badge-gray';
+
+    const dist = l.distance_km != null
+      ? `${l.distance_km} km`
+      : '<span style="color:var(--text-muted)">—</span>';
+    const az = l.azimuth_deg != null
+      ? `${l.azimuth_deg}°`
+      : '<span style="color:var(--text-muted)">—</span>';
+
+    return `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:11px 14px;font-family:monospace;font-weight:700;color:var(--primary);">${escapeHtml(l.mll_link_id)}</td>
+        <td style="padding:11px 14px;font-family:monospace;">${escapeHtml(l.site_a)}</td>
+        <td style="padding:11px 14px;font-family:monospace;">${escapeHtml(l.site_b)}</td>
+        <td style="padding:11px 14px;">${escapeHtml(l.solution||'—')}</td>
+        <td style="padding:11px 14px;">${escapeHtml(l.hw_action||'—')}</td>
+        <td style="padding:11px 14px;">${escapeHtml(l.city||'—')}</td>
+        <td style="padding:11px 14px;text-align:center;font-family:monospace;font-weight:700;color:var(--emerald-700);">${dist}</td>
+        <td style="padding:11px 14px;text-align:center;font-family:monospace;">${az}</td>
+        <td style="padding:11px 14px;font-family:monospace;font-size:12px;">${escapeHtml(l.smr_number||'—')}</td>
+        <td style="padding:11px 14px;">${escapeHtml(l.subcontractor||'—')}</td>
+        <td style="padding:11px 14px;text-align:center;"><span class="badge ${statusCls}">${escapeHtml(l.status||'Pending')}</span></td>
+        <td style="padding:11px 14px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(l.notes||'')}">${escapeHtml(l.notes||'—')}</td>
+        <td style="padding:11px 14px;text-align:center;">
+          <button class="btn btn-ghost btn-icon btn-sm" data-mll-edit="${l.id}" title="Edit">✏️</button>
+          <button class="btn btn-ghost btn-icon btn-sm" data-mll-del="${l.id}" title="Delete" style="color:var(--red-500);">🗑️</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  tbody.querySelectorAll('[data-mll-edit]').forEach(b => {
+    b.onclick = () => openMLLEdit(parseInt(b.dataset.mllEdit));
+  });
+  tbody.querySelectorAll('[data-mll-del]').forEach(b => {
+    b.onclick = () => deleteMLL(parseInt(b.dataset.mllDel));
+  });
+}
+
+/* ---- Edit Modal ---- */
+function openMLLEdit(id = null){
+  editingMllId = id;
+  const modal = document.getElementById('mllEditModal');
+  const title = document.getElementById('mllEditTitle');
+
+  if(id){
+    const l = microwaveLinks.find(x => x.id === id);
+    if(!l) return;
+    title.textContent = '✏️ Edit Link — ' + l.mll_link_id;
+    document.getElementById('mllFieldLinkId').value = l.mll_link_id || '';
+    document.getElementById('mllFieldCity').value = l.city || '';
+    document.getElementById('mllFieldSolution').value = l.solution || '';
+    document.getElementById('mllFieldHwAction').value = l.hw_action || '';
+    document.getElementById('mllFieldSMR').value = l.smr_number || '';
+    document.getElementById('mllFieldSub').value = l.subcontractor || '';
+    document.getElementById('mllFieldStatus').value = l.status || 'Pending';
+    document.getElementById('mllFieldEngineer').value = l.field_engineer || '';
+    document.getElementById('mllFieldNotes').value = l.notes || '';
+  } else {
+    title.textContent = '📡 Add Microwave Link';
+    ['mllFieldLinkId','mllFieldCity','mllFieldSolution','mllFieldHwAction',
+     'mllFieldSMR','mllFieldSub','mllFieldEngineer','mllFieldNotes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('mllFieldStatus').value = 'Pending';
+  }
+  modal.classList.add('show');
+}
+
+async function saveMLL(){
+  const linkId = document.getElementById('mllFieldLinkId').value.trim();
+  if(!linkId) return toast({type:'warning', title:'أدخل MLL Link ID'});
+
+  const parts = linkId.split('_');
+  if(parts.length !== 2) return toast({type:'warning', title:'الصيغة يجب أن تكون XXXX_YYYY'});
+
+  const payload = {
+    mll_link_id: linkId,
+    site_a: parts[0],
+    site_b: parts[1],
+    city: document.getElementById('mllFieldCity').value.trim(),
+    solution: document.getElementById('mllFieldSolution').value.trim(),
+    hw_action: document.getElementById('mllFieldHwAction').value.trim(),
+    smr_number: document.getElementById('mllFieldSMR').value.trim(),
+    subcontractor: document.getElementById('mllFieldSub').value.trim(),
+    status: document.getElementById('mllFieldStatus').value,
+    field_engineer: document.getElementById('mllFieldEngineer').value.trim(),
+    notes: document.getElementById('mllFieldNotes').value.trim()
+  };
+
+  try{
+    if(editingMllId){
+      const { error } = await db.from('mfc_microwave_links').update(payload).eq('id', editingMllId);
+      if(error) throw error;
+      toast({type:'success', title:'✅ تم التحديث'});
+    } else {
+      const { error } = await db.from('mfc_microwave_links').insert([payload]);
+      if(error) throw error;
+      toast({type:'success', title:'✅ تمت الإضافة'});
+    }
+    document.getElementById('mllEditModal').classList.remove('show');
+    await loadMicrowaveLinks();
+  }catch(e){
+    toast({type:'error', title:'فشل الحفظ', message: e.message});
+  }
+}
+
+async function deleteMLL(id){
+  if(!confirm('حذف هذا اللنك؟')) return;
+  try{
+    await db.from('mfc_microwave_links').delete().eq('id', id);
+    toast({type:'success', title:'✅ تم الحذف'});
+    await loadMicrowaveLinks();
+  }catch(e){
+    toast({type:'error', title:'فشل الحذف', message: e.message});
+  }
+}
+
+/* ---- MAP with Lines ---- */
+function openMLLMap(){
+  document.getElementById('mllMapModal').classList.add('show');
+
+  setTimeout(() => {
+    if(mllLeaflet){ mllLeaflet.remove(); }
+    mllLeaflet = L.map('mllLeafletMap').setView([31.5, 45], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18, attribution: '© OpenStreetMap'
+    }).addTo(mllLeaflet);
+
+    mllLayerGroup = L.layerGroup().addTo(mllLeaflet);
+    drawMLLMap();
+  }, 120);
+}
+
+function drawMLLMap(){
+  if(!mllLeaflet) return;
+  mllLayerGroup.clearLayers();
+
+  const cityFilter = document.getElementById('mllMapCity')?.value || '';
+  const statusFilter = document.getElementById('mllMapStatus')?.value || '';
+  const rows = microwaveLinks.filter(l => {
+    if(cityFilter && l.city !== cityFilter) return false;
+    if(statusFilter && l.status !== statusFilter) return false;
+    return true;
+  });
+
+  const colorFor = (st) => st === 'Done' ? '#10b981'
+    : st === 'In Progress' ? '#f59e0b'
+    : st === 'Rejected' ? '#ef4444' : '#6b7280';
+
+  const bounds = [];
+  let drawn = 0;
+
+  rows.forEach(l => {
+    const a = getSiteCoords(l.site_a);
+    const b = getSiteCoords(l.site_b);
+    if(!a || !b) return;
+
+    const color = colorFor(l.status);
+    const dist = haversineKm(a.lat, a.lng, b.lat, b.lng);
+    const az = azimuthDeg(a.lat, a.lng, b.lat, b.lng);
+
+    // النقطة A
+    L.circleMarker([a.lat, a.lng], {
+      radius: 7, fillColor: color, color: '#fff', weight: 2, fillOpacity: 1
+    }).bindTooltip(`<b>${escapeHtml(l.site_a)}</b><br>${escapeHtml(l.mll_link_id)}`, {
+      permanent: true, direction: 'top', offset: [0, -6], className: 'site-label'
+    }).addTo(mllLayerGroup);
+
+    // النقطة B
+    L.circleMarker([b.lat, b.lng], {
+      radius: 7, fillColor: color, color: '#fff', weight: 2, fillOpacity: 1
+    }).bindTooltip(`<b>${escapeHtml(l.site_b)}</b><br>${escapeHtml(l.mll_link_id)}`, {
+      permanent: true, direction: 'top', offset: [0, -6], className: 'site-label'
+    }).addTo(mllLayerGroup);
+
+    // الخط بينهم
+    const line = L.polyline([[a.lat, a.lng], [b.lat, b.lng]], {
+      color, weight: 3, opacity: 0.85,
+      dashArray: l.status === 'Done' ? null : '8, 6'
+    }).addTo(mllLayerGroup);
+
+    line.bindPopup(`
+      <div style="font-family:Inter;font-size:13px;min-width:230px;">
+        <div style="font-weight:800;color:${color};margin-bottom:6px;font-size:14px;">
+          📡 ${escapeHtml(l.mll_link_id)}
+        </div>
+        <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>City:</span><b>${escapeHtml(l.city||'—')}</b></div>
+        <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Solution:</span><b>${escapeHtml(l.solution||'—')}</b></div>
+        <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Status:</span><b style="color:${color}">${escapeHtml(l.status)}</b></div>
+        <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Sub:</span><b>${escapeHtml(l.subcontractor||'—')}</b></div>
+        <hr style="margin:6px 0;border:none;border-top:1px solid #eee;">
+        <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>📏 Distance:</span><b>${dist} km</b></div>
+        <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>🧭 Azimuth:</span><b>${az}°</b></div>
+      </div>
+    `).addTo(mllLayerGroup);
+
+    bounds.push([a.lat, a.lng], [b.lat, b.lng]);
+    drawn++;
+  });
+
+  if(bounds.length){
+    mllLeaflet.fitBounds(bounds, { padding: [40, 40] });
+  }
+
+  document.getElementById('mllMapCount').textContent = `${drawn} links drawn`;
+}
+
+/* ---- Import Excel ---- */
+function openMLLImport(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xlsx,.xls,.csv';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+      // ابحث عن أعمدة معروفة
+      const findKey = (row, ...names) => {
+        for(const n of names){
+          const k = Object.keys(row).find(k => k.toLowerCase().trim() === n.toLowerCase());
+          if(k) return row[k];
+        }
+        return '';
+      };
+
+      const toInsert = [];
+      rows.forEach(r => {
+        const linkId = String(findKey(r, 'MLL Link ID', 'Link ID', 'MLL', 'link') || '').trim();
+        if(!linkId || !linkId.includes('_')) return;
+        const parts = linkId.split('_');
+        if(parts.length !== 2) return;
+
+        toInsert.push({
+          mll_link_id: linkId,
+          site_a: parts[0].trim(),
+          site_b: parts[1].trim(),
+          solution: String(findKey(r, 'SOLUTION', 'Solution') || '').trim(),
+          hw_action: String(findKey(r, 'HW Action', 'HW_Action') || '').trim(),
+          city: String(findKey(r, 'CITY', 'City') || '').trim(),
+          smr_number: String(findKey(r, 'SMR', 'SMR Number') || '').trim(),
+          subcontractor: String(findKey(r, 'Subcontractor', 'SUB', 'Contractor') || '').trim(),
+          status: String(findKey(r, 'Status') || 'Pending').trim() || 'Pending',
+          notes: String(findKey(r, 'Notes', 'Note') || '').trim()
+        });
+      });
+
+      if(!toInsert.length){
+        toast({type:'warning', title:'لم يُعثر على صفوف صالحة', message:'تأكد من عمود MLL Link ID'});
+        return;
+      }
+
+      const { error } = await db.from('mfc_microwave_links').insert(toInsert);
+      if(error) throw error;
+
+      toast({type:'success', title:`✅ تم استيراد ${toInsert.length} لنك`});
+      await loadMicrowaveLinks();
+    } catch(err){
+      console.error(err);
+      toast({type:'error', title:'فشل الاستيراد', message: err.message});
+    }
+  };
+  input.click();
+}
+
+/* ---- Export ---- */
+function exportMLL(){
+  const rows = getFilteredMLL().map(l => ({
+    'MLL Link ID': l.mll_link_id,
+    'Site A': l.site_a,
+    'Site B': l.site_b,
+    'Solution': l.solution,
+    'HW Action': l.hw_action,
+    'City': l.city,
+    'Distance (km)': l.distance_km || '',
+    'Azimuth (°)': l.azimuth_deg || '',
+    'SMR': l.smr_number,
+    'Subcontractor': l.subcontractor,
+    'Status': l.status,
+    'Notes': l.notes
+  }));
+  if(!rows.length) return toast({type:'warning', title:'No data'});
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Microwave');
+  XLSX.writeFile(wb, 'MFC_Microwave_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  toast({type:'success', title:'✅ Exported'});
+}
+
+/* ---- Event Bindings ---- */
+function bindMLLEvents(){
+  const $ = id => document.getElementById(id);
+  if($('mllImportBtn')) $('mllImportBtn').onclick = openMLLImport;
+  if($('mllAddBtn')) $('mllAddBtn').onclick = () => openMLLEdit(null);
+  if($('mllExportBtn')) $('mllExportBtn').onclick = exportMLL;
+  if($('mllMapBtn')) $('mllMapBtn').onclick = openMLLMap;
+  if($('mllMapClose')) $('mllMapClose').onclick = () => {
+    $('mllMapModal').classList.remove('show');
+    if(mllLeaflet){ mllLeaflet.remove(); mllLeaflet = null; }
+  };
+  if($('mllEditCancel')) $('mllEditCancel').onclick = () => $('mllEditModal').classList.remove('show');
+  if($('mllEditSave')) $('mllEditSave').onclick = saveMLL;
+
+  ['mllSearch','mllCityFilter','mllSolutionFilter','mllStatusFilter','mllSubFilter']
+    .forEach(id => {
+      const el = $(id);
+      if(el) el.oninput = el.onchange = renderMLLTable;
+    });
+
+  ['mllMapCity','mllMapStatus'].forEach(id => {
+    const el = $(id);
+    if(el) el.onchange = drawMLLMap;
+  });
 }
 /* =========================================================
    EMAIL REPORT — يفتح Outlook مباشرة
