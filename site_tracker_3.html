@@ -4692,12 +4692,24 @@ document.getElementById('refreshActivity').onclick = loadActivity;
 /* ---- Bottom Nav ---- */
 document.getElementById('bnAddSite').onclick = ()=> document.getElementById('addRowBtn').click();
 
-/* ---- View Tabs ---- */
-document.querySelectorAll('.view-tab').forEach(t=>{
+/* ---- View Tabs الرئيسية ---- */
+document.querySelectorAll('.view-tab[data-view]').forEach(t=>{
   t.onclick = ()=> switchView(t.dataset.view);
 });
 document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
   t.onclick = ()=> switchView(t.dataset.view);
+});
+
+/* ---- MLL Sub-Tabs (Overview / Sub Con / Finance) ---- */
+document.querySelectorAll('#mllSubTabs .view-tab').forEach(t=>{
+  t.onclick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const tab = t.dataset.mllTab;
+    if(tab && typeof switchMLLTab === 'function'){
+      switchMLLTab(tab);
+    }
+  };
 });
 
 /* ---- Settings ---- */
