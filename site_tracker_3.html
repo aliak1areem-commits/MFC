@@ -584,6 +584,115 @@ table.dt thead th{
   padding: 12px 14px !important;
   min-width: 100px;
 }
+    /* =========================================================
+   MICROWAVE — ألوان الحالات الجديدة
+   ========================================================= */
+td.mll-rfa-cell{
+  text-align:center;
+  font-weight:700;
+  border-radius:6px;
+  transition:all .2s;
+}
+td.mll-rfa-done{ background:rgba(16,185,129,.12)!important; color:var(--emerald-700)!important; border-left:3px solid var(--emerald-500)!important; }
+td.mll-rfa-progress{ background:rgba(245,158,11,.12)!important; color:var(--amber-700)!important; border-left:3px solid var(--amber-500)!important; }
+td.mll-rfa-accepted{ background:rgba(5,150,105,.15)!important; color:var(--emerald-700)!important; border-left:3px solid var(--emerald-600)!important; }
+td.mll-rfa-rejected{ background:rgba(239,68,68,.12)!important; color:var(--red-700)!important; border-left:3px solid var(--red-500)!important; }
+
+td.mll-ndpd-cell{ text-align:center; font-weight:700; border-radius:6px; }
+td.mll-ndpd-pending{ background:rgba(107,114,128,.12)!important; color:var(--gray-500)!important; }
+td.mll-ndpd-done{ background:rgba(16,185,129,.12)!important; color:var(--emerald-700)!important; }
+td.mll-ndpd-inprogress{ background:rgba(245,158,11,.12)!important; color:var(--amber-700)!important; }
+td.mll-ndpd-rejected{ background:rgba(239,68,68,.12)!important; color:var(--red-700)!important; }
+
+td.mll-pay-paid{ background:rgba(16,185,129,.12)!important; color:var(--emerald-700)!important; font-weight:700; }
+td.mll-pay-unpaid{ background:rgba(239,68,68,.12)!important; color:var(--red-700)!important; font-weight:700; }
+td.mll-pay-progress{ background:rgba(245,158,11,.12)!important; color:var(--amber-700)!important; font-weight:700; }
+
+td.mll-money{ font-family:'JetBrains Mono',monospace; font-weight:700; }
+td.mll-money-pos{ color:var(--emerald-700); }
+td.mll-money-neg{ color:var(--red-600); }
+
+/* عمود مثبت */
+th.mll-pinned, td.mll-pinned {
+  position:sticky !important;
+  background:var(--bg-card);
+  box-shadow: 2px 0 6px rgba(0,0,0,.08);
+  z-index: 4;
+}
+th.mll-pinned{ background:var(--bg-subtle); z-index: 11; }
+
+/* زر Actions */
+.mll-actions{
+  display:flex;
+  gap:4px;
+  justify-content:center;
+  flex-wrap:nowrap;
+}
+.mll-actions button{
+  width:30px; height:30px; border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--bg-card);
+  cursor:pointer;
+  font-size:13px;
+  transition:all .15s;
+  display:flex; align-items:center; justify-content:center;
+}
+.mll-actions button:hover{
+  background:var(--blue-50);
+  border-color:var(--primary);
+  color:var(--primary);
+  transform:translateY(-1px);
+}
+.mll-actions button.danger:hover{
+  background:var(--red-50);
+  border-color:var(--red-500);
+  color:var(--red-600);
+}
+
+/* مقبض تثبيت العمود */
+.mll-pin-grip{
+  display:inline-block;
+  margin-inline-start:6px;
+  font-size:10px;
+  opacity:.35;
+  cursor:pointer;
+  transition:opacity .15s;
+}
+.mll-pin-grip:hover{ opacity:1; color:var(--primary); }
+.mll-pin-grip.active{ opacity:1; color:var(--primary); }
+
+/* Select داخل الجدول */
+#mllTable select{
+  border:none;
+  background:transparent;
+  font-weight:700;
+  font-size:12px;
+  color:inherit;
+  cursor:pointer;
+  padding:4px 6px;
+  width:100%;
+  border-radius:6px;
+}
+#mllTable select:focus{
+  outline:2px solid var(--primary);
+  outline-offset:-2px;
+}
+
+/* Date input داخل الجدول */
+#mllTable input[type="date"]{
+  border:none;
+  background:transparent;
+  font-size:12px;
+  color:inherit;
+  padding:4px 2px;
+  width:100%;
+  font-family:inherit;
+}
+#mllTable input[type="date"]:focus{
+  outline:2px solid var(--primary);
+  outline-offset:-2px;
+  border-radius:4px;
+}
   /* =========================================================
    STATUS COLOR CODING — تلوين الحالات
    ========================================================= */
@@ -1094,30 +1203,54 @@ tr.row-rejected td:first-child{
       </div>
     </div>
     <div class="table-scroll">
-      <table class="dt" id="mllTable">
+          <table class="dt" id="mllTable">
         <thead>
           <tr>
-            <thead>
-  <tr>
-    <th style="padding:12px 14px;">MLL Link ID</th>
-    <th style="padding:12px 14px;">Site A</th>
-    <th style="padding:12px 14px;">LAT A</th>
-    <th style="padding:12px 14px;">Long A</th>
-    <th style="padding:12px 14px;">Site B</th>
-    <th style="padding:12px 14px;">LAT B</th>
-    <th style="padding:12px 14px;">Long B</th>
-    <th style="padding:12px 14px;">Solution</th>
-    <th style="padding:12px 14px;">HW Action</th>
-    <th style="padding:12px 14px;">City</th>
-    <th style="padding:12px 14px;text-align:center;">Distance (km)</th>
-    <th style="padding:12px 14px;text-align:center;">Azimuth</th>
-    <th style="padding:12px 14px;">SMR</th>
-    <th style="padding:12px 14px;">Subcontractor</th>
-    <th style="padding:12px 14px;text-align:center;">Status</th>
-    <th style="padding:12px 14px;">Notes</th>
-    <th style="padding:12px 14px;text-align:center;">Actions</th>
-  </tr>
-</thead>
+            <th style="padding:12px 14px;min-width:120px;">MLL Link ID</th>
+            <th style="padding:12px 14px;">Site A</th>
+            <th style="padding:12px 14px;">LAT A</th>
+            <th style="padding:12px 14px;">Long A</th>
+            <th style="padding:12px 14px;">Site B</th>
+            <th style="padding:12px 14px;">LAT B</th>
+            <th style="padding:12px 14px;">Long B</th>
+            <th style="padding:12px 14px;">Solution</th>
+            <th style="padding:12px 14px;">HW Action</th>
+            <th style="padding:12px 14px;">City</th>
+            <th style="padding:12px 14px;text-align:center;">Distance (km)</th>
+            <th style="padding:12px 14px;text-align:center;">Azimuth</th>
+
+            <!-- ⭐ جديدة: RFA + Install -->
+            <th style="padding:12px 14px;text-align:center;background:rgba(99,102,241,.06);min-width:130px;">RFA Status</th>
+            <th style="padding:12px 14px;text-align:center;min-width:130px;">Install Date</th>
+
+            <!-- ⭐ جديدة: ATP -->
+            <th style="padding:12px 14px;">ATP</th>
+            <th style="padding:12px 14px;min-width:130px;">ATP Date</th>
+
+            <!-- ⭐ جديدة: Extra Work -->
+            <th style="padding:12px 14px;">Extra Work</th>
+            <th style="padding:12px 14px;min-width:130px;">Date Extra</th>
+            <th style="padding:12px 14px;text-align:end;min-width:110px;">Cost Extra</th>
+
+            <!-- ⭐ جديدة: Material -->
+            <th style="padding:12px 14px;">Material Command</th>
+            <th style="padding:12px 14px;">PO</th>
+            <th style="padding:12px 14px;">SMP</th>
+            <th style="padding:12px 14px;text-align:center;background:rgba(245,158,11,.06);min-width:120px;">NDPD Status</th>
+
+            <!-- ⭐ جديدة: Financial (Nokia) -->
+            <th style="padding:12px 14px;text-align:end;background:rgba(16,185,129,.06);min-width:110px;">Nokia Price</th>
+            <th style="padding:12px 14px;text-align:end;background:rgba(16,185,129,.06);min-width:110px;">Subcon Price</th>
+            <th style="padding:12px 14px;text-align:end;background:rgba(16,185,129,.06);min-width:100px;">Paid</th>
+            <th style="padding:12px 14px;text-align:end;background:rgba(239,68,68,.06);min-width:100px;">Balance</th>
+            <th style="padding:12px 14px;text-align:center;background:rgba(16,185,129,.06);min-width:130px;">Payment Status</th>
+            <th style="padding:12px 14px;text-align:center;background:rgba(16,185,129,.06);min-width:130px;">Payment Date</th>
+
+            <th style="padding:12px 14px;">SMR</th>
+            <th style="padding:12px 14px;">Subcontractor</th>
+            <th style="padding:12px 14px;text-align:center;">Status</th>
+            <th style="padding:12px 14px;">Notes</th>
+            <th style="padding:12px 14px;text-align:center;min-width:180px;">Actions</th>
           </tr>
         </thead>
         <tbody id="mllBody"></tbody>
@@ -1206,12 +1339,15 @@ tr.row-rejected td:first-child{
 
 <!-- MLL EDIT MODAL -->
 <div class="modal-backdrop" id="mllEditModal">
-  <div class="modal" style="max-width:640px;">
+  <div class="modal" style="max-width:900px;">
     <div class="modal-head">
       <h3 id="mllEditTitle">📡 Add Microwave Link</h3>
       <p id="mllEditSub">أدخل بيانات اللنك</p>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+
+      <!-- ===== القسم 1: الأساسيات ===== -->
+      <div class="d-section-title" style="margin-bottom:12px;">🔧 Link Basics</div>
       <div class="form-grid">
         <div>
           <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">MLL Link ID *</label>
@@ -1250,13 +1386,133 @@ tr.row-rejected td:first-child{
           <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Field Engineer</label>
           <input type="text" id="mllFieldEngineer" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
         </div>
-        <div style="grid-column:1/-1;">
-          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Notes</label>
-          <textarea id="mllFieldNotes" rows="3" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:inherit;resize:vertical;"></textarea>
+      </div>
+
+      <!-- ===== القسم 2: RFA + ATP ===== -->
+      <div class="d-section-title" style="margin:20px 0 12px;">📋 RFA & ATP</div>
+      <div class="form-grid">
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">RFA Status</label>
+          <select id="mllFieldRfaStatus" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+            <option value="In Progress">🔵 In Progress</option>
+            <option value="Done">🟢 Done</option>
+            <option value="Accepted">✅ Accepted</option>
+            <option value="Rejected">🔴 Rejected</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Install Date</label>
+          <input type="date" id="mllFieldInstallDate" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">ATP</label>
+          <input type="text" id="mllFieldAtp" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">ATP Date</label>
+          <input type="date" id="mllFieldAtpDate" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
         </div>
       </div>
+
+      <!-- ===== القسم 3: Extra Work ===== -->
+      <div class="d-section-title" style="margin:20px 0 12px;">➕ Extra Work</div>
+      <div class="form-grid">
+        <div style="grid-column:1/-1;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Extra Work Description</label>
+          <input type="text" id="mllFieldExtraWork" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Date of Extra Work</label>
+          <input type="date" id="mllFieldExtraWorkDate" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Cost of Extra Work (IQD)</label>
+          <input type="number" id="mllFieldExtraWorkCost" placeholder="0" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:monospace;">
+        </div>
+      </div>
+
+      <!-- ===== القسم 4: Material ===== -->
+      <div class="d-section-title" style="margin:20px 0 12px;">📦 Material</div>
+      <div class="form-grid">
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Material Command</label>
+          <input type="text" id="mllFieldMaterial" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">PO</label>
+          <input type="text" id="mllFieldPO" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:monospace;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">SMP</label>
+          <input type="text" id="mllFieldSMP" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:monospace;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">NDPD Status</label>
+          <select id="mllFieldNdpdStatus" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+            <option value="Pending">🟡 Pending</option>
+            <option value="In Progress">🔵 In Progress</option>
+            <option value="Done">🟢 Done</option>
+            <option value="Rejected">🔴 Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ===== القسم 5: Financial ===== -->
+      <div class="d-section-title" style="margin:20px 0 12px;">💰 Financial (Nokia / Subcon)</div>
+      <div class="form-grid">
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Nokia Price (IQD)</label>
+          <input type="number" id="mllFieldNokiaPrice" placeholder="0" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:monospace;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Subcon Price (IQD)</label>
+          <input type="number" id="mllFieldSubconPrice" placeholder="0" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:monospace;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Paid Amount (IQD)</label>
+          <input type="number" id="mllFieldPaidAmount" placeholder="0" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:monospace;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Payment Status</label>
+          <select id="mllFieldPaymentStatus" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+            <option value="Unpaid">🔴 Unpaid</option>
+            <option value="In Progress">🟡 In Progress</option>
+            <option value="Paid">🟢 Paid</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Payment Date</label>
+          <input type="date" id="mllFieldPaymentDate" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">Balance (auto)</label>
+          <input type="text" id="mllFieldBalanceDisplay" readonly style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--gray-100);color:var(--text-dim);font-family:monospace;font-weight:700;">
+        </div>
+      </div>
+
+      <!-- ===== القسم 6: Notes ===== -->
+      <div class="d-section-title" style="margin:20px 0 12px;">📝 Notes</div>
+      <div>
+        <textarea id="mllFieldNotes" rows="3" placeholder="ملاحظات..." style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-family:inherit;resize:vertical;"></textarea>
+      </div>
+
+      <!-- ===== القسم 7: SMR File + Images ===== -->
+      <div class="d-section-title" style="margin:20px 0 12px;">📎 Attachments</div>
+      <div class="form-grid">
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">📄 SMR File (PDF)</label>
+          <input type="file" id="mllFieldSmrFile" accept=".pdf" style="width:100%;padding:8px;border:1.5px dashed var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:12px;cursor:pointer;">
+          <div id="mllExistingSmr" style="margin-top:6px;font-size:12px;"></div>
+        </div>
+        <div>
+          <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;">🖼️ Images (multiple)</label>
+          <input type="file" id="mllFieldImages" accept="image/*" multiple style="width:100%;padding:8px;border:1.5px dashed var(--border);border-radius:9px;background:var(--bg-subtle);color:var(--text);font-size:12px;cursor:pointer;">
+          <div id="mllExistingImages" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+
       <div class="alert alert-info" style="margin-top:14px;font-size:12px;">
-        💡 <b>المسافة والزاوية</b> تُحسب تلقائياً من إحداثيات Lat/Long الموجودة في تبويب Sites. تأكد أن الموقعين موجودين في الجدول الرئيسي.
+        💡 <b>المسافة والزاوية</b> تُحسب تلقائياً من إحداثيات Lat/Long. إذا كانت ناقصة، أدخلها يدوياً في الجدول.
       </div>
     </div>
     <div class="modal-actions">
@@ -1265,6 +1521,7 @@ tr.row-rejected td:first-child{
     </div>
   </div>
 </div>
+       
 
     <!-- ACTIVITY VIEW -->
     <div id="view-activity" style="display:none;">
@@ -6044,149 +6301,450 @@ function getFilteredMLL(){
 }
 
 /* ---- Render Table ---- */
+/* =========================================================
+   MLL — أعمدة الحالة والقوائم
+   ========================================================= */
+const RFA_OPTIONS = ['In Progress','Done','Accepted','Rejected'];
+const NDPD_OPTIONS = ['Pending','In Progress','Done','Rejected'];
+const MLL_PAYMENT_OPTIONS = ['Unpaid','In Progress','Paid'];
+
+/* ⭐ الأعمدة القابلة للتثبيت */
+const MLL_PINNABLE = ['mll_link_id','site_a','site_b'];
+
+/* ⭐ حالة الأعمدة المثبتة */
+let mllPinnedColumns = new Set(
+  JSON.parse(localStorage.getItem('mll_pinned_columns') || '[]')
+);
+
+/* ⭐ تبديل تثبيت عمود */
+window.toggleMLLPin = function(col, e){
+  if(e){ e.stopPropagation(); e.preventDefault(); }
+  if(mllPinnedColumns.has(col)) mllPinnedColumns.delete(col);
+  else mllPinnedColumns.add(col);
+  localStorage.setItem('mll_pinned_columns', JSON.stringify([...mllPinnedColumns]));
+  renderMLLTable();
+  toast({type:'info', title: mllPinnedColumns.has(col) ? '📌 تم التثبيت' : '📌 تم إلغاء التثبيت', duration:1200});
+};
+
+/* ⭐ حساب Balance */
+function calcMLLBalance(l){
+  const subcon = parseFloat(l.subcon_price) || 0;
+  const paid   = parseFloat(l.paid_amount) || 0;
+  return subcon - paid;
+}
+
+/* ⭐ تصنيفات RFA / NDPD / Payment */
+function getRFAClass(v){
+  const s = (v||'').toLowerCase();
+  if(s === 'done') return 'mll-rfa-done';
+  if(s === 'accepted') return 'mll-rfa-accepted';
+  if(s === 'rejected') return 'mll-rfa-rejected';
+  return 'mll-rfa-progress';
+}
+function getNDPDClass(v){
+  const s = (v||'').toLowerCase();
+  if(s === 'done') return 'mll-ndpd-done';
+  if(s === 'in progress') return 'mll-ndpd-inprogress';
+  if(s === 'rejected') return 'mll-ndpd-rejected';
+  return 'mll-ndpd-pending';
+}
+function getPayClass(v){
+  const s = (v||'').toLowerCase();
+  if(s === 'paid') return 'mll-pay-paid';
+  if(s === 'in progress') return 'mll-pay-progress';
+  return 'mll-pay-unpaid';
+}
+
+/* =========================================================
+   RENDER MLL TABLE — الجدول الكامل الجديد
+   ========================================================= */
 function renderMLLTable(){
   const tbody = document.getElementById('mllBody');
   if(!tbody) return;
 
-  // ⭐ احسب المسافات أولاً
   recalcAllDistances();
-
   const rows = getFilteredMLL();
+
   document.getElementById('mllCount').textContent = microwaveLinks.length;
   document.getElementById('mllFilteredCount').textContent =
     rows.length !== microwaveLinks.length ? `· ${rows.length} filtered` : '';
 
   if(!rows.length){
-    tbody.innerHTML = `<tr><td colspan="17" style="padding:60px;text-align:center;color:var(--text-dim);">
+    tbody.innerHTML = `<tr><td colspan="33" style="padding:60px;text-align:center;color:var(--text-dim);">
       📡 No links. Click "Import Excel" or "+ Add Link".
     </td></tr>`;
     return;
   }
 
   tbody.innerHTML = rows.map(l => {
-    // ⭐ جلب SMR والـ Contractor من Sites (إذا موجودين)
+    /* ===== جلب المرفقات من Sites ===== */
     const siteA = data.find(s => String(s.SiteID) === String(l.site_a));
     const siteB = data.find(s => String(s.SiteID) === String(l.site_b));
+    const smrDisplay = l.smr_number || siteA?.smr?.number || siteB?.smr?.number || '—';
+    const subDisplay = l.subcontractor || siteA?.Subcontractor || siteB?.Subcontractor || '—';
 
-    const smrDisplay = l.smr_number
-      || siteA?.smr?.number
-      || siteB?.smr?.number
-      || '—';
-
-    const subDisplay = l.subcontractor
-      || siteA?.Subcontractor
-      || siteB?.Subcontractor
-      || '—';
-
+    /* ===== الحالات ===== */
     const statusCls = l.status === 'Done' ? 'badge-green'
       : l.status === 'In Progress' ? 'badge-amber'
       : l.status === 'Rejected' ? 'badge-red' : 'badge-gray';
 
-    const dist = l.distance_km != null
-      ? `${l.distance_km} km`
-      : '<span style="color:var(--text-muted)" title="Lat/Long missing">—</span>';
-    const az = l.azimuth_deg != null
-      ? `${l.azimuth_deg}°`
-      : '<span style="color:var(--text-muted)">—</span>';
+    const dist = l.distance_km != null ? `${l.distance_km} km` : '—';
+    const az   = l.azimuth_deg != null ? `${l.azimuth_deg}°` : '—';
 
-    // ⭐ عرض الإحداثيات — قابلة للتحرير
     const latA = l.lat_a != null ? Number(l.lat_a).toFixed(6) : '';
     const lngA = l.long_a != null ? Number(l.long_a).toFixed(6) : '';
     const latB = l.lat_b != null ? Number(l.lat_b).toFixed(6) : '';
     const lngB = l.long_b != null ? Number(l.long_b).toFixed(6) : '';
 
+    /* ===== الحسابات ===== */
+    const subcon = parseFloat(l.subcon_price) || 0;
+    const paid   = parseFloat(l.paid_amount) || 0;
+    const balance = subcon - paid;
+    const nokiaP = parseFloat(l.nokia_price) || 0;
+    const extraCost = parseFloat(l.extra_work_cost) || 0;
+
+    /* ===== قيم افتراضية ===== */
+    const rfa = l.rfa_status || 'In Progress';
+    const ndpd = l.ndpd_status || 'Pending';
+    const payStatus = l.payment_status || 'Unpaid';
+
+    /* ===== الكلاسات ===== */
+    const rfaCls = getRFAClass(rfa);
+    const ndpdCls = getNDPDClass(ndpd);
+    const payCls = getPayClass(payStatus);
+
+    /* ===== الأعمدة المثبتة ===== */
+    const pinLink = mllPinnedColumns.has('mll_link_id') ? 'active' : '';
+    const pinA = mllPinnedColumns.has('site_a') ? 'active' : '';
+    const pinB = mllPinnedColumns.has('site_b') ? 'active' : '';
+
+    /* ===== حساب sticky offset ===== */
+    let stickyOffset = 0;
+    const getStickyStyle = (col) => {
+      if(!mllPinnedColumns.has(col)) return '';
+      const style = `position:sticky;left:${stickyOffset}px;background:var(--bg-card);box-shadow:2px 0 6px rgba(0,0,0,.08);z-index:3;`;
+      return style;
+    };
+
+    /* عمود LinkID مثبت دائماً */
+    const linkIdSticky = 'position:sticky;left:0;background:var(--bg-card);box-shadow:2px 0 6px rgba(0,0,0,.08);z-index:3;min-width:120px;';
+
     return `
-      <tr style="border-bottom:1px solid var(--border);">
-        <td style="padding:11px 14px;font-family:monospace;font-weight:700;color:var(--primary);">${escapeHtml(l.mll_link_id)}</td>
-        <td style="padding:11px 14px;font-family:monospace;font-weight:600;">${escapeHtml(l.site_a)}</td>
+      <tr style="border-bottom:1px solid var(--border);" data-mll-row="${l.id}">
+
+        <!-- MLL Link ID -->
+        <td style="${linkIdSticky}padding:11px 14px;font-family:monospace;font-weight:700;color:var(--primary);">
+          ${escapeHtml(l.mll_link_id)}
+          <span class="mll-pin-grip ${pinLink}" onclick="toggleMLLPin('mll_link_id',event)" title="تثبيت">📌</span>
+        </td>
+
+        <!-- Site A -->
+        <td style="padding:11px 14px;font-family:monospace;font-weight:600;">
+          ${escapeHtml(l.site_a)}
+          <span class="mll-pin-grip ${pinA}" onclick="toggleMLLPin('site_a',event)" title="تثبيت">📌</span>
+        </td>
+
+        <!-- LAT A -->
         <td contenteditable="true" data-mll-field="lat_a" data-mll-id="${l.id}"
             style="padding:11px 14px;font-family:monospace;font-size:11.5px;background:rgba(59,130,246,.05);cursor:text;"
-            title="قابل للتحرير — اضغط Enter للحفظ">${latA || '—'}</td>
+            title="قابل للتحرير">${latA || '—'}</td>
+
+        <!-- Long A -->
         <td contenteditable="true" data-mll-field="long_a" data-mll-id="${l.id}"
             style="padding:11px 14px;font-family:monospace;font-size:11.5px;background:rgba(59,130,246,.05);cursor:text;"
-            title="قابل للتحرير — اضغط Enter للحفظ">${lngA || '—'}</td>
-        <td style="padding:11px 14px;font-family:monospace;font-weight:600;">${escapeHtml(l.site_b)}</td>
+            title="قابل للتحرير">${lngA || '—'}</td>
+
+        <!-- Site B -->
+        <td style="padding:11px 14px;font-family:monospace;font-weight:600;">
+          ${escapeHtml(l.site_b)}
+          <span class="mll-pin-grip ${pinB}" onclick="toggleMLLPin('site_b',event)" title="تثبيت">📌</span>
+        </td>
+
+        <!-- LAT B -->
         <td contenteditable="true" data-mll-field="lat_b" data-mll-id="${l.id}"
             style="padding:11px 14px;font-family:monospace;font-size:11.5px;background:rgba(139,92,246,.05);cursor:text;"
-            title="قابل للتحرير — اضغط Enter للحفظ">${latB || '—'}</td>
+            title="قابل للتحرير">${latB || '—'}</td>
+
+        <!-- Long B -->
         <td contenteditable="true" data-mll-field="long_b" data-mll-id="${l.id}"
             style="padding:11px 14px;font-family:monospace;font-size:11.5px;background:rgba(139,92,246,.05);cursor:text;"
-            title="قابل للتحرير — اضغط Enter للحفظ">${lngB || '—'}</td>
-        <td style="padding:11px 14px;">${escapeHtml(l.solution||'—')}</td>
-        <td style="padding:11px 14px;">${escapeHtml(l.hw_action||'—')}</td>
-        <td style="padding:11px 14px;">${escapeHtml(l.city||'—')}</td>
+            title="قابل للتحرير">${lngB || '—'}</td>
+
+        <!-- Solution -->
+        <td contenteditable="true" data-mll-field="solution" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(l.solution||'—')}</td>
+
+        <!-- HW Action -->
+        <td contenteditable="true" data-mll-field="hw_action" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(l.hw_action||'—')}</td>
+
+        <!-- City -->
+        <td contenteditable="true" data-mll-field="city" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(l.city||'—')}</td>
+
+        <!-- Distance -->
         <td style="padding:11px 14px;text-align:center;font-family:monospace;font-weight:700;color:var(--emerald-700);">${dist}</td>
+
+        <!-- Azimuth -->
         <td style="padding:11px 14px;text-align:center;font-family:monospace;">${az}</td>
-        <td style="padding:11px 14px;font-family:monospace;font-size:12px;">${escapeHtml(smrDisplay)}</td>
-        <td style="padding:11px 14px;">${escapeHtml(subDisplay)}</td>
+
+        <!-- ⭐ RFA Status -->
+        <td class="mll-rfa-cell ${rfaCls}" style="padding:4px 6px;">
+          <select data-mll-select="rfa_status" data-mll-id="${l.id}" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:transparent;font-weight:700;color:inherit;cursor:pointer;">
+            ${RFA_OPTIONS.map(o=>`<option value="${o}" ${o===rfa?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </td>
+
+        <!-- ⭐ Install Date -->
+        <td style="padding:4px 6px;">
+          <input type="date" data-mll-date="install_date" data-mll-id="${l.id}"
+                 value="${l.install_date || ''}"
+                 style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg-card);color:var(--text);">
+        </td>
+
+        <!-- ⭐ ATP -->
+        <td contenteditable="true" data-mll-field="atp" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(l.atp||'—')}</td>
+
+        <!-- ⭐ ATP Date -->
+        <td style="padding:4px 6px;">
+          <input type="date" data-mll-date="atp_date" data-mll-id="${l.id}"
+                 value="${l.atp_date || ''}"
+                 style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg-card);color:var(--text);">
+        </td>
+
+        <!-- ⭐ Extra Work -->
+        <td contenteditable="true" data-mll-field="extra_work" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(l.extra_work||'—')}</td>
+
+        <!-- ⭐ Date Extra -->
+        <td style="padding:4px 6px;">
+          <input type="date" data-mll-date="extra_work_date" data-mll-id="${l.id}"
+                 value="${l.extra_work_date || ''}"
+                 style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg-card);color:var(--text);">
+        </td>
+
+        <!-- ⭐ Cost Extra -->
+        <td contenteditable="true" data-mll-num="extra_work_cost" data-mll-id="${l.id}"
+            style="padding:11px 14px;text-align:end;font-family:monospace;font-weight:700;color:var(--amber-700);">
+          ${extraCost ? extraCost.toLocaleString() : '0'}
+        </td>
+
+        <!-- Material Command -->
+        <td contenteditable="true" data-mll-field="material_command" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(l.material_command||'—')}</td>
+
+        <!-- PO -->
+        <td contenteditable="true" data-mll-field="po" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(l.po||'—')}</td>
+
+        <!-- SMP -->
+        <td contenteditable="true" data-mll-field="smp" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(l.smp||'—')}</td>
+
+        <!-- ⭐ NDPD Status -->
+        <td class="mll-ndpd-cell ${ndpdCls}" style="padding:4px 6px;">
+          <select data-mll-select="ndpd_status" data-mll-id="${l.id}" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:transparent;font-weight:700;color:inherit;cursor:pointer;">
+            ${NDPD_OPTIONS.map(o=>`<option value="${o}" ${o===ndpd?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </td>
+
+        <!-- ⭐ Nokia Price -->
+        <td contenteditable="true" data-mll-num="nokia_price" data-mll-id="${l.id}"
+            class="mll-money mll-money-pos"
+            style="padding:11px 14px;text-align:end;">${nokiaP ? nokiaP.toLocaleString() : '0'}</td>
+
+        <!-- ⭐ Subcon Price -->
+        <td contenteditable="true" data-mll-num="subcon_price" data-mll-id="${l.id}"
+            class="mll-money"
+            style="padding:11px 14px;text-align:end;">${subcon ? subcon.toLocaleString() : '0'}</td>
+
+        <!-- ⭐ Paid Amount -->
+        <td contenteditable="true" data-mll-num="paid_amount" data-mll-id="${l.id}"
+            class="mll-money"
+            style="padding:11px 14px;text-align:end;color:var(--emerald-700);">${paid ? paid.toLocaleString() : '0'}</td>
+
+        <!-- ⭐ Balance (محسوب) -->
+        <td class="mll-money ${balance > 0 ? 'mll-money-neg' : 'mll-money-pos'}"
+            style="padding:11px 14px;text-align:end;">${balance.toLocaleString()}</td>
+
+        <!-- ⭐ Payment Status -->
+        <td class="${payCls}" style="padding:4px 6px;">
+          <select data-mll-select="payment_status" data-mll-id="${l.id}" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:transparent;font-weight:700;color:inherit;cursor:pointer;">
+            ${MLL_PAYMENT_OPTIONS.map(o=>`<option value="${o}" ${o===payStatus?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </td>
+
+        <!-- ⭐ Payment Date -->
+        <td style="padding:4px 6px;">
+          <input type="date" data-mll-date="payment_date" data-mll-id="${l.id}"
+                 value="${l.payment_date || ''}"
+                 style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg-card);color:var(--text);">
+        </td>
+
+        <!-- SMR -->
+        <td contenteditable="true" data-mll-field="smr_number" data-mll-id="${l.id}" style="padding:11px 14px;font-family:monospace;font-size:12px;">${escapeHtml(smrDisplay)}</td>
+
+        <!-- Subcontractor -->
+        <td contenteditable="true" data-mll-field="subcontractor" data-mll-id="${l.id}" style="padding:11px 14px;">${escapeHtml(subDisplay)}</td>
+
+        <!-- Status -->
         <td style="padding:11px 14px;text-align:center;"><span class="badge ${statusCls}">${escapeHtml(l.status||'Pending')}</span></td>
-        <td style="padding:11px 14px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(l.notes||'')}">${escapeHtml(l.notes||'—')}</td>
+
+        <!-- Notes -->
+        <td contenteditable="true" data-mll-field="notes" data-mll-id="${l.id}" style="padding:11px 14px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(l.notes||'')}">${escapeHtml(l.notes||'—')}</td>
+
+        <!-- ⭐ Actions -->
         <td style="padding:11px 14px;text-align:center;">
-          <button class="btn btn-ghost btn-icon btn-sm" data-mll-edit="${l.id}" title="Edit">✏️</button>
-          <button class="btn btn-ghost btn-icon btn-sm" data-mll-del="${l.id}" title="Delete" style="color:var(--red-500);">🗑️</button>
+          <div class="mll-actions">
+            <button data-mll-edit="${l.id}" title="تعديل">✏️</button>
+            <button data-mll-smr="${l.id}" title="إدراج SMR" style="color:#8b5cf6;">📄</button>
+            <button data-mll-img="${l.id}" title="إدراج صور" style="color:#0ea5e9;">🖼️</button>
+            <button data-mll-view="${l.id}" title="عرض التفاصيل">🔍</button>
+            <button data-mll-del="${l.id}" class="danger" title="حذف" style="color:var(--red-500);">🗑️</button>
+          </div>
         </td>
       </tr>
     `;
   }).join('');
 
-  // ⭐ ربط الأزرار
+  /* ===== ربط الأزرار ===== */
   tbody.querySelectorAll('[data-mll-edit]').forEach(b => {
     b.onclick = () => openMLLEdit(parseInt(b.dataset.mllEdit));
   });
   tbody.querySelectorAll('[data-mll-del]').forEach(b => {
     b.onclick = () => deleteMLL(parseInt(b.dataset.mllDel));
   });
+  tbody.querySelectorAll('[data-mll-smr]').forEach(b => {
+    b.onclick = () => openMLLFileUpload(parseInt(b.dataset.mllSmr), 'smr');
+  });
+  tbody.querySelectorAll('[data-mll-img]').forEach(b => {
+    b.onclick = () => openMLLFileUpload(parseInt(b.dataset.mllImg), 'image');
+  });
+  tbody.querySelectorAll('[data-mll-view]').forEach(b => {
+    b.onclick = () => openMLLViewer(parseInt(b.dataset.mllView));
+  });
 
-  // ⭐ ربط الحفظ عند تحرير الإحداثيات
+  /* ===== Select changes → حفظ فوري ===== */
+  tbody.querySelectorAll('[data-mll-select]').forEach(sel => {
+    sel.onchange = async () => {
+      const id = parseInt(sel.dataset.mllId);
+      const field = sel.dataset.mllSelect;
+      const newVal = sel.value;
+      await updateMLLField(id, field, newVal);
+    };
+  });
+
+  /* ===== Date changes → حفظ فوري ===== */
+  tbody.querySelectorAll('[data-mll-date]').forEach(inp => {
+    inp.onchange = async () => {
+      const id = parseInt(inp.dataset.mllId);
+      const field = inp.dataset.mllDate;
+      const newVal = inp.value || null;
+      await updateMLLField(id, field, newVal);
+    };
+  });
+
+  /* ===== Text fields → حفظ عند blur ===== */
   tbody.querySelectorAll('[data-mll-field]').forEach(td => {
     td.addEventListener('blur', async () => {
       const id = parseInt(td.dataset.mllId);
       const field = td.dataset.mllField;
-      const newVal = td.textContent.trim();
-      const numVal = newVal === '—' || newVal === '' ? null : parseFloat(newVal);
+      let newVal = td.textContent.trim();
+      if(newVal === '—') newVal = '';
+      const oldVal = microwaveLinks.find(x => x.id === id)?.[field];
+      if(String(oldVal||'') === String(newVal)) return;
+      await updateMLLField(id, field, newVal || null, td);
+    });
+    td.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); td.blur(); }
+    });
+  });
 
-      if (numVal !== null && isNaN(numVal)) {
-        toast({type:'warning', title:'قيمة غير صحيحة', duration:2000});
+  /* ===== Numeric fields → حفظ عند blur ===== */
+  tbody.querySelectorAll('[data-mll-num]').forEach(td => {
+    td.addEventListener('blur', async () => {
+      const id = parseInt(td.dataset.mllId);
+      const field = td.dataset.mllNum;
+      const raw = td.textContent.trim().replace(/,/g,'');
+      const newVal = raw === '' ? 0 : parseFloat(raw);
+      if(isNaN(newVal)){
+        toast({type:'warning', title:'قيمة غير صحيحة', duration:1800});
         return;
       }
-
-      try {
-        const { error } = await db
-          .from('mfc_microwave_links')
-          .update({ [field]: numVal })
-          .eq('id', id);
-        if (error) throw error;
-
-        const link = microwaveLinks.find(x => x.id === id);
-        if (link) link[field] = numVal;
-
-        toast({type:'success', title:'✓ تم الحفظ', duration:1200});
-        renderMLLTable();
-        renderMLLKPIs();
-      } catch(e) {
-        toast({type:'error', title:'فشل الحفظ', message: e.message});
-      }
+      await updateMLLField(id, field, newVal, td, true);
     });
-
     td.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        td.blur();
-      }
+      if(e.key === 'Enter'){ e.preventDefault(); td.blur(); }
     });
   });
 }
 
+/* =========================================================
+   تحديث حقل واحد في Supabase
+   ========================================================= */
+async function updateMLLField(id, field, value, cellEl = null, isNumeric = false){
+  try {
+    /* ⭐ احسب balance تلقائياً */
+    let payload = { [field]: value };
+
+    if(field === 'subcon_price' || field === 'paid_amount'){
+      const link = microwaveLinks.find(x => x.id === id);
+      const subcon = field === 'subcon_price' ? (parseFloat(value)||0) : (parseFloat(link.subcon_price)||0);
+      const paid   = field === 'paid_amount'  ? (parseFloat(value)||0) : (parseFloat(link.paid_amount)||0);
+      payload.balance = subcon - paid;
+    }
+
+    const { error } = await db
+      .from('mfc_microwave_links')
+      .update(payload)
+      .eq('id', id);
+
+    if(error) throw error;
+
+    /* ⭐ حدّث local state */
+    const link = microwaveLinks.find(x => x.id === id);
+    if(link){
+      Object.assign(link, payload);
+    }
+
+    /* ⭐ حدّث الخلية إذا لازم */
+    if(cellEl && isNumeric){
+      const n = parseFloat(value) || 0;
+      cellEl.textContent = n ? n.toLocaleString() : '0';
+    }
+
+    /* ⭐ إذا تغير RFA/NDPD/Payment → أعد رسم الجدول لتحديث الألوان */
+    if(['rfa_status','ndpd_status','payment_status','subcon_price','paid_amount'].includes(field)){
+      renderMLLTable();
+      renderMLLKPIs();
+    }
+
+    toast({type:'success', title:'✓ تم الحفظ', duration:1200});
+  } catch(e){
+    toast({type:'error', title:'فشل الحفظ', message: e.message});
+    renderMLLTable();
+  }
+}
+
 /* ---- Edit Modal ---- */
+/* =========================================================
+   OPEN MLL EDIT MODAL
+   ========================================================= */
 function openMLLEdit(id = null){
   editingMllId = id;
   const modal = document.getElementById('mllEditModal');
   const title = document.getElementById('mllEditTitle');
 
+  /* ⭐ قائمة الحقول */
+  const fieldIds = [
+    'mllFieldLinkId','mllFieldCity','mllFieldSolution','mllFieldHwAction',
+    'mllFieldSMR','mllFieldSub','mllFieldEngineer','mllFieldNotes',
+    'mllFieldLatA','mllFieldLongA','mllFieldLatB','mllFieldLongB',
+    'mllFieldRfaStatus','mllFieldInstallDate','mllFieldAtp','mllFieldAtpDate',
+    'mllFieldExtraWork','mllFieldExtraWorkDate','mllFieldExtraWorkCost',
+    'mllFieldMaterial','mllFieldPO','mllFieldSMP','mllFieldNdpdStatus',
+    'mllFieldNokiaPrice','mllFieldSubconPrice','mllFieldPaidAmount',
+    'mllFieldPaymentStatus','mllFieldPaymentDate'
+  ];
+
   if(id){
     const l = microwaveLinks.find(x => x.id === id);
     if(!l) return;
     title.textContent = '✏️ Edit Link — ' + l.mll_link_id;
+
     document.getElementById('mllFieldLinkId').value = l.mll_link_id || '';
     document.getElementById('mllFieldCity').value = l.city || '';
     document.getElementById('mllFieldSolution').value = l.solution || '';
@@ -6197,65 +6755,406 @@ function openMLLEdit(id = null){
     document.getElementById('mllFieldEngineer').value = l.field_engineer || '';
     document.getElementById('mllFieldNotes').value = l.notes || '';
 
-    // ⭐ الإحداثيات الجديدة
     document.getElementById('mllFieldLatA').value = l.lat_a || '';
     document.getElementById('mllFieldLongA').value = l.long_a || '';
     document.getElementById('mllFieldLatB').value = l.lat_b || '';
     document.getElementById('mllFieldLongB').value = l.long_b || '';
+
+    /* ⭐ الحقول الجديدة */
+    document.getElementById('mllFieldRfaStatus').value = l.rfa_status || 'In Progress';
+    document.getElementById('mllFieldInstallDate').value = l.install_date || '';
+    document.getElementById('mllFieldAtp').value = l.atp || '';
+    document.getElementById('mllFieldAtpDate').value = l.atp_date || '';
+    document.getElementById('mllFieldExtraWork').value = l.extra_work || '';
+    document.getElementById('mllFieldExtraWorkDate').value = l.extra_work_date || '';
+    document.getElementById('mllFieldExtraWorkCost').value = l.extra_work_cost || 0;
+    document.getElementById('mllFieldMaterial').value = l.material_command || '';
+    document.getElementById('mllFieldPO').value = l.po || '';
+    document.getElementById('mllFieldSMP').value = l.smp || '';
+    document.getElementById('mllFieldNdpdStatus').value = l.ndpd_status || 'Pending';
+    document.getElementById('mllFieldNokiaPrice').value = l.nokia_price || 0;
+    document.getElementById('mllFieldSubconPrice').value = l.subcon_price || 0;
+    document.getElementById('mllFieldPaidAmount').value = l.paid_amount || 0;
+    document.getElementById('mllFieldPaymentStatus').value = l.payment_status || 'Unpaid';
+    document.getElementById('mllFieldPaymentDate').value = l.payment_date || '';
+
+    /* ⭐ عرض المرفقات الحالية */
+    renderExistingAttachments(l);
+
   } else {
     title.textContent = '📡 Add Microwave Link';
-    ['mllFieldLinkId','mllFieldCity','mllFieldSolution','mllFieldHwAction',
-     'mllFieldSMR','mllFieldSub','mllFieldEngineer','mllFieldNotes',
-     'mllFieldLatA','mllFieldLongA','mllFieldLatB','mllFieldLongB'].forEach(id => {
-      document.getElementById(id).value = '';
+    fieldIds.forEach(fid => {
+      const el = document.getElementById(fid);
+      if(!el) return;
+      if(el.tagName === 'SELECT'){
+        el.selectedIndex = 0;
+      } else if(el.type === 'number'){
+        el.value = '0';
+      } else {
+        el.value = '';
+      }
     });
     document.getElementById('mllFieldStatus').value = 'Pending';
+    document.getElementById('mllFieldRfaStatus').value = 'In Progress';
+    document.getElementById('mllFieldNdpdStatus').value = 'Pending';
+    document.getElementById('mllFieldPaymentStatus').value = 'Unpaid';
+    document.getElementById('mllExistingSmr').innerHTML = '';
+    document.getElementById('mllExistingImages').innerHTML = '';
   }
+
+  /* ⭐ احسب Balance مباشرة */
+  updateMLLBalanceDisplay();
+
   modal.classList.add('show');
 }
 
-  async function saveMLL(){
+/* ⭐ عرض المرفقات الموجودة */
+function renderExistingAttachments(l){
+  const smrBox = document.getElementById('mllExistingSmr');
+  const imgBox = document.getElementById('mllExistingImages');
+
+  /* SMR */
+  if(l.smr_file_url){
+    smrBox.innerHTML = `
+      <a href="${l.smr_file_url}" target="_blank" 
+         style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(139,92,246,.12);color:#7c3aed;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;">
+        📄 ${escapeHtml(l.smr_file_name || 'SMR.pdf')}
+      </a>
+      <button onclick="removeMLLFile(${l.id},'smr')" 
+              style="margin-inline-start:6px;padding:4px 10px;border:1px solid var(--red-500);background:transparent;color:var(--red-600);border-radius:6px;font-size:11px;cursor:pointer;">
+        حذف
+      </button>
+    `;
+  } else {
+    smrBox.innerHTML = '<span style="color:var(--text-muted);font-size:12px;">لا يوجد ملف SMR</span>';
+  }
+
+  /* Images */
+  const imgs = Array.isArray(l.image_urls) ? l.image_urls : [];
+  if(imgs.length){
+    imgBox.innerHTML = imgs.map((url, idx) => `
+      <div style="position:relative;">
+        <img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer;" 
+             onclick="window.open('${url}','_blank')">
+        <button onclick="removeMLLFile(${l.id},'image',${idx})" 
+                style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--red-500);color:#fff;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+          ✕
+        </button>
+      </div>
+    `).join('');
+  } else {
+    imgBox.innerHTML = '<span style="color:var(--text-muted);font-size:12px;">لا توجد صور</span>';
+  }
+}
+
+/* ⭐ حذف مرفق */
+window.removeMLLFile = async function(id, type, idx){
+  if(!confirm('حذف هذا المرفق؟')) return;
+  try {
+    const l = microwaveLinks.find(x => x.id === id);
+    if(!l) return;
+
+    if(type === 'smr'){
+      await db.from('mfc_microwave_links').update({
+        smr_file_url: null,
+        smr_file_name: null
+      }).eq('id', id);
+      l.smr_file_url = null;
+      l.smr_file_name = null;
+      toast({type:'success', title:'✓ تم حذف SMR'});
+    } else if(type === 'image'){
+      const imgs = Array.isArray(l.image_urls) ? [...l.image_urls] : [];
+      imgs.splice(idx, 1);
+      await db.from('mfc_microwave_links').update({ image_urls: imgs }).eq('id', id);
+      l.image_urls = imgs;
+      toast({type:'success', title:'✓ تم حذف الصورة'});
+    }
+
+    renderExistingAttachments(l);
+    renderMLLTable();
+  } catch(e){
+    toast({type:'error', title:'فشل الحذف', message: e.message});
+  }
+};
+
+/* ⭐ تحديث عرض Balance */
+function updateMLLBalanceDisplay(){
+  const subcon = parseFloat(document.getElementById('mllFieldSubconPrice')?.value) || 0;
+  const paid   = parseFloat(document.getElementById('mllFieldPaidAmount')?.value) || 0;
+  const balance = subcon - paid;
+  const el = document.getElementById('mllFieldBalanceDisplay');
+  if(el){
+    el.value = balance.toLocaleString() + ' IQD';
+    el.style.color = balance > 0 ? 'var(--red-600)' : 'var(--emerald-700)';
+  }
+}
+
+ /* =========================================================
+   SAVE MLL
+   ========================================================= */
+async function saveMLL(){
   const linkId = document.getElementById('mllFieldLinkId').value.trim();
   if(!linkId) return toast({type:'warning', title:'أدخل MLL Link ID'});
 
   const parts = linkId.split('_');
   if(parts.length !== 2) return toast({type:'warning', title:'الصيغة يجب أن تكون XXXX_YYYY'});
 
+  const getVal = id => document.getElementById(id)?.value?.trim() || '';
+  const getNum = id => parseFloat(document.getElementById(id)?.value) || 0;
+  const getDate = id => document.getElementById(id)?.value || null;
+
+  const subcon = getNum('mllFieldSubconPrice');
+  const paid   = getNum('mllFieldPaidAmount');
+
   const payload = {
     mll_link_id: linkId,
     site_a: parts[0],
     site_b: parts[1],
-    city: document.getElementById('mllFieldCity').value.trim(),
-    solution: document.getElementById('mllFieldSolution').value.trim(),
-    hw_action: document.getElementById('mllFieldHwAction').value.trim(),
-    smr_number: document.getElementById('mllFieldSMR').value.trim(),
-    subcontractor: document.getElementById('mllFieldSub').value.trim(),
+    city: getVal('mllFieldCity'),
+    solution: getVal('mllFieldSolution'),
+    hw_action: getVal('mllFieldHwAction'),
+    smr_number: getVal('mllFieldSMR'),
+    subcontractor: getVal('mllFieldSub'),
     status: document.getElementById('mllFieldStatus').value,
-    field_engineer: document.getElementById('mllFieldEngineer').value.trim(),
-    notes: document.getElementById('mllFieldNotes').value.trim(),
+    field_engineer: getVal('mllFieldEngineer'),
+    notes: getVal('mllFieldNotes'),
 
-    lat_a: parseFloat(document.getElementById('mllFieldLatA').value) || null,
-    long_a: parseFloat(document.getElementById('mllFieldLongA').value) || null,
-    lat_b: parseFloat(document.getElementById('mllFieldLatB').value) || null,
-    long_b: parseFloat(document.getElementById('mllFieldLongB').value) || null
+    lat_a: parseFloat(getVal('mllFieldLatA')) || null,
+    long_a: parseFloat(getVal('mllFieldLongA')) || null,
+    lat_b: parseFloat(getVal('mllFieldLatB')) || null,
+    long_b: parseFloat(getVal('mllFieldLongB')) || null,
+
+    /* ⭐ الجديدة */
+    rfa_status: document.getElementById('mllFieldRfaStatus').value,
+    install_date: getDate('mllFieldInstallDate'),
+    atp: getVal('mllFieldAtp'),
+    atp_date: getDate('mllFieldAtpDate'),
+    extra_work: getVal('mllFieldExtraWork'),
+    extra_work_date: getDate('mllFieldExtraWorkDate'),
+    extra_work_cost: getNum('mllFieldExtraWorkCost'),
+    material_command: getVal('mllFieldMaterial'),
+    po: getVal('mllFieldPO'),
+    smp: getVal('mllFieldSMP'),
+    ndpd_status: document.getElementById('mllFieldNdpdStatus').value,
+    nokia_price: getNum('mllFieldNokiaPrice'),
+    subcon_price: subcon,
+    paid_amount: paid,
+    balance: subcon - paid,
+    payment_status: document.getElementById('mllFieldPaymentStatus').value,
+    payment_date: getDate('mllFieldPaymentDate')
   };
 
+  const saveBtn = document.getElementById('mllEditSave');
+  saveBtn.disabled = true;
+  saveBtn.textContent = '⏳ Saving...';
+
   try {
+    let recordId = editingMllId;
+
     if(editingMllId){
       const { error } = await db.from('mfc_microwave_links').update(payload).eq('id', editingMllId);
       if(error) throw error;
-      toast({type:'success', title:'✅ تم التحديث'});
     } else {
-      const { error } = await db.from('mfc_microwave_links').insert([payload]);
+      const { data: inserted, error } = await db.from('mfc_microwave_links').insert([payload]).select().single();
       if(error) throw error;
-      toast({type:'success', title:'✅ تمت الإضافة'});
+      recordId = inserted.id;
     }
+
+    /* ⭐ ارفع الملفات (SMR + صور) */
+    const smrFile = document.getElementById('mllFieldSmrFile')?.files?.[0];
+    const imgFiles = document.getElementById('mllFieldImages')?.files;
+
+    if(smrFile){
+      const url = await uploadMLLFile(smrFile, recordId, 'smr');
+      if(url){
+        await db.from('mfc_microwave_links').update({
+          smr_file_url: url,
+          smr_file_name: smrFile.name
+        }).eq('id', recordId);
+      }
+    }
+
+    if(imgFiles && imgFiles.length){
+      const urls = [];
+      const link = microwaveLinks.find(x => x.id === recordId);
+      const existing = Array.isArray(link?.image_urls) ? link.image_urls : [];
+      for(const f of imgFiles){
+        const url = await uploadMLLFile(f, recordId, 'image');
+        if(url) urls.push(url);
+      }
+      const allImgs = [...existing, ...urls];
+      await db.from('mfc_microwave_links').update({ image_urls: allImgs }).eq('id', recordId);
+    }
+
     document.getElementById('mllEditModal').classList.remove('show');
+    document.getElementById('mllFieldSmrFile').value = '';
+    document.getElementById('mllFieldImages').value = '';
+
+    toast({type:'success', title: editingMllId ? '✅ تم التحديث' : '✅ تمت الإضافة'});
     await loadMicrowaveLinks();
+
   } catch(e) {
     toast({type:'error', title:'فشل الحفظ', message: e.message});
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = '💾 Save';
   }
 }
+
+/* =========================================================
+   رفع ملف إلى Supabase Storage
+   ========================================================= */
+async function uploadMLLFile(file, linkId, type){
+  try {
+    const ext = file.name.split('.').pop();
+    const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `link_${linkId}/${type}_${Date.now()}_${cleanName}`;
+
+    const { error: upErr } = await db.storage
+      .from('mll-files')
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type || (type === 'smr' ? 'application/pdf' : 'image/jpeg')
+      });
+
+    if(upErr) throw upErr;
+
+    const { data: urlData } = db.storage.from('mll-files').getPublicUrl(path);
+    return urlData.publicUrl;
+
+  } catch(e){
+    toast({type:'error', title:'فشل رفع الملف', message: e.message});
+    return null;
+  }
+}
+
+/* =========================================================
+   رفع SMR / صور مباشرة من الأزرار
+   ========================================================= */
+window.openMLLFileUpload = function(id, type){
+  const input = document.createElement('input');
+  input.type = 'file';
+  if(type === 'smr'){
+    input.accept = '.pdf';
+  } else {
+    input.accept = 'image/*';
+    input.multiple = true;
+  }
+
+  input.onchange = async (e) => {
+    const files = e.target.files;
+    if(!files || !files.length) return;
+
+    try {
+      const link = microwaveLinks.find(x => x.id === id);
+      if(!link) return;
+
+      if(type === 'smr'){
+        const f = files[0];
+        const url = await uploadMLLFile(f, id, 'smr');
+        if(url){
+          await db.from('mfc_microwave_links').update({
+            smr_file_url: url,
+            smr_file_name: f.name
+          }).eq('id', id);
+          toast({type:'success', title:'✅ تم رفع SMR', message: f.name});
+        }
+      } else {
+        const urls = [];
+        const existing = Array.isArray(link.image_urls) ? link.image_urls : [];
+        for(const f of files){
+          const url = await uploadMLLFile(f, id, 'image');
+          if(url) urls.push(url);
+        }
+        const allImgs = [...existing, ...urls];
+        await db.from('mfc_microwave_links').update({ image_urls: allImgs }).eq('id', id);
+        toast({type:'success', title:`✅ تم رفع ${urls.length} صورة`});
+      }
+
+      await loadMicrowaveLinks();
+    } catch(err){
+      toast({type:'error', title:'فشل الرفع', message: err.message});
+    }
+  };
+
+  input.click();
+};
+
+/* ⭐ عارض تفاصيل اللنك */
+window.openMLLViewer = function(id){
+  const l = microwaveLinks.find(x => x.id === id);
+  if(!l) return;
+
+  const imgs = Array.isArray(l.image_urls) ? l.image_urls : [];
+
+  const html = `
+    <div class="modal-backdrop show" id="mllViewerModal" style="display:flex;">
+      <div class="modal" style="max-width:800px;max-height:90vh;">
+        <div class="modal-head" style="background:linear-gradient(135deg,#0a1a30,#102544);color:#fff;">
+          <h3 style="color:#fff;">📡 ${escapeHtml(l.mll_link_id)}</h3>
+          <p style="color:#8fa3c2;">${escapeHtml(l.site_a)} ↔ ${escapeHtml(l.site_b)}</p>
+        </div>
+        <div class="modal-body" style="max-height:65vh;overflow-y:auto;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+            ${[
+              ['City', l.city],
+              ['Solution', l.solution],
+              ['HW Action', l.hw_action],
+              ['Subcontractor', l.subcontractor],
+              ['RFA Status', l.rfa_status],
+              ['Install Date', l.install_date],
+              ['ATP', l.atp],
+              ['ATP Date', l.atp_date],
+              ['Distance', l.distance_km != null ? l.distance_km + ' km' : '—'],
+              ['Azimuth', l.azimuth_km != null ? l.azimuth_deg + '°' : (l.azimuth_deg != null ? l.azimuth_deg + '°' : '—')]
+            ].map(([k,v])=>`
+              <div style="background:var(--bg-subtle);padding:10px 14px;border-radius:10px;">
+                <div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;font-weight:700;">${k}</div>
+                <div style="font-weight:600;margin-top:2px;">${escapeHtml(String(v||'—'))}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="background:rgba(16,185,129,.06);padding:14px;border-radius:10px;margin-bottom:16px;">
+            <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;font-weight:700;margin-bottom:8px;">💰 Financial</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+              <div><div style="font-size:10.5px;color:var(--text-muted);">Nokia</div><div style="font-family:monospace;font-weight:700;">${(parseFloat(l.nokia_price)||0).toLocaleString()}</div></div>
+              <div><div style="font-size:10.5px;color:var(--text-muted);">Subcon</div><div style="font-family:monospace;font-weight:700;">${(parseFloat(l.subcon_price)||0).toLocaleString()}</div></div>
+              <div><div style="font-size:10.5px;color:var(--text-muted);">Paid</div><div style="font-family:monospace;font-weight:700;color:var(--emerald-700);">${(parseFloat(l.paid_amount)||0).toLocaleString()}</div></div>
+              <div><div style="font-size:10.5px;color:var(--text-muted);">Balance</div><div style="font-family:monospace;font-weight:700;color:var(--red-600);">${(calcMLLBalance(l)).toLocaleString()}</div></div>
+            </div>
+          </div>
+
+          ${l.smr_file_url ? `
+            <div style="margin-bottom:16px;">
+              <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;font-weight:700;margin-bottom:8px;">📄 SMR File</div>
+              <a href="${l.smr_file_url}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(139,92,246,.12);color:#7c3aed;border-radius:10px;font-weight:600;text-decoration:none;">
+                📄 ${escapeHtml(l.smr_file_name || 'SMR.pdf')}
+              </a>
+            </div>
+          ` : ''}
+
+          ${imgs.length ? `
+            <div>
+              <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;font-weight:700;margin-bottom:8px;">🖼️ Images (${imgs.length})</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;">
+                ${imgs.map(u=>`<img src="${u}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer;" onclick="window.open('${u}','_blank')">`).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" onclick="document.getElementById('mllViewerModal').remove()">Close</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  document.body.appendChild(div.firstElementChild);
+};
 
 
 async function deleteMLL(id){
@@ -6629,6 +7528,34 @@ function exportMLL(){
    ========================================================= */
 function bindMLLEvents(){
   const $ = id => document.getElementById(id);
+
+  /* ⭐ حساب Balance مباشرة عند تغيير Subcon أو Paid */
+  ['mllFieldSubconPrice','mllFieldPaidAmount'].forEach(id => {
+    const el = $(id);
+    if(el && !el._balBound){
+      el._balBound = true;
+      el.oninput = updateMLLBalanceDisplay;
+    }
+  });
+
+  /* ⭐ زر حفظ SMR مباشر */
+  const smrInput = $('mllFieldSmrFile');
+  if(smrInput && !smrInput._bound){
+    smrInput._bound = true;
+    smrInput.onchange = () => {
+      const f = smrInput.files[0];
+      if(f) toast({type:'info', title:'📄 ' + f.name, message:'سيُرفع عند الحفظ', duration:2000});
+    };
+  }
+
+  const imgInput = $('mllFieldImages');
+  if(imgInput && !imgInput._bound){
+    imgInput._bound = true;
+    imgInput.onchange = () => {
+      const n = imgInput.files.length;
+      if(n) toast({type:'info', title:`🖼️ ${n} صور`, message:'ستُرفع عند الحفظ', duration:2000});
+    };
+  }
 
   // Import Excel
   const importBtn = $('mllImportBtn');
