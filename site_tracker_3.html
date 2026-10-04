@@ -4458,27 +4458,27 @@ function answerQuestion(q){
    VIEW SWITCHING
    ========================================================= */
 function switchView(view){
-  // ⭐ 1. أخفِ كل التابات
-  ['dashboard','sites','gantt','activity','contractors','finance','microwave'].forEach(v=>{
-    const el = document.getElementById('view-'+v);
-    if(el) el.style.display = v === view ? 'block' : 'none';
+  /* ⭐ 1. أخفِ كل التابات الرئيسية */
+  ['dashboard','sites','gantt','activity','contractors','finance','microwave'].forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if(el) el.style.display = (v === view) ? 'block' : 'none';
   });
-  
-  // ⭐ 2. حدّث الأزرار النشطة
-  document.querySelectorAll('.view-tab').forEach(t=>{
+
+  /* ⭐ 2. حدّث الأزرار النشطة */
+  document.querySelectorAll('.view-tab').forEach(t => {
     if(t.dataset.view) t.classList.toggle('active', t.dataset.view === view);
   });
-  document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
+  document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t => {
     t.classList.toggle('active', t.dataset.view === view);
   });
-  
-  // ⭐ 3. استدعِ الدالة المناسبة
+
+  /* ⭐ 3. استدعِ الدالة المناسبة */
   if(view === 'dashboard') setTimeout(renderCharts, 50);
   if(view === 'gantt') renderGantt();
   if(view === 'activity') loadActivity();
-  if(view === 'contractors') renderContractors(); 
+  if(view === 'contractors') renderContractors();
   if(view === 'finance') { renderFinanceKPIs(); renderExpenses(); }
-  if(view === 'microwave'){ switchMLLTab(currentMLLTab || 'overview'); }
+  if(view === 'microwave') { switchMLLTab(currentMLLTab || 'overview'); }
 }
 
 /* ⭐ ربط التابات الفرعية */
