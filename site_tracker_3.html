@@ -585,6 +585,61 @@ table.dt thead th{
   min-width: 100px;
 }
     /* =========================================================
+   SUB CON DASHBOARD CARDS
+   ========================================================= */
+.subcon-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+  box-shadow:var(--shadow-sm);
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.subcon-card:hover{
+  box-shadow:var(--shadow-lg);
+  transform:translateY(-2px);
+  border-color:var(--primary);
+}
+.subcon-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:4px;
+  background:linear-gradient(90deg,#3b82f6,#8b5cf6);
+}
+.subcon-card-head{
+  display:flex;align-items:center;gap:12px;margin-bottom:16px;
+}
+.subcon-avatar{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:18px;flex:none;
+}
+.subcon-name{font-size:16px;font-weight:800;margin-bottom:3px;}
+.subcon-total{font-size:12px;color:var(--text-dim);font-weight:600;}
+.subcon-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.subcon-stat{padding:10px 6px;border-radius:10px;background:var(--bg-subtle);text-align:center;}
+.subcon-stat-num{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;line-height:1;}
+.subcon-stat-label{font-size:9.5px;color:var(--text-dim);text-transform:uppercase;font-weight:700;letter-spacing:.4px;margin-top:4px;}
+.subcon-bar-wrap{height:8px;background:var(--gray-200);border-radius:4px;overflow:hidden;margin-bottom:10px;}
+.subcon-bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#059669);transition:width .6s;border-radius:4px;}
+.subcon-bar-fill.amber{background:linear-gradient(90deg,#f59e0b,#d97706);}
+.subcon-bar-fill.red{background:linear-gradient(90deg,#ef4444,#dc2626);}
+.subcon-pct{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);font-weight:600;margin-bottom:12px;}
+.subcon-pct b{color:var(--text);font-size:13px;}
+.subcon-footer{
+  padding-top:12px;border-top:1px dashed var(--border);
+  display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);gap:10px;
+}
+.subcon-footer b{color:var(--text);font-weight:700;}
+.subcon-alert{
+  background:rgba(239,68,68,.1);color:var(--red-700);
+  padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+    /* =========================================================
    MICROWAVE — ألوان الحالات الجديدة
    ========================================================= */
 td.mll-rfa-cell{
@@ -1161,8 +1216,19 @@ tr.row-rejected td:first-child{
         </div>
       </div>
     </div>
-    <!-- MICROWAVE VIEW -->
+       <!-- MICROWAVE VIEW -->
 <div id="view-microwave" style="display:none;">
+
+  <!-- ⭐ Sub-Tabs -->
+  <div class="view-tabs" id="mllSubTabs" style="margin-bottom:16px;">
+    <button class="view-tab active" data-mll-tab="overview">📊 Overview</button>
+    <button class="view-tab" data-mll-tab="subcon">👷 Sub Con Dashboard</button>
+    <button class="view-tab" data-mll-tab="finance">💰 Finance</button>
+  </div>
+
+  <!-- ⭐ TAB: Overview -->
+  <div id="mllTab-overview">
+
   <!-- KPIs -->
   <div class="kpi-groups" id="mllKPIs" style="margin-bottom:20px;"></div>
 
@@ -1253,10 +1319,58 @@ tr.row-rejected td:first-child{
             <th style="padding:12px 14px;text-align:center;min-width:180px;">Actions</th>
           </tr>
         </thead>
-        <tbody id="mllBody"></tbody>
+               <tbody id="mllBody"></tbody>
       </table>
     </div>
   </div>
+
+  </div><!-- ⭐ نهاية mllTab-overview -->
+
+
+  <!-- ⭐ TAB: Sub Con Dashboard -->
+  <div id="mllTab-subcon" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;">
+        👷 Sub Con Performance Dashboard
+      </h3>
+      <button class="btn btn-outline btn-sm" onclick="renderMLLSubConDashboard(true)">🔄 Refresh</button>
+    </div>
+    <div id="mllSubConKPIs" class="kpi-groups" style="margin-bottom:20px;"></div>
+    <div id="mllSubConCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
+  </div>
+
+
+  <!-- ⭐ TAB: Finance -->
+  <div id="mllTab-finance" style="display:none;">
+    <div id="mllFinanceKPIs" class="kpi-groups" style="margin-bottom:20px;"></div>
+
+    <!-- توزيع مالي لكل Sub Con -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow-sm);">
+      <h3 style="font-size:15px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        💵 Financial Summary per Sub Con
+      </h3>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;" id="mllFinanceTable">
+          <thead style="background:var(--bg-subtle);">
+            <tr>
+              <th style="padding:12px;text-align:left;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Sub Con</th>
+              <th style="padding:12px;text-align:center;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Links</th>
+              <th style="padding:12px;text-align:end;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Nokia Price</th>
+              <th style="padding:12px;text-align:end;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Subcon Price</th>
+              <th style="padding:12px;text-align:end;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Paid</th>
+              <th style="padding:12px;text-align:end;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Balance</th>
+              <th style="padding:12px;text-align:end;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Extra Work</th>
+              <th style="padding:12px;text-align:end;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Profit</th>
+              <th style="padding:12px;text-align:center;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Payment %</th>
+            </tr>
+          </thead>
+          <tbody id="mllFinanceBody"></tbody>
+          <tfoot id="mllFinanceFoot" style="background:var(--navy-900);color:#fff;font-weight:800;"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- MLL MAP MODAL -->
@@ -4345,9 +4459,35 @@ function answerQuestion(q){
    ========================================================= */
 function switchView(view){
   // ⭐ 1. أخفِ كل التابات
-['dashboard','sites','gantt','activity','contractors','finance','microwave'].forEach(v=>{    const el = document.getElementById('view-'+v);
+  ['dashboard','sites','gantt','activity','contractors','finance','microwave'].forEach(v=>{
+    const el = document.getElementById('view-'+v);
     if(el) el.style.display = v === view ? 'block' : 'none';
   });
+  
+  // ⭐ 2. حدّث الأزرار النشطة
+  document.querySelectorAll('.view-tab').forEach(t=>{
+    if(t.dataset.view) t.classList.toggle('active', t.dataset.view === view);
+  });
+  document.querySelectorAll('.bottom-nav-item[data-view]').forEach(t=>{
+    t.classList.toggle('active', t.dataset.view === view);
+  });
+  
+  // ⭐ 3. استدعِ الدالة المناسبة
+  if(view === 'dashboard') setTimeout(renderCharts, 50);
+  if(view === 'gantt') renderGantt();
+  if(view === 'activity') loadActivity();
+  if(view === 'contractors') renderContractors(); 
+  if(view === 'finance') { renderFinanceKPIs(); renderExpenses(); }
+  if(view === 'microwave'){ switchMLLTab(currentMLLTab || 'overview'); }
+}
+
+/* ⭐ ربط التابات الفرعية */
+document.addEventListener('click', (e) => {
+  const tab = e.target.closest('#mllSubTabs .view-tab');
+  if(tab && tab.dataset.mllTab){
+    switchMLLTab(tab.dataset.mllTab);
+  }
+});
   
   // ⭐ 2. حدّث الأزرار النشطة
   document.querySelectorAll('.view-tab').forEach(t=>{
@@ -6219,7 +6359,300 @@ function recalcAllDistances(){
     }
   });
 }
+/* =========================================================
+   MLL SUB-TABS
+   ========================================================= */
+let currentMLLTab = 'overview';
 
+function switchMLLTab(tab){
+  currentMLLTab = tab;
+  ['overview','subcon','finance'].forEach(t => {
+    const el = document.getElementById('mllTab-' + t);
+    if(el) el.style.display = (t === tab) ? 'block' : 'none';
+  });
+  document.querySelectorAll('#mllSubTabs .view-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mllTab === tab);
+  });
+
+  if(tab === 'overview'){
+    renderMLLKPIs();
+    renderMLLTable();
+  }
+  if(tab === 'subcon') renderMLLSubConDashboard();
+  if(tab === 'finance') renderMLLFinanceDashboard();
+}
+
+/* =========================================================
+   SUB CON DASHBOARD
+   ========================================================= */
+const SUBCON_COLORS = [
+  'linear-gradient(135deg,#3b82f6,#2563eb)',
+  'linear-gradient(135deg,#10b981,#059669)',
+  'linear-gradient(135deg,#f59e0b,#d97706)',
+  'linear-gradient(135deg,#8b5cf6,#7c3aed)',
+  'linear-gradient(135deg,#06b6d4,#0891b2)',
+  'linear-gradient(135deg,#ec4899,#db2777)',
+  'linear-gradient(135deg,#f43f5e,#e11d48)',
+  'linear-gradient(135deg,#14b8a6,#0d9488)',
+];
+
+function getSubConColor(name){
+  let hash = 0;
+  for(let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
+  return SUBCON_COLORS[hash % SUBCON_COLORS.length];
+}
+
+function getMLLSubConStats(){
+  const map = {};
+  const now = new Date();
+
+  microwaveLinks.forEach(l => {
+    const sub = (l.subcontractor || '').trim();
+    if(!sub) return;
+
+    if(!map[sub]){
+      map[sub] = {
+        name: sub, total: 0,
+        statusDone: 0, statusProgress: 0, statusPending: 0, statusRejected: 0,
+        rfaDone: 0, rfaAccepted: 0, rfaProgress: 0, rfaRejected: 0,
+        ndpdDone: 0,
+        overdue: 0, dueThisWeek: 0,
+        nextDate: null, latestDate: null,
+        links: []
+      };
+    }
+
+    const s = map[sub];
+    s.total++;
+    s.links.push(l);
+
+    const st = (l.status || 'Pending').toLowerCase();
+    if(st === 'done') s.statusDone++;
+    else if(st === 'in progress') s.statusProgress++;
+    else if(st === 'rejected') s.statusRejected++;
+    else s.statusPending++;
+
+    const rfa = (l.rfa_status || '').toLowerCase();
+    if(rfa === 'done') s.rfaDone++;
+    else if(rfa === 'accepted') s.rfaAccepted++;
+    else if(rfa === 'rejected') s.rfaRejected++;
+    else if(rfa === 'in progress') s.rfaProgress++;
+
+    if((l.ndpd_status || '').toLowerCase() === 'done') s.ndpdDone++;
+
+    if(l.install_date){
+      const d = new Date(l.install_date);
+      if(!s.nextDate || d < s.nextDate) s.nextDate = d;
+      if(!s.latestDate || d > s.latestDate) s.latestDate = d;
+      const diffDays = Math.ceil((d - now) / (1000 * 60 * 60 * 24));
+      if(diffDays < 0 && st !== 'done') s.overdue++;
+      else if(diffDays >= 0 && diffDays <= 7) s.dueThisWeek++;
+    }
+  });
+
+  return Object.values(map).map(s => {
+    s.donePct = s.total ? Math.round(s.statusDone / s.total * 100) : 0;
+    s.rfaPct = s.total ? Math.round((s.rfaDone + s.rfaAccepted) / s.total * 100) : 0;
+    return s;
+  }).sort((a, b) => b.total - a.total);
+}
+
+function renderMLLSubConDashboard(showToast = false){
+  const stats = getMLLSubConStats();
+  if(!stats.length){
+    document.getElementById('mllSubConKPIs').innerHTML = '';
+    document.getElementById('mllSubConCards').innerHTML = `
+      <div style="grid-column:1/-1;padding:60px;text-align:center;color:var(--text-dim);">
+        <div style="font-size:48px;opacity:.3;margin-bottom:12px;">👷</div>
+        <div style="font-size:15px;font-weight:700;">No Subcontractors</div>
+      </div>`;
+    return;
+  }
+
+  // ⭐ KPIs
+  const total = stats.reduce((s, x) => s + x.total, 0);
+  const totalDone = stats.reduce((s, x) => s + x.statusDone, 0);
+  const totalProgress = stats.reduce((s, x) => s + x.statusProgress, 0);
+  const totalOverdue = stats.reduce((s, x) => s + x.overdue, 0);
+  const totalDueWeek = stats.reduce((s, x) => s + x.dueThisWeek, 0);
+  const rfaAll = stats.reduce((s, x) => s + x.rfaDone + x.rfaAccepted, 0);
+
+  document.getElementById('mllSubConKPIs').innerHTML = `
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">👷</div>Team Overview</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Sub Cons</div><div class="kpi-value">${stats.length}</div></div>
+        <div class="kpi"><div class="kpi-label">Total Links</div><div class="kpi-value">${total}</div></div>
+        <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-value" style="color:var(--emerald-700)">${totalDone}</div></div>
+        <div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-value" style="color:var(--amber-600)">${totalProgress}</div></div>
+      </div>
+    </div>
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">⚠️</div>Attention</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-value" style="color:var(--red-600)">${totalOverdue}</div></div>
+        <div class="kpi"><div class="kpi-label">Due in 7 days</div><div class="kpi-value" style="color:var(--amber-600)">${totalDueWeek}</div></div>
+        <div class="kpi"><div class="kpi-label">RFA Done/Acc</div><div class="kpi-value" style="color:var(--emerald-700)">${rfaAll}</div></div>
+        <div class="kpi"><div class="kpi-label">Overall %</div><div class="kpi-value">${total ? Math.round(totalDone/total*100) : 0}%</div></div>
+      </div>
+    </div>
+  `;
+
+  // ⭐ Cards
+  document.getElementById('mllSubConCards').innerHTML = stats.map(s => {
+    const color = getSubConColor(s.name);
+    const initials = s.name.slice(0, 2).toUpperCase();
+    const barClass = s.donePct >= 70 ? '' : s.donePct >= 30 ? 'amber' : 'red';
+
+    return `
+      <div class="subcon-card">
+        <div class="subcon-card-head">
+          <div class="subcon-avatar" style="background:${color};">${escapeHtml(initials)}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="subcon-name">${escapeHtml(s.name)}</div>
+            <div class="subcon-total">${s.total} links · ${s.rfaDone + s.rfaAccepted} RFA done</div>
+          </div>
+        </div>
+
+        <div class="subcon-stats">
+          <div class="subcon-stat">
+            <div class="subcon-stat-num" style="color:var(--emerald-700);">${s.statusDone}</div>
+            <div class="subcon-stat-label">✅ Done</div>
+          </div>
+          <div class="subcon-stat">
+            <div class="subcon-stat-num" style="color:var(--amber-600);">${s.statusProgress}</div>
+            <div class="subcon-stat-label">🔄 Progress</div>
+          </div>
+          <div class="subcon-stat">
+            <div class="subcon-stat-num" style="color:var(--gray-500);">${s.statusPending}</div>
+            <div class="subcon-stat-label">⏳ Pending</div>
+          </div>
+        </div>
+
+        ${s.overdue > 0 ? `<div class="subcon-alert">⚠️ ${s.overdue} links overdue</div>` : ''}
+
+        <div class="subcon-bar-wrap">
+          <div class="subcon-bar-fill ${barClass}" style="width:${s.donePct}%;"></div>
+        </div>
+        <div class="subcon-pct">
+          <span>Progress</span>
+          <b>${s.donePct}%</b>
+        </div>
+
+        <div class="subcon-footer">
+          <div>📅 First: <b>${s.nextDate ? s.nextDate.toISOString().slice(0,10) : '—'}</b></div>
+          <div>📅 Last: <b>${s.latestDate ? s.latestDate.toISOString().slice(0,10) : '—'}</b></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if(showToast) toast({type:'success', title:'✅ تم التحديث', duration:1500});
+}
+
+/* =========================================================
+   MLL FINANCE DASHBOARD
+   ========================================================= */
+function getMLLFinanceStats(){
+  const map = {};
+
+  microwaveLinks.forEach(l => {
+    const sub = (l.subcontractor || '').trim() || '⚠️ غير محدد';
+    if(!map[sub]){
+      map[sub] = {
+        name: sub, total: 0,
+        nokia: 0, subcon: 0, paid: 0, extra: 0, balance: 0, profit: 0,
+        links: []
+      };
+    }
+    const s = map[sub];
+    s.total++;
+    s.links.push(l);
+    s.nokia += parseFloat(l.nokia_price) || 0;
+    s.subcon += parseFloat(l.subcon_price) || 0;
+    s.paid += parseFloat(l.paid_amount) || 0;
+    s.extra += parseFloat(l.extra_work_cost) || 0;
+  });
+
+  return Object.values(map).map(s => {
+    s.balance = s.subcon - s.paid;
+    s.profit = s.nokia - s.subcon - s.extra;
+    s.payPct = s.subcon > 0 ? Math.round(s.paid / s.subcon * 100) : 0;
+    return s;
+  }).sort((a, b) => b.subcon - a.subcon);
+}
+
+function renderMLLFinanceDashboard(){
+  const stats = getMLLFinanceStats();
+  const kpis = document.getElementById('mllFinanceKPIs');
+  const tbody = document.getElementById('mllFinanceBody');
+  const tfoot = document.getElementById('mllFinanceFoot');
+  if(!tbody) return;
+
+  const totalNokia = stats.reduce((s,x) => s + x.nokia, 0);
+  const totalSubcon = stats.reduce((s,x) => s + x.subcon, 0);
+  const totalPaid = stats.reduce((s,x) => s + x.paid, 0);
+  const totalExtra = stats.reduce((s,x) => s + x.extra, 0);
+  const totalBalance = totalSubcon - totalPaid;
+  const totalProfit = totalNokia - totalSubcon - totalExtra;
+
+  kpis.innerHTML = `
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">💰</div>Total Financials</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Nokia Price</div><div class="kpi-value" style="color:var(--purple-600)">${fmtShort(totalNokia)}</div></div>
+        <div class="kpi"><div class="kpi-label">Subcon Price</div><div class="kpi-value" style="color:var(--blue-600)">${fmtShort(totalSubcon)}</div></div>
+        <div class="kpi"><div class="kpi-label">Paid</div><div class="kpi-value" style="color:var(--emerald-700)">${fmtShort(totalPaid)}</div></div>
+        <div class="kpi"><div class="kpi-label">Extra Work</div><div class="kpi-value" style="color:var(--amber-700)">${fmtShort(totalExtra)}</div></div>
+      </div>
+    </div>
+    <div class="kpi-group">
+      <div class="kpi-group-title"><div class="kpi-group-icon">📊</div>Analysis</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Balance</div><div class="kpi-value" style="color:${totalBalance>0?'var(--red-600)':'var(--emerald-700)'}">${fmtShort(totalBalance)}</div></div>
+        <div class="kpi"><div class="kpi-label">Profit</div><div class="kpi-value" style="color:${totalProfit>0?'var(--emerald-700)':'var(--red-600)'}">${fmtShort(totalProfit)}</div></div>
+        <div class="kpi"><div class="kpi-label">Payment %</div><div class="kpi-value">${totalSubcon ? Math.round(totalPaid/totalSubcon*100) : 0}%</div></div>
+        <div class="kpi"><div class="kpi-label">Sub Cons</div><div class="kpi-value">${stats.length}</div></div>
+      </div>
+    </div>
+  `;
+
+  tbody.innerHTML = stats.map(s => {
+    const balColor = s.balance > 0 ? 'var(--red-600)' : 'var(--emerald-700)';
+    const profitColor = s.profit > 0 ? 'var(--emerald-700)' : 'var(--red-600)';
+    const payClass = s.payPct >= 90 ? 'badge-green' : s.payPct >= 50 ? 'badge-amber' : 'badge-red';
+
+    return `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:12px;font-weight:800;">${escapeHtml(s.name)}</td>
+        <td style="padding:12px;text-align:center;font-family:monospace;font-weight:700;">${s.total}</td>
+        <td style="padding:12px;text-align:end;font-family:monospace;">${s.nokia.toLocaleString()}</td>
+        <td style="padding:12px;text-align:end;font-family:monospace;">${s.subcon.toLocaleString()}</td>
+        <td style="padding:12px;text-align:end;font-family:monospace;color:var(--emerald-700);font-weight:700;">${s.paid.toLocaleString()}</td>
+        <td style="padding:12px;text-align:end;font-family:monospace;color:${balColor};font-weight:700;">${s.balance.toLocaleString()}</td>
+        <td style="padding:12px;text-align:end;font-family:monospace;color:var(--amber-700);">${s.extra.toLocaleString()}</td>
+        <td style="padding:12px;text-align:end;font-family:monospace;color:${profitColor};font-weight:700;">${s.profit.toLocaleString()}</td>
+        <td style="padding:12px;text-align:center;">
+          <span class="badge ${payClass}">${s.payPct}%</span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  tfoot.innerHTML = `
+    <tr>
+      <td style="padding:14px;font-weight:800;">TOTAL</td>
+      <td style="padding:14px;text-align:center;font-family:monospace;">${microwaveLinks.length}</td>
+      <td style="padding:14px;text-align:end;font-family:monospace;">${totalNokia.toLocaleString()}</td>
+      <td style="padding:14px;text-align:end;font-family:monospace;">${totalSubcon.toLocaleString()}</td>
+      <td style="padding:14px;text-align:end;font-family:monospace;">${totalPaid.toLocaleString()}</td>
+      <td style="padding:14px;text-align:end;font-family:monospace;">${totalBalance.toLocaleString()}</td>
+      <td style="padding:14px;text-align:end;font-family:monospace;">${totalExtra.toLocaleString()}</td>
+      <td style="padding:14px;text-align:end;font-family:monospace;">${totalProfit.toLocaleString()}</td>
+      <td style="padding:14px;text-align:center;">${totalSubcon ? Math.round(totalPaid/totalSubcon*100) : 0}%</td>
+    </tr>
+  `;
+}
 /* ---- KPIs ---- */
 function renderMLLKPIs(){
   const total = microwaveLinks.length;
@@ -7667,7 +8100,26 @@ function bindMLLEvents(){
     };
   }
 
+   /* ⭐ عند تحديث البيانات → أعد رسم كل التابات */
   console.log('%c📡 MLL Events Bound ✅', 'color:#10b981;font-weight:bold;font-size:12px');
+}
+
+/* ⭐ دالة عامة لإعادة رسم كل التابات الفرعية */
+function renderAllMLLTabs(){
+  renderMLLKPIs();
+  renderMLLTable();
+  if(currentMLLTab === 'subcon') renderMLLSubConDashboard();
+  if(currentMLLTab === 'finance') renderMLLFinanceDashboard();
+}
+
+/* ⭐ عند تحميل البيانات → حدّث التاب النشط */
+const _origLoadMicrowaveLinks = loadMicrowaveLinks;
+loadMicrowaveLinks = async function(){
+  await _origLoadMicrowaveLinks();
+  // ارسم التاب النشط فقط
+  if(currentMLLTab === 'subcon') renderMLLSubConDashboard();
+  else if(currentMLLTab === 'finance') renderMLLFinanceDashboard();
+};
 }
 
 /* =========================================================
