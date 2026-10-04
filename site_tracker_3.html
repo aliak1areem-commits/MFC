@@ -6728,62 +6728,72 @@ function openMLLEdit(id = null){
   const modal = document.getElementById('mllEditModal');
   const title = document.getElementById('mllEditTitle');
 
-  /* ⭐ قائمة الحقول */
-  const fieldIds = [
-    'mllFieldLinkId','mllFieldCity','mllFieldSolution','mllFieldHwAction',
-    'mllFieldSMR','mllFieldSub','mllFieldEngineer','mllFieldNotes',
-    'mllFieldLatA','mllFieldLongA','mllFieldLatB','mllFieldLongB',
-    'mllFieldRfaStatus','mllFieldInstallDate','mllFieldAtp','mllFieldAtpDate',
-    'mllFieldExtraWork','mllFieldExtraWorkDate','mllFieldExtraWorkCost',
-    'mllFieldMaterial','mllFieldPO','mllFieldSMP','mllFieldNdpdStatus',
-    'mllFieldNokiaPrice','mllFieldSubconPrice','mllFieldPaidAmount',
-    'mllFieldPaymentStatus','mllFieldPaymentDate'
-  ];
+  /* ⭐ دالة آمنة لتعيين القيم */
+  const setVal = (fieldId, value) => {
+    const el = document.getElementById(fieldId);
+    if(el) el.value = value ?? '';
+  };
 
   if(id){
     const l = microwaveLinks.find(x => x.id === id);
     if(!l) return;
     title.textContent = '✏️ Edit Link — ' + l.mll_link_id;
 
-    document.getElementById('mllFieldLinkId').value = l.mll_link_id || '';
-    document.getElementById('mllFieldCity').value = l.city || '';
-    document.getElementById('mllFieldSolution').value = l.solution || '';
-    document.getElementById('mllFieldHwAction').value = l.hw_action || '';
-    document.getElementById('mllFieldSMR').value = l.smr_number || '';
-    document.getElementById('mllFieldSub').value = l.subcontractor || '';
-    document.getElementById('mllFieldStatus').value = l.status || 'Pending';
-    document.getElementById('mllFieldEngineer').value = l.field_engineer || '';
-    document.getElementById('mllFieldNotes').value = l.notes || '';
+    /* ===== Link Basics ===== */
+    setVal('mllFieldLinkId', l.mll_link_id);
+    setVal('mllFieldCity', l.city);
+    setVal('mllFieldSolution', l.solution);
+    setVal('mllFieldHwAction', l.hw_action);
+    setVal('mllFieldSMR', l.smr_number);
+    setVal('mllFieldSub', l.subcontractor);
+    setVal('mllFieldStatus', l.status || 'Pending');
+    setVal('mllFieldEngineer', l.field_engineer);
 
-    document.getElementById('mllFieldLatA').value = l.lat_a || '';
-    document.getElementById('mllFieldLongA').value = l.long_a || '';
-    document.getElementById('mllFieldLatB').value = l.lat_b || '';
-    document.getElementById('mllFieldLongB').value = l.long_b || '';
+    /* ===== RFA & ATP ===== */
+    setVal('mllFieldRfaStatus', l.rfa_status || 'In Progress');
+    setVal('mllFieldInstallDate', l.install_date);
+    setVal('mllFieldAtp', l.atp);
+    setVal('mllFieldAtpDate', l.atp_date);
 
-    /* ⭐ الحقول الجديدة */
-    document.getElementById('mllFieldRfaStatus').value = l.rfa_status || 'In Progress';
-    document.getElementById('mllFieldInstallDate').value = l.install_date || '';
-    document.getElementById('mllFieldAtp').value = l.atp || '';
-    document.getElementById('mllFieldAtpDate').value = l.atp_date || '';
-    document.getElementById('mllFieldExtraWork').value = l.extra_work || '';
-    document.getElementById('mllFieldExtraWorkDate').value = l.extra_work_date || '';
-    document.getElementById('mllFieldExtraWorkCost').value = l.extra_work_cost || 0;
-    document.getElementById('mllFieldMaterial').value = l.material_command || '';
-    document.getElementById('mllFieldPO').value = l.po || '';
-    document.getElementById('mllFieldSMP').value = l.smp || '';
-    document.getElementById('mllFieldNdpdStatus').value = l.ndpd_status || 'Pending';
-    document.getElementById('mllFieldNokiaPrice').value = l.nokia_price || 0;
-    document.getElementById('mllFieldSubconPrice').value = l.subcon_price || 0;
-    document.getElementById('mllFieldPaidAmount').value = l.paid_amount || 0;
-    document.getElementById('mllFieldPaymentStatus').value = l.payment_status || 'Unpaid';
-    document.getElementById('mllFieldPaymentDate').value = l.payment_date || '';
+    /* ===== Extra Work ===== */
+    setVal('mllFieldExtraWork', l.extra_work);
+    setVal('mllFieldExtraWorkDate', l.extra_work_date);
+    setVal('mllFieldExtraWorkCost', l.extra_work_cost || 0);
 
-    /* ⭐ عرض المرفقات الحالية */
+    /* ===== Material ===== */
+    setVal('mllFieldMaterial', l.material_command);
+    setVal('mllFieldPO', l.po);
+    setVal('mllFieldSMP', l.smp);
+    setVal('mllFieldNdpdStatus', l.ndpd_status || 'Pending');
+
+    /* ===== Financial ===== */
+    setVal('mllFieldNokiaPrice', l.nokia_price || 0);
+    setVal('mllFieldSubconPrice', l.subcon_price || 0);
+    setVal('mllFieldPaidAmount', l.paid_amount || 0);
+    setVal('mllFieldPaymentStatus', l.payment_status || 'Unpaid');
+    setVal('mllFieldPaymentDate', l.payment_date);
+
+    /* ===== Notes ===== */
+    setVal('mllFieldNotes', l.notes);
+
+    /* ===== Attachments ===== */
     renderExistingAttachments(l);
 
   } else {
     title.textContent = '📡 Add Microwave Link';
-    fieldIds.forEach(fid => {
+
+    /* صفّر كل الحقول */
+    const allFields = [
+      'mllFieldLinkId','mllFieldCity','mllFieldSolution','mllFieldHwAction',
+      'mllFieldSMR','mllFieldSub','mllFieldEngineer','mllFieldNotes',
+      'mllFieldRfaStatus','mllFieldInstallDate','mllFieldAtp','mllFieldAtpDate',
+      'mllFieldExtraWork','mllFieldExtraWorkDate','mllFieldExtraWorkCost',
+      'mllFieldMaterial','mllFieldPO','mllFieldSMP','mllFieldNdpdStatus',
+      'mllFieldNokiaPrice','mllFieldSubconPrice','mllFieldPaidAmount',
+      'mllFieldPaymentStatus','mllFieldPaymentDate'
+    ];
+
+    allFields.forEach(fid => {
       const el = document.getElementById(fid);
       if(!el) return;
       if(el.tagName === 'SELECT'){
@@ -6794,15 +6804,19 @@ function openMLLEdit(id = null){
         el.value = '';
       }
     });
-    document.getElementById('mllFieldStatus').value = 'Pending';
-    document.getElementById('mllFieldRfaStatus').value = 'In Progress';
-    document.getElementById('mllFieldNdpdStatus').value = 'Pending';
-    document.getElementById('mllFieldPaymentStatus').value = 'Unpaid';
-    document.getElementById('mllExistingSmr').innerHTML = '';
-    document.getElementById('mllExistingImages').innerHTML = '';
+
+    setVal('mllFieldStatus', 'Pending');
+    setVal('mllFieldRfaStatus', 'In Progress');
+    setVal('mllFieldNdpdStatus', 'Pending');
+    setVal('mllFieldPaymentStatus', 'Unpaid');
+
+    const smrBox = document.getElementById('mllExistingSmr');
+    const imgBox = document.getElementById('mllExistingImages');
+    if(smrBox) smrBox.innerHTML = '';
+    if(imgBox) imgBox.innerHTML = '';
   }
 
-  /* ⭐ احسب Balance مباشرة */
+  /* ⭐ احسب Balance */
   updateMLLBalanceDisplay();
 
   modal.classList.add('show');
