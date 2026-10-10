@@ -1049,6 +1049,7 @@ tr.row-rejected td:first-child{
 <button class="view-tab" data-view="contractors">👷 Contractors</button>
       <button class="view-tab" data-view="finance">💰 Finance</button>
       <button class="view-tab" data-view="microwave">📡 Microwave</button>
+      <button class="view-tab" data-view="mw-plan">📋 RSS Plan</button>
 <a href="https://aliak1areem-commits.github.io/mfc-invoice-system/" target="_blank" rel="noopener" class="view-tab" style="background:linear-gradient(135deg,#F2A900,#d99500);color:#fff;border-color:#d99500;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">📄 Invoices</a>
     </div>
 
@@ -1372,7 +1373,109 @@ tr.row-rejected td:first-child{
   </div>
 
 </div>
+<!-- ============ VIEW: MW PLAN (RSS Plan TI) ============ -->
+<div id="view-mw-plan" style="display:none;">
 
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h3 style="font-size:20px;font-weight:800;margin:0;">📋 RSS Plan TI</h3>
+      <p style="color:var(--text-dim);font-size:13px;margin:4px 0 0;">Create, save and send MW plans</p>
+    </div>
+    <button class="btn btn-primary" onclick="mwToggleForm()" id="mwNewBtn">➕ New Plan</button>
+  </div>
+
+  <!-- FORM -->
+  <div id="mwFormCard" style="display:none;">
+
+    <div class="table-card" style="padding:20px;margin-bottom:16px;">
+      <div class="d-section-title" style="margin-bottom:12px;">📋 Plan Info</div>
+      <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div><label>Activity Date</label><input type="text" id="mw_date" placeholder="10-Oct-26"></div>
+        <div><label>Start Time</label><input type="text" id="mw_time" value="9:00"></div>
+        <div><label>Customer</label>
+          <select id="mw_customer">
+            <option>Zain</option><option>Asiacell</option><option>Korek</option>
+          </select>
+        </div>
+        <div><label>Market</label><input type="text" id="mw_market" value="Iraq"></div>
+        <div><label>Subcon</label><input type="text" id="mw_subcon" value="MFC"></div>
+        <div><label>Project</label><input type="text" id="mw_project" value="CABX26"></div>
+      </div>
+    </div>
+
+    <!-- Rows -->
+    <div class="table-card" style="padding:20px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="d-section-title" style="margin:0;">🔗 Links / Sites</div>
+        <div>
+          <button class="btn btn-outline btn-sm" onclick="mwAddRow()">➕ Add Row</button>
+          <span style="margin-inline-start:10px;font-size:12px;color:var(--text-dim);">Rows: <b id="mwRowCount">0</b></span>
+        </div>
+      </div>
+      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px;">
+        <table class="dt" id="mwTable" style="min-width:1400px;">
+          <thead>
+            <tr>
+              <th>Date</th><th>Time</th><th>Shift</th><th>Customer</th><th>Market</th>
+              <th>Region</th><th>Tech</th><th>Site ID</th><th>Site Name</th>
+              <th>Link ID</th><th>Config</th><th>Project</th>
+              <th>Scope</th><th>FST Name</th><th>FST WhatsApp</th><th>SCM Name</th>
+              <th style="width:50px;">✖</th>
+            </tr>
+          </thead>
+          <tbody id="mwTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="table-card" style="padding:20px;margin-bottom:16px;">
+      <div class="d-section-title" style="margin-bottom:12px;">💾 Save & Send</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-accent" onclick="mwSavePlan('Pending')">💾 Save as Pending</button>
+        <button class="btn btn-primary" onclick="mwSavePlan('In Progress')">📤 Save & Submit</button>
+        <button class="btn btn-outline" onclick="mwExportExcel()">📥 Export Excel</button>
+        <button class="btn btn-outline" onclick="mwOpenEmail()">📧 Open Email</button>
+        <button class="btn btn-ghost" onclick="mwResetForm()">🗑️ Clear</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SAVED PLANS -->
+  <div class="table-card" style="padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+      <div class="d-section-title" style="margin:0;">📚 Saved Plans (<span id="mwSavedCount">0</span>)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="text" id="mwSearch" placeholder="Search..." oninput="mwRenderList()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--bg-subtle);color:var(--text);">
+        <select id="mwFilterStatus" onchange="mwRenderList()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--bg-subtle);color:var(--text);">
+          <option value="all">All Statuses</option>
+          <option>Pending</option>
+          <option>In Progress</option>
+          <option>Done</option>
+          <option>Rejected</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="mwLoadPlans()">🔄</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="dt" id="mwSavedTable">
+        <thead>
+          <tr>
+            <th>Date</th><th>Customer</th><th>Market</th><th>Subcon</th>
+            <th>Project</th><th>Rows</th><th>Status</th><th>Created</th>
+            <th style="width:280px;text-align:center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="mwSavedBody">
+          <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-dim);">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
 <!-- MLL MAP MODAL -->
 <div class="modal-backdrop" id="mllMapModal">
   <div class="modal" style="max-width:1200px;padding:0;overflow:hidden;">
@@ -8637,7 +8740,388 @@ document.getElementById('loginForm').addEventListener('submit', async (e)=>{
 });
 
 if(localStorage.getItem(LOGIN_KEY) === '1') initApp();
+/* =========================================================
+   📋 MW PLAN — RSS Plan TI
+   ========================================================= */
+const MW_STATUSES = ['Pending', 'In Progress', 'Done', 'Rejected'];
+const MW_STATUS_COLORS = {
+  'Pending':     { bg: 'rgba(107,114,128,.12)', color: '#6b7280' },
+  'In Progress': { bg: 'rgba(245,158,11,.12)',  color: '#d97706' },
+  'Done':        { bg: 'rgba(16,185,129,.12)',  color: '#059669' },
+  'Rejected':    { bg: 'rgba(239,68,68,.12)',   color: '#dc2626' }
+};
 
+let mwSavedPlans = [];
+let mwCurrentEditId = null;
+
+/* ── Date helper ── */
+function mwGetToday(){
+  const d = new Date();
+  const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return String(d.getDate()).padStart(2,'0') + '-' + m[d.getMonth()] + '-' + String(d.getFullYear()).slice(-2);
+}
+
+/* ── Toggle Form ── */
+function mwToggleForm(force){
+  const card = document.getElementById('mwFormCard');
+  const btn  = document.getElementById('mwNewBtn');
+  const show = force !== undefined ? force : card.style.display === 'none';
+  card.style.display = show ? 'block' : 'none';
+  btn.textContent = show ? '✖ Close Form' : '➕ New Plan';
+  if(show && !document.getElementById('mw_date').value){
+    document.getElementById('mw_date').value = mwGetToday();
+    if(document.getElementById('mwTableBody').children.length === 0) mwAddRow();
+  }
+}
+
+/* ── Add Row ── */
+function mwAddRow(){
+  const tbody = document.getElementById('mwTableBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="mw-f" data-f="date" readonly style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);"></td>
+    <td><input type="text" class="mw-f" data-f="time" readonly style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);"></td>
+    <td><select class="mw-f" data-f="shift" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"><option>Day</option><option>Night</option></select></td>
+    <td><input type="text" class="mw-f" data-f="customer" readonly style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);"></td>
+    <td><input type="text" class="mw-f" data-f="market" readonly style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);"></td>
+    <td><input type="text" class="mw-f" data-f="region" placeholder="Region" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><select class="mw-f" data-f="tech" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"><option>MW</option><option>RAN</option></select></td>
+    <td><input type="text" class="mw-f" data-f="siteId" placeholder="Site ID" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="siteName" placeholder="Site Name" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="linkId" placeholder="Link ID" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="config" placeholder="1+0/0.6/80Ghz" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="project" readonly style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);"></td>
+    <td><select class="mw-f" data-f="scope" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"><option>Installation</option><option>PAT</option><option>Upgrade</option><option>New Rollout</option></select></td>
+    <td><input type="text" class="mw-f" data-f="fstName" placeholder="FST" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="fstWa" placeholder="WhatsApp" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="scmName" placeholder="SCM" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td style="text-align:center;"><button style="padding:4px 10px;background:var(--red-50);color:var(--red-600);border:1px solid #fecaca;border-radius:6px;cursor:pointer;font-size:12px;" onclick="this.closest('tr').remove(); mwSync();">✖</button></td>
+  `;
+  tbody.appendChild(tr);
+  mwSync();
+}
+
+/* ── Sync main info ── */
+function mwSync(){
+  const date = document.getElementById('mw_date').value;
+  const time = document.getElementById('mw_time').value;
+  const customer = document.getElementById('mw_customer').value;
+  const market = document.getElementById('mw_market').value;
+  const project = document.getElementById('mw_project').value;
+  document.querySelectorAll('#mwTableBody tr').forEach(tr => {
+    tr.querySelector('[data-f="date"]').value = date;
+    tr.querySelector('[data-f="time"]').value = time;
+    tr.querySelector('[data-f="customer"]').value = customer;
+    tr.querySelector('[data-f="market"]').value = market;
+    tr.querySelector('[data-f="project"]').value = project;
+  });
+  const c = document.getElementById('mwRowCount');
+  if(c) c.textContent = document.querySelectorAll('#mwTableBody tr').length;
+}
+document.addEventListener('input', e => {
+  if(e.target && ['mw_date','mw_time','mw_customer','mw_market','mw_project'].includes(e.target.id)) mwSync();
+});
+
+/* ── Read Form ── */
+function mwReadForm(){
+  const main = {
+    plan_date: document.getElementById('mw_date').value.trim(),
+    start_time: document.getElementById('mw_time').value.trim(),
+    customer: document.getElementById('mw_customer').value,
+    market: document.getElementById('mw_market').value.trim(),
+    subcon: document.getElementById('mw_subcon').value.trim(),
+    project: document.getElementById('mw_project').value.trim()
+  };
+  const rows = [];
+  document.querySelectorAll('#mwTableBody tr').forEach(tr => {
+    const g = f => tr.querySelector('[data-f="'+f+'"]').value.trim();
+    if(!g('siteId') && !g('linkId')) return;
+    rows.push({
+      date: g('date'), time: g('time'), shift: g('shift'),
+      customer: g('customer'), market: g('market'), region: g('region'),
+      tech: g('tech'), siteId: g('siteId'), siteName: g('siteName'),
+      linkId: g('linkId'), config: g('config'), project: g('project'),
+      scope: g('scope'), fstName: g('fstName'), fstWa: g('fstWa'), scmName: g('scmName')
+    });
+  });
+  return { main, rows };
+}
+
+/* ── Reset ── */
+function mwResetForm(){
+  if(!confirm('Clear the form?')) return;
+  document.getElementById('mw_date').value = mwGetToday();
+  document.getElementById('mwTableBody').innerHTML = '';
+  mwAddRow();
+  mwCurrentEditId = null;
+  toast({type:'info', title:'Form cleared'});
+}
+
+/* ── Save ── */
+async function mwSavePlan(status){
+  const { main, rows } = mwReadForm();
+  if(!main.plan_date || !main.market || !main.subcon){
+    return toast({type:'warning', title:'Fill Date, Market and Subcon'});
+  }
+  if(!rows.length) return toast({type:'warning', title:'Add at least 1 row'});
+
+  const payload = {
+    plan_date: main.plan_date,
+    start_time: main.start_time,
+    customer: main.customer,
+    market: main.market,
+    subcon: main.subcon,
+    project: main.project,
+    status: status,
+    rows_json: rows,
+    rows_count: rows.length,
+    created_by: (typeof currentUser !== 'undefined' && currentUser) ? (currentUser.full_name || currentUser.username) : 'Unknown'
+  };
+
+  try {
+    let res;
+    if(mwCurrentEditId){
+      payload.updated_at = new Date().toISOString();
+      res = await db.from('mfc_mw_plans').update(payload).eq('id', mwCurrentEditId).select().single();
+    } else {
+      res = await db.from('mfc_mw_plans').insert([payload]).select().single();
+    }
+    if(res.error) throw res.error;
+
+    toast({type:'success', title:'✅ Saved as ' + status});
+    mwCurrentEditId = res.data.id;
+    await mwLoadPlans();
+  } catch(e){
+    console.error(e);
+    toast({type:'error', title:'Save failed', message: e.message});
+  }
+}
+
+/* ── Load List ── */
+async function mwLoadPlans(){
+  try {
+    const { data: rows, error } = await db.from('mfc_mw_plans')
+      .select('*').order('created_at', { ascending: false }).limit(500);
+    if(error) throw error;
+    mwSavedPlans = rows || [];
+    mwRenderList();
+    const c1 = document.getElementById('mwSavedCount'); if(c1) c1.textContent = mwSavedPlans.length;
+  } catch(e){
+    console.error(e);
+    toast({type:'error', title:'Load failed', message: e.message});
+  }
+}
+
+/* ── Render List ── */
+function mwRenderList(){
+  const tbody = document.getElementById('mwSavedBody');
+  if(!tbody) return;
+  const q = (document.getElementById('mwSearch').value || '').toLowerCase();
+  const fSt = document.getElementById('mwFilterStatus').value;
+
+  let list = mwSavedPlans;
+  if(q) list = list.filter(p => (p.customer+' '+p.market+' '+p.project+' '+p.subcon).toLowerCase().includes(q));
+  if(fSt !== 'all') list = list.filter(p => p.status === fSt);
+
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-dim);">No plans</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(p => {
+    const sc = MW_STATUS_COLORS[p.status] || MW_STATUS_COLORS['Pending'];
+    const created = new Date(p.created_at).toLocaleDateString('en-GB');
+    return `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:11px 14px;font-family:'JetBrains Mono',monospace;font-weight:700;">${escapeHtml(p.plan_date||'')}</td>
+        <td style="padding:11px 14px;">${escapeHtml(p.customer||'')}</td>
+        <td style="padding:11px 14px;">${escapeHtml(p.market||'')}</td>
+        <td style="padding:11px 14px;">${escapeHtml(p.subcon||'')}</td>
+        <td style="padding:11px 14px;">${escapeHtml(p.project||'—')}</td>
+        <td style="padding:11px 14px;text-align:center;font-weight:700;">${p.rows_count||0}</td>
+        <td style="padding:11px 14px;">
+          <select onchange="mwChangeStatus(${p.id}, this.value)"
+            style="padding:5px 10px;border:none;border-radius:999px;font-size:11.5px;font-weight:700;background:${sc.bg};color:${sc.color};cursor:pointer;font-family:inherit;">
+            ${MW_STATUSES.map(s=>`<option value="${s}" ${s===p.status?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </td>
+        <td style="padding:11px 14px;font-size:11.5px;color:var(--text-dim);">${created}</td>
+        <td style="padding:11px 14px;text-align:center;">
+          <div style="display:flex;gap:4px;justify-content:center;">
+            <button class="btn btn-outline btn-sm" onclick="mwViewPlan(${p.id})">👁️</button>
+            <button class="btn btn-outline btn-sm" onclick="mwEditPlan(${p.id})">✏️</button>
+            <button class="btn btn-outline btn-sm" onclick="mwExportSavedExcel(${p.id})">📥</button>
+            <button class="btn btn-outline btn-sm" onclick="mwSendSavedEmail(${p.id})">📧</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--red-500);" onclick="mwDeletePlan(${p.id})">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* ── Change Status ── */
+async function mwChangeStatus(id, status){
+  try {
+    const { error } = await db.from('mfc_mw_plans').update({status, updated_at: new Date().toISOString()}).eq('id', id);
+    if(error) throw error;
+    const p = mwSavedPlans.find(x => x.id === id);
+    if(p) p.status = status;
+    mwRenderList();
+    toast({type:'success', title:'✅ Status → ' + status, duration:1500});
+  } catch(e){
+    toast({type:'error', title:'Failed', message: e.message});
+  }
+}
+
+/* ── View Plan ── */
+function mwViewPlan(id){
+  const p = mwSavedPlans.find(x => x.id === id);
+  if(!p) return;
+  const rows = p.rows_json || [];
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(5,13,26,.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+  modal.innerHTML = `
+    <div style="background:var(--bg-card);border-radius:14px;width:100%;max-width:1300px;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow-xl);overflow:hidden;">
+      <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <h3 style="margin:0;font-size:17px;">📋 ${escapeHtml(p.customer)} ${escapeHtml(p.market)} — ${escapeHtml(p.plan_date)}</h3>
+          <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-dim);">${escapeHtml(p.subcon||'')} · ${rows.length} rows</p>
+        </div>
+        <button style="width:34px;height:34px;border-radius:9px;background:var(--red-50);color:var(--red-600);border:none;cursor:pointer;font-size:16px;" onclick="this.closest('div[style*=fixed]').remove()">✕</button>
+      </div>
+      <div style="padding:18px 24px;overflow:auto;">
+        <table class="dt" style="font-size:11.5px;">
+          <thead><tr>
+            <th>Date</th><th>Time</th><th>Shift</th><th>Customer</th><th>Market</th><th>Region</th>
+            <th>Tech</th><th>SiteID</th><th>SiteName</th><th>LinkID</th><th>Config</th>
+            <th>Scope</th><th>FST</th><th>SCM</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r => `<tr>
+              <td>${escapeHtml(r.date||'')}</td><td>${escapeHtml(r.time||'')}</td><td>${escapeHtml(r.shift||'')}</td>
+              <td>${escapeHtml(r.customer||'')}</td><td>${escapeHtml(r.market||'')}</td><td>${escapeHtml(r.region||'')}</td>
+              <td>${escapeHtml(r.tech||'')}</td><td>${escapeHtml(r.siteId||'')}</td><td>${escapeHtml(r.siteName||'')}</td>
+              <td>${escapeHtml(r.linkId||'')}</td><td>${escapeHtml(r.config||'')}</td><td>${escapeHtml(r.scope||'')}</td>
+              <td>${escapeHtml(r.fstName||'')}</td><td>${escapeHtml(r.scmName||'')}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+/* ── Edit Plan ── */
+function mwEditPlan(id){
+  const p = mwSavedPlans.find(x => x.id === id);
+  if(!p) return;
+  mwCurrentEditId = id;
+  mwToggleForm(true);
+  document.getElementById('mw_date').value = p.plan_date || '';
+  document.getElementById('mw_time').value = p.start_time || '9:00';
+  document.getElementById('mw_customer').value = p.customer || 'Zain';
+  document.getElementById('mw_market').value = p.market || 'Iraq';
+  document.getElementById('mw_subcon').value = p.subcon || 'MFC';
+  document.getElementById('mw_project').value = p.project || '';
+
+  const tbody = document.getElementById('mwTableBody');
+  tbody.innerHTML = '';
+  (p.rows_json || []).forEach(r => {
+    mwAddRow();
+    const tr = tbody.lastElementChild;
+    Object.entries(r).forEach(([k, v]) => {
+      const el = tr.querySelector('[data-f="'+k+'"]');
+      if(el) el.value = v;
+    });
+  });
+  mwSync();
+  toast({type:'info', title:'Editing plan #' + id});
+}
+
+/* ── Delete ── */
+async function mwDeletePlan(id){
+  if(!confirm('Delete this plan?')) return;
+  try {
+    const { error } = await db.from('mfc_mw_plans').delete().eq('id', id);
+    if(error) throw error;
+    toast({type:'success', title:'🗑️ Deleted'});
+    await mwLoadPlans();
+  } catch(e){
+    toast({type:'error', title:'Failed', message: e.message});
+  }
+}
+
+/* ── Export Excel ── */
+function mwExportExcel(){
+  const { main, rows } = mwReadForm();
+  if(!rows.length) return toast({type:'warning', title:'No data'});
+  mwGenerateExcel(main, rows);
+}
+function mwExportSavedExcel(id){
+  const p = mwSavedPlans.find(x => x.id === id);
+  if(!p) return;
+  mwGenerateExcel({ customer: p.customer, market: p.market, subcon: p.subcon, plan_date: p.plan_date }, p.rows_json || []);
+}
+function mwGenerateExcel(main, rows){
+  if(typeof XLSX === 'undefined') return;
+  const data = rows.map(r => ({
+    "Date": r.date||'', "Start Time": r.time||'', "Shift": r.shift||'',
+    "Customer": r.customer||'', "Market": r.market||'', "Region": r.region||'',
+    "Tech": r.tech||'', "Site ID": r.siteId||'', "Site Name": r.siteName||'',
+    "Link ID": r.linkId||'', "Link Config": r.config||'', "Project": r.project||'',
+    "Scope of Work": r.scope||'', "FST Name": r.fstName||'',
+    "FST WhatsApp": r.fstWa||'', "SCM Name": r.scmName||''
+  }));
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "MW Plan");
+  XLSX.writeFile(wb, `TI Planning ${main.customer} ${main.market} ${main.subcon||''} ${main.plan_date}.xlsx`);
+  toast({type:'success', title:'✅ Excel downloaded'});
+}
+
+/* ── Email ── */
+function mwOpenEmail(){
+  const { main, rows } = mwReadForm();
+  if(!rows.length) return toast({type:'warning', title:'No data'});
+  mwBuildEmail(main, rows);
+}
+function mwSendSavedEmail(id){
+  const p = mwSavedPlans.find(x => x.id === id);
+  if(!p) return;
+  mwBuildEmail({ customer: p.customer, market: p.market, subcon: p.subcon, plan_date: p.plan_date }, p.rows_json || []);
+}
+function mwBuildEmail(main, rows){
+  const CC = 'ahmed.azeez.ext@nokia.com; husam@mfciq.com; Rasul@mfciq.com';
+  const fileName = `TI Planning ${main.customer} ${main.market} ${main.subcon||''} ${main.plan_date}.xlsx`;
+  const subject = `RSS Plan TI ${main.customer} ${main.market} ${main.subcon||''} ${main.plan_date}`;
+
+  let tableText = 'Date\tTime\tShift\tCustomer\tMarket\tRegion\tTech\tSite ID\tSite Name\tLink ID\tConfig\tScope\n';
+  rows.forEach(r => {
+    tableText += [r.date, r.time, r.shift, r.customer, r.market, r.region, r.tech, r.siteId, r.siteName, r.linkId, r.config, r.scope].join('\t') + '\n';
+  });
+
+  const body = `Dear Team,\n\nKindly support for the following plan.\n\n${tableText}\n\nBest Regards,\nAli A. Kareem\n\n---\nNote: Please find the attached Excel file (${fileName}).`;
+
+  window.location.href = `mailto:rssplan@groups.nokia.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&cc=${encodeURIComponent(CC)}`;
+  toast({type:'success', title:'📧 Opening Outlook...'});
+}
+
+/* ── Auto load when tab opens ── */
+const _origSwitchViewMw = switchView;
+switchView = function(view){
+  _origSwitchViewMw(view);
+  if(view === 'mw-plan'){
+    setTimeout(() => { mwLoadPlans(); mwSync(); }, 150);
+  }
+};
+
+/* ── Init ── */
+setTimeout(() => { mwLoadPlans().catch(()=>{}); }, 3500);
+
+console.log('%c📋 MW Plan module loaded', 'color:#10b981;font-weight:bold;');
 /* =========================================================
    ✅ نهاية الملف
    ========================================================= */
