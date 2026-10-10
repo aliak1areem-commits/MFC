@@ -1414,14 +1414,14 @@ tr.row-rejected td:first-child{
         </div>
       </div>
       <div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px;">
-        <table class="dt" id="mwTable" style="min-width:1400px;">
+        <table class="dt" id="mwTable" style="min-width:1700px;">
           <thead>
             <tr>
               <th>Date</th><th>Time</th><th>Shift</th><th>Customer</th><th>Market</th>
               <th>Region</th><th>Tech</th><th>Site ID</th><th>Site Name</th>
               <th>Link ID</th><th>Config</th><th>Project</th>
-              <th>Scope</th><th>FST Name</th><th>FST WhatsApp</th><th>SCM Name</th>
-              <th style="width:50px;">✖</th>
+             <th>Scope</th><th>FST Name</th><th>FST WhatsApp</th><th>FST Email</th><th>SCM Name</th><th>SCM WhatsApp</th>
+<th style="width:50px;">✖</th>
             </tr>
           </thead>
           <tbody id="mwTableBody"></tbody>
@@ -8742,7 +8742,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e)=>{
 
 if(localStorage.getItem(LOGIN_KEY) === '1') initApp();
 /* =========================================================
-   📋 MW PLAN — RSS Plan TI
+   📋 MW PLAN — RSS Plan TI (v2 — FST Email + SCM WhatsApp)
    ========================================================= */
 const MW_STATUSES = ['Pending', 'In Progress', 'Done', 'Rejected'];
 const MW_STATUS_COLORS = {
@@ -8775,7 +8775,7 @@ function mwToggleForm(force){
   }
 }
 
-/* ── Add Row ── */
+/* ── Add Row (مع FST Email + SCM WhatsApp) ── */
 function mwAddRow(){
   const tbody = document.getElementById('mwTableBody');
   const tr = document.createElement('tr');
@@ -8793,9 +8793,11 @@ function mwAddRow(){
     <td><input type="text" class="mw-f" data-f="config" placeholder="1+0/0.6/80Ghz" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
     <td><input type="text" class="mw-f" data-f="project" readonly style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);"></td>
     <td><select class="mw-f" data-f="scope" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"><option>Installation</option><option>PAT</option><option>Upgrade</option><option>New Rollout</option></select></td>
-    <td><input type="text" class="mw-f" data-f="fstName" placeholder="FST" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="fstName" placeholder="FST Name" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
     <td><input type="text" class="mw-f" data-f="fstWa" placeholder="WhatsApp" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
-    <td><input type="text" class="mw-f" data-f="scmName" placeholder="SCM" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="fstEmail" placeholder="fst@example.com" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="scmName" placeholder="SCM Name" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
+    <td><input type="text" class="mw-f" data-f="scmWa" placeholder="WhatsApp" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);"></td>
     <td style="text-align:center;"><button style="padding:4px 10px;background:var(--red-50);color:var(--red-600);border:1px solid #fecaca;border-radius:6px;cursor:pointer;font-size:12px;" onclick="this.closest('tr').remove(); mwSync();">✖</button></td>
   `;
   tbody.appendChild(tr);
@@ -8823,7 +8825,7 @@ document.addEventListener('input', e => {
   if(e.target && ['mw_date','mw_time','mw_customer','mw_market','mw_project'].includes(e.target.id)) mwSync();
 });
 
-/* ── Read Form ── */
+/* ── Read Form (يشمل FST Email + SCM WhatsApp) ── */
 function mwReadForm(){
   const main = {
     plan_date: document.getElementById('mw_date').value.trim(),
@@ -8842,7 +8844,9 @@ function mwReadForm(){
       customer: g('customer'), market: g('market'), region: g('region'),
       tech: g('tech'), siteId: g('siteId'), siteName: g('siteName'),
       linkId: g('linkId'), config: g('config'), project: g('project'),
-      scope: g('scope'), fstName: g('fstName'), fstWa: g('fstWa'), scmName: g('scmName')
+      scope: g('scope'), 
+      fstName: g('fstName'), fstWa: g('fstWa'), fstEmail: g('fstEmail'),
+      scmName: g('scmName'), scmWa: g('scmWa')
     });
   });
   return { main, rows };
@@ -8975,7 +8979,7 @@ async function mwChangeStatus(id, status){
   }
 }
 
-/* ── View Plan ── */
+/* ── View Plan (يشمل FST Email + SCM WhatsApp) ── */
 function mwViewPlan(id){
   const p = mwSavedPlans.find(x => x.id === id);
   if(!p) return;
@@ -8984,7 +8988,7 @@ function mwViewPlan(id){
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(5,13,26,.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
   modal.innerHTML = `
-    <div style="background:var(--bg-card);border-radius:14px;width:100%;max-width:1300px;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow-xl);overflow:hidden;">
+    <div style="background:var(--bg-card);border-radius:14px;width:100%;max-width:1500px;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow-xl);overflow:hidden;">
       <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
         <div>
           <h3 style="margin:0;font-size:17px;">📋 ${escapeHtml(p.customer)} ${escapeHtml(p.market)} — ${escapeHtml(p.plan_date)}</h3>
@@ -8997,7 +9001,7 @@ function mwViewPlan(id){
           <thead><tr>
             <th>Date</th><th>Time</th><th>Shift</th><th>Customer</th><th>Market</th><th>Region</th>
             <th>Tech</th><th>SiteID</th><th>SiteName</th><th>LinkID</th><th>Config</th>
-            <th>Scope</th><th>FST</th><th>SCM</th>
+            <th>Scope</th><th>FST Name</th><th>FST WhatsApp</th><th>FST Email</th><th>SCM Name</th><th>SCM WhatsApp</th>
           </tr></thead>
           <tbody>
             ${rows.map(r => `<tr>
@@ -9005,7 +9009,8 @@ function mwViewPlan(id){
               <td>${escapeHtml(r.customer||'')}</td><td>${escapeHtml(r.market||'')}</td><td>${escapeHtml(r.region||'')}</td>
               <td>${escapeHtml(r.tech||'')}</td><td>${escapeHtml(r.siteId||'')}</td><td>${escapeHtml(r.siteName||'')}</td>
               <td>${escapeHtml(r.linkId||'')}</td><td>${escapeHtml(r.config||'')}</td><td>${escapeHtml(r.scope||'')}</td>
-              <td>${escapeHtml(r.fstName||'')}</td><td>${escapeHtml(r.scmName||'')}</td>
+              <td>${escapeHtml(r.fstName||'')}</td><td>${escapeHtml(r.fstWa||'')}</td><td>${escapeHtml(r.fstEmail||'')}</td>
+              <td>${escapeHtml(r.scmName||'')}</td><td>${escapeHtml(r.scmWa||'')}</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -9055,7 +9060,7 @@ async function mwDeletePlan(id){
   }
 }
 
-/* ── Export Excel ── */
+/* ── Export Excel (يشمل FST Email + SCM WhatsApp) ── */
 function mwExportExcel(){
   const { main, rows } = mwReadForm();
   if(!rows.length) return toast({type:'warning', title:'No data'});
@@ -9073,8 +9078,9 @@ function mwGenerateExcel(main, rows){
     "Customer": r.customer||'', "Market": r.market||'', "Region": r.region||'',
     "Tech": r.tech||'', "Site ID": r.siteId||'', "Site Name": r.siteName||'',
     "Link ID": r.linkId||'', "Link Config": r.config||'', "Project": r.project||'',
-    "Scope of Work": r.scope||'', "FST Name": r.fstName||'',
-    "FST WhatsApp": r.fstWa||'', "SCM Name": r.scmName||''
+    "Scope of Work": r.scope||'', 
+    "FST Name": r.fstName||'', "FST WhatsApp": r.fstWa||'', "FST Email": r.fstEmail||'',
+    "SCM Name": r.scmName||'', "SCM WhatsApp": r.scmWa||''
   }));
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
@@ -9083,7 +9089,7 @@ function mwGenerateExcel(main, rows){
   toast({type:'success', title:'✅ Excel downloaded'});
 }
 
-/* ── Email ── */
+/* ── Email (يشمل FST Email + SCM WhatsApp) ── */
 function mwOpenEmail(){
   const { main, rows } = mwReadForm();
   if(!rows.length) return toast({type:'warning', title:'No data'});
@@ -9099,12 +9105,60 @@ function mwBuildEmail(main, rows){
   const fileName = `TI Planning ${main.customer} ${main.market} ${main.subcon||''} ${main.plan_date}.xlsx`;
   const subject = `RSS Plan TI ${main.customer} ${main.market} ${main.subcon||''} ${main.plan_date}`;
 
-  let tableText = 'Date\tTime\tShift\tCustomer\tMarket\tRegion\tTech\tSite ID\tSite Name\tLink ID\tConfig\tScope\n';
+  // ═══ Plan Summary ═══
+  const regionMap = {};
   rows.forEach(r => {
-    tableText += [r.date, r.time, r.shift, r.customer, r.market, r.region, r.tech, r.siteId, r.siteName, r.linkId, r.config, r.scope].join('\t') + '\n';
+    const reg = r.region || 'Unknown';
+    const tech = (r.tech || '').toUpperCase();
+    if(!regionMap[reg]) regionMap[reg] = { mw: 0, ran: 0 };
+    if(tech === 'MW') regionMap[reg].mw++;
+    else if(tech === 'RAN') regionMap[reg].ran++;
+    else regionMap[reg].mw++;
   });
 
-  const body = `Dear Team,\n\nKindly support for the following plan.\n\n${tableText}\n\nBest Regards,\nAli A. Kareem\n\n---\nNote: Please find the attached Excel file (${fileName}).`;
+  let regionLines = '';
+  Object.entries(regionMap).forEach(([reg, d]) => {
+    const parts = [];
+    if(d.mw > 0) parts.push(`${d.mw} MW link(s)`);
+    if(d.ran > 0) parts.push(`${d.ran} RAN site(s)`);
+    regionLines += `  - ${reg}: ${parts.join(' + ')}\n`;
+  });
+
+  // ═══ Table Text (Tab-separated for Outlook paste) ═══
+  let tableText = 'Date\tTime\tShift\tCustomer\tMarket\tRegion\tTech\tSite ID\tSite Name\tLink ID\tConfig\tScope\tFST Name\tFST WhatsApp\tFST Email\tSCM Name\tSCM WhatsApp\n';
+  rows.forEach(r => {
+    tableText += [
+      r.date, r.time, r.shift, r.customer, r.market, r.region, r.tech,
+      r.siteId, r.siteName, r.linkId, r.config, r.scope,
+      r.fstName, r.fstWa, r.fstEmail, r.scmName, r.scmWa
+    ].join('\t') + '\n';
+  });
+
+  const body = 
+`Dear Team,
+
+Kindly support for the following plan.
+
+${tableText}
+
+Plan Summary:
+----------------------
+- Project: ${main.project || 'N/A'}
+- Customer: ${main.customer}
+- Subcon: ${main.subcon}
+- Market: ${main.market}
+- Date: ${main.plan_date}
+- Total Links: ${rows.length}
+
+Distribution by Region:
+${regionLines}
+----------------------
+
+Best Regards,
+Ali A. Kareem
+
+---
+Note: Please find the attached Excel file (${fileName}).`;
 
   window.location.href = `mailto:rssplan@groups.nokia.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&cc=${encodeURIComponent(CC)}`;
   toast({type:'success', title:'📧 Opening Outlook...'});
@@ -9122,10 +9176,11 @@ switchView = function(view){
 /* ── Init ── */
 setTimeout(() => { mwLoadPlans().catch(()=>{}); }, 3500);
 
-console.log('%c📋 MW Plan module loaded', 'color:#10b981;font-weight:bold;');
+console.log('%c📋 MW Plan module loaded (v2 with Email + WhatsApp)', 'color:#10b981;font-weight:bold;');
 /* =========================================================
-   ✅ نهاية الملف
+   ✅ نهاية قسم MW Plan
    ========================================================= */
+
 </script>
 </body>
 </html>
