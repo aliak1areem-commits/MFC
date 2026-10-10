@@ -4562,7 +4562,7 @@ function answerQuestion(q){
    ========================================================= */
 function switchView(view){
   /* ⭐ 1. أخفِ كل التابات الرئيسية */
-  ['dashboard','sites','gantt','activity','contractors','finance','microwave'].forEach(v => {
+  ['dashboard','sites','gantt','activity','contractors','finance','microwave','mw-plan'].forEach(v => {
     const el = document.getElementById('view-' + v);
     if(el) el.style.display = (v === view) ? 'block' : 'none';
   });
@@ -4582,6 +4582,7 @@ function switchView(view){
   if(view === 'contractors') renderContractors();
   if(view === 'finance') { renderFinanceKPIs(); renderExpenses(); }
   if(view === 'microwave') { switchMLLTab(currentMLLTab || 'overview'); }
+  if(view === 'mw-plan') { mwLoadPlans(); mwSync(); }
 }
 
 /* ⭐ ربط التابات الفرعية */
